@@ -122,60 +122,28 @@ The SuperPrompts MCP server can be configured manually by creating the appropria
 
 #### Create Configuration
 ```bash
-# Basic creation
-uv run superprompts config create
-
-# With specific format
-uv run superprompts config create --format cursor
-
-# With templates
-uv run superprompts config create --template superprompts --template github
-
-# Output to specific file
-uv run superprompts config create --output my-config.json
+# Create configuration manually
+# See the MCP Configuration Guide for detailed instructions
 ```
 
 #### Validate Configuration
-```bash
-# Basic validation
-uv run superprompts config validate mcp.json
-
-# With specific format
-uv run superprompts config validate mcp.json --format cursor
-
-# Auto-detect format
-uv run superprompts config validate mcp.json --format auto
-```
+Configuration validation is handled by the MCP client, not by this project.
 
 #### Convert Configuration
-```bash
-# Convert to VS Code format
-uv run superprompts config convert mcp.json --format vscode
-
-# Convert with output file
-uv run superprompts config convert mcp.json --format vscode --output vscode-config.json
-```
+Configuration conversion is handled by the MCP client, not by this project.
 
 #### Merge Configurations
-```bash
-# Add server to existing configuration
-uv run superprompts config merge existing.json --template github
-
-# Merge multiple configurations
-uv run superprompts config merge base.json additional.json --output merged.json
-```
+Configuration merging is handled by the MCP client, not by this project.
 
 ## Integration Examples
 
 ### Cursor IDE Integration
 
 1. **Create Configuration**:
-   ```bash
-   uv run superprompts config create --format cursor --template superprompts
-   ```
+   - Create `.cursor/mcp.json` manually (see MCP Configuration Guide)
 
 2. **Place Configuration**:
-   - Move generated config to `.cursor/mcp.json`
+   - Place config in `.cursor/mcp.json`
    - Ensure absolute paths are correct
    - Don't commit to version control
 
@@ -186,9 +154,7 @@ uv run superprompts config merge base.json additional.json --output merged.json
 ### VS Code Integration
 
 1. **Create Configuration**:
-   ```bash
-   uv run superprompts config create --format vscode --template superprompts
-   ```
+   - Create `.vscode/mcp.json` manually (see MCP Configuration Guide)
 
 2. **Add to Settings**:
    - Open VS Code settings
@@ -198,9 +164,7 @@ uv run superprompts config merge base.json additional.json --output merged.json
 ### Generic MCP Client Integration
 
 1. **Create Configuration**:
-   ```bash
-   uv run superprompts config create --format generic --template superprompts
-   ```
+   - Create MCP configuration manually (see MCP Configuration Guide)
 
 2. **Use with Client**:
    - Configure your MCP client with the generated config
@@ -232,7 +196,7 @@ uv run superprompts config merge base.json additional.json --output merged.json
 SUPERPROMPTS_LOG_LEVEL=DEBUG uv run python -m superprompts.mcp.server
 
 # Check server status
-uv run superprompts config validate .cursor/mcp.json --verbose
+# Use your MCP client's built-in validation tools
 ```
 
 ## Best Practices

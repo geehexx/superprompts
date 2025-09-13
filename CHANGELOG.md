@@ -119,7 +119,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Usage
 - **CLI**: `superprompts list-prompts`, `superprompts get-prompt <id>`
 - **MCP Server**: `superprompts-server` or `python -m superprompts.mcp.server`
-- **Configuration**: `superprompts config create --template superprompts`
+- **Configuration**: External MCP client configuration only
 - **Programmatic**: Import and use prompt classes directly
 
 ### License

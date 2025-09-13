@@ -17,8 +17,7 @@ The project uses a comprehensive testing strategy with multiple testing framewor
 ```
 tests/
 ├── __pycache__/          # Python cache files
-├── test_cli_integration.py  # CLI integration tests
-├── test_mcp_config.py      # MCP configuration tests
+├── test_startup.py         # Server startup tests
 ├── test_server.py          # MCP server tests
 └── test_startup.py         # Startup and initialization tests
 ```
@@ -35,7 +34,7 @@ Test individual functions and classes in isolation.
 #### 2. Integration Tests
 Test interaction between components.
 
-**Location:** `test_cli_integration.py`, `test_server.py`
+**Location:** `test_server.py`
 **Framework:** pytest
 **Coverage:** Medium (70%+)
 
@@ -49,7 +48,7 @@ Test application initialization and startup.
 #### 4. Configuration Tests
 Test configuration loading and validation.
 
-**Location:** `test_mcp_config.py`
+**Location:** `test_startup.py`
 **Framework:** pytest
 **Coverage:** High (90%+)
 
@@ -101,7 +100,7 @@ def test_get_prompt():
     assert isinstance(result, str)
 ```
 
-### test_cli_integration.py
+### test_startup.py
 Tests CLI integration and commands.
 
 **Key Tests:**
@@ -123,13 +122,6 @@ def test_get_prompt_command():
     # Test command execution
 ```
 
-### test_mcp_config.py
-Tests MCP configuration management.
-
-**Key Tests:**
-- Configuration loading
-- Validation
-- Format conversion
 - Error handling
 
 **Example:**

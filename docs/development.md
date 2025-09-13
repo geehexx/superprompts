@@ -206,8 +206,7 @@ uv run nox -s test-3.12
 tests/
 ├── test_startup.py           # Startup regression tests
 ├── test_server.py            # Server functionality tests
-├── test_mcp_config.py        # MCP configuration tests
-└── test_cli_integration.py   # CLI integration tests (16 comprehensive tests)
+└── test_startup.py           # Server startup and initialization tests
 ```
 
 **Test Coverage**: 44 total tests

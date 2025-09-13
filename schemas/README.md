@@ -45,7 +45,7 @@ Validates MCP (Model Context Protocol) server configuration files for different 
 uv run invoke validate --cursor-rules
 
 # Validate MCP configurations
-uv run superprompts config validate mcp.json
+# Configuration validation is handled by MCP clients
 ```
 
 ### Examples

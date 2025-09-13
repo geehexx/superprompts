@@ -299,29 +299,6 @@ superprompts compose repo_docs --additions '[{"source_prompt_id": "cursor_rules"
 superprompts compose repo_docs --customizations '{"project_name": "MyProject"}'
 ```
 
-#### `superprompts config`
-
-Manage MCP configurations.
-
-```bash
-# Create configuration
-superprompts config create --template superprompts
-
-# Create with multiple templates
-superprompts config create --template superprompts --template github
-
-# Create for specific format
-superprompts config create --format vscode --template superprompts
-
-# Validate configuration
-superprompts config validate mcp.json
-
-# Convert between formats
-superprompts config convert mcp.json --format vscode
-
-# List available templates
-superprompts config templates
-```
 
 ## Error Handling
 
@@ -340,23 +317,17 @@ except ValueError as e:
 #### `FileNotFoundError`
 Raised when configuration files are not found.
 
-```python
-try:
-    config = generator.load_existing_config("missing.json")
-except FileNotFoundError:
-    print("Configuration file not found")
-```
 
 #### `ValidationError`
-Raised by Pydantic for invalid configuration data.
+Raised by Pydantic for invalid prompt data.
 
 ```python
 from pydantic import ValidationError
 
 try:
-    config = MCPServerConfig(**invalid_data)
+    prompt = RepoDocsPrompt(**invalid_data)
 except ValidationError as e:
-    print(f"Configuration validation failed: {e}")
+    print(f"Prompt validation failed: {e}")
 ```
 
 ## Type Hints

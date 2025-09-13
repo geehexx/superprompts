@@ -59,10 +59,8 @@ General documentation on prompting techniques, best practices, and standards.
 5. **Use Tools**: Access 4 MCP tools in Cursor: `list_prompts`, `get_prompt`, `get_prompt_metadata`, `compose_prompt`
 
 ### MCP Configuration Management
-1. **Create Config**: `uv run superprompts config create --template superprompts --template github`
-2. **Validate Config**: `uv run superprompts config validate mcp.json`
-3. **Convert Formats**: `uv run superprompts config convert mcp.json --format vscode`
-4. **Use Adapters**: `uv run superprompts adapt tools` to integrate with existing MCP tooling
+1. **Configure MCP Client**: Follow the [MCP Configuration Guide](docs/mcp_configuration.md)
+2. **Use Prompts**: Access prompts through your MCP client or CLI
 
 See the [MCP Server Guide](docs/mcp_server_guide.md) and [MCP Configuration Guide](docs/mcp_configuration_guide.md) for detailed usage instructions.
 
