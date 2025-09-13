@@ -54,8 +54,9 @@ uv run nox -s test --verbose
 - Sessions run in isolated virtual environments
 """
 
-import nox
 from typing import Any
+
+import nox
 
 # Python versions to test against
 PYTHON_VERSIONS = ["3.10", "3.11", "3.12"]
