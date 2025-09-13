@@ -15,6 +15,7 @@ Python package with dynamic prompt generators and CLI tools.
 - **Repository Documentation Rebuilder** - Rebuilds documentation safely with loss auditing
 - **CLI Tools** - Command-line interface for all prompt functionality
 - **MCP Server** - Model Context Protocol server for AI tool integration
+- **MCP Configuration Management** - Tools for creating and managing MCP server definitions
 
 ### 📁 [docs/](docs/)
 General documentation on prompting techniques, best practices, and standards.
@@ -24,6 +25,7 @@ General documentation on prompting techniques, best practices, and standards.
 - **[AI-Ready Documentation Standards](docs/ai_ready_documentation_standards.md)** - Standards for creating maintainable, discoverable documentation
 - **[Commit Message Standards](docs/commit_message_standards.md)** - Git commit message conventions and best practices
 - **[MCP Server Guide](docs/mcp_server_guide.md)** - Complete guide to using the MCP server and CLI tools
+- **[MCP Configuration Guide](docs/mcp_configuration_guide.md)** - Managing MCP server definitions and configurations
 
 ## Quick Start
 
@@ -40,7 +42,13 @@ General documentation on prompting techniques, best practices, and standards.
 3. **Use CLI**: `poetry run superprompts list-prompts` to see available prompts
 4. **Integrate**: Use the MCP protocol to integrate with AI tools
 
-See the [MCP Server Guide](docs/mcp_server_guide.md) for detailed usage instructions.
+### MCP Configuration Management
+1. **Create Config**: `poetry run superprompts config create --template superprompts --template github`
+2. **Validate Config**: `poetry run superprompts config validate mcp.json`
+3. **Convert Formats**: `poetry run superprompts config convert mcp.json --format vscode`
+4. **Use Adapters**: `poetry run superprompts adapt tools` to integrate with existing MCP tooling
+
+See the [MCP Server Guide](docs/mcp_server_guide.md) and [MCP Configuration Guide](docs/mcp_configuration_guide.md) for detailed usage instructions.
 
 ### Development Setup
 

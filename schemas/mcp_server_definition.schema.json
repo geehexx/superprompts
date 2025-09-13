@@ -1,0 +1,180 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://superprompts.dev/schemas/mcp_server_definition.schema.json",
+  "title": "MCP Server Definition Schema",
+  "description": "JSON schema for MCP (Model Context Protocol) server definitions",
+  "type": "object",
+  "definitions": {
+    "serverConfig": {
+      "type": "object",
+      "properties": {
+        "command": {
+          "type": "string",
+          "description": "Command to run the MCP server",
+          "minLength": 1
+        },
+        "args": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Command line arguments for the server",
+          "default": []
+        },
+        "env": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Environment variables for the server process"
+        },
+        "cwd": {
+          "type": "string",
+          "description": "Working directory for the server process"
+        },
+        "description": {
+          "type": "string",
+          "description": "Human-readable description of the server"
+        },
+        "version": {
+          "type": "string",
+          "description": "Version of the MCP server",
+          "pattern": "^\\d+\\.\\d+\\.\\d+(-[a-zA-Z0-9.-]+)?$"
+        }
+      },
+      "required": ["command"],
+      "additionalProperties": false
+    }
+  },
+  "oneOf": [
+    {
+      "title": "Cursor Format",
+      "description": "MCP configuration format used by Cursor IDE",
+      "type": "object",
+      "properties": {
+        "mcpServers": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/serverConfig"
+          },
+          "description": "MCP servers configuration for Cursor"
+        }
+      },
+      "required": ["mcpServers"],
+      "additionalProperties": false
+    },
+    {
+      "title": "VS Code Format",
+      "description": "MCP configuration format for VS Code",
+      "type": "object",
+      "properties": {
+        "mcp": {
+          "type": "object",
+          "properties": {
+            "servers": {
+              "type": "object",
+              "additionalProperties": {
+                "$ref": "#/definitions/serverConfig"
+              },
+              "description": "MCP servers configuration"
+            }
+          },
+          "required": ["servers"],
+          "additionalProperties": false
+        }
+      },
+      "required": ["mcp"],
+      "additionalProperties": false
+    },
+    {
+      "title": "Generic Format",
+      "description": "Generic MCP configuration format",
+      "type": "object",
+      "properties": {
+        "mcp": {
+          "type": "object",
+          "properties": {
+            "version": {
+              "type": "string",
+              "description": "MCP configuration version",
+              "pattern": "^\\d+\\.\\d+\\.\\d+(-[a-zA-Z0-9.-]+)?$",
+              "default": "1.0.0"
+            },
+            "servers": {
+              "type": "object",
+              "additionalProperties": {
+                "allOf": [
+                  {
+                    "$ref": "#/definitions/serverConfig"
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "description": "Server name (required in generic format)"
+                      }
+                    },
+                    "required": ["name"]
+                  }
+                ]
+              },
+              "description": "MCP servers configuration"
+            }
+          },
+          "required": ["version", "servers"],
+          "additionalProperties": false
+        }
+      },
+      "required": ["mcp"],
+      "additionalProperties": false
+    }
+  ],
+  "examples": [
+    {
+      "title": "Cursor Format Example",
+      "description": "Example MCP configuration for Cursor IDE",
+      "mcpServers": {
+        "superprompts": {
+          "command": "poetry",
+          "args": ["run", "python", "-m", "superprompts.mcp.server"],
+          "description": "SuperPrompts MCP Server - Access to AI prompt collection"
+        },
+        "github": {
+          "command": "npx",
+          "args": ["-y", "github-mcp-server"],
+          "description": "GitHub MCP Server - Repository operations"
+        }
+      }
+    },
+    {
+      "title": "VS Code Format Example",
+      "description": "Example MCP configuration for VS Code",
+      "mcp": {
+        "servers": {
+          "superprompts": {
+            "command": "poetry",
+            "args": ["run", "python", "-m", "superprompts.mcp.server"],
+            "description": "SuperPrompts MCP Server - Access to AI prompt collection"
+          }
+        }
+      }
+    },
+    {
+      "title": "Generic Format Example",
+      "description": "Example generic MCP configuration",
+      "mcp": {
+        "version": "1.0.0",
+        "servers": {
+          "superprompts": {
+            "name": "superprompts",
+            "command": "poetry",
+            "args": ["run", "python", "-m", "superprompts.mcp.server"],
+            "description": "SuperPrompts MCP Server - Access to AI prompt collection",
+            "version": "1.0.0"
+          }
+        }
+      }
+    }
+  ]
+}

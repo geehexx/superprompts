@@ -21,6 +21,13 @@ from superprompts.mcp.server import (
     handle_list_tools,
     list_prompts,
 )
+from superprompts.mcp.config import (
+    MCPConfigGenerator,
+    get_available_server_templates,
+    validate_config,
+    MCPServerConfig,
+)
+from superprompts.mcp.adapters import create_adapter_cli_commands
 
 console = Console()
 
@@ -261,6 +268,295 @@ def call_tool(tool_name: str, arguments: str | None):
             sys.exit(1)
 
     asyncio.run(_call_tool())
+
+
+@main.group()
+def config():
+    """Manage MCP server configurations."""
+
+
+@config.command()
+@click.option(
+    "--format",
+    "-f",
+    type=click.Choice(["cursor", "vscode", "generic"]),
+    default="cursor",
+    help="Configuration format to generate",
+)
+@click.option(
+    "--output",
+    "-o",
+    type=click.Path(),
+    help="Output file path (default: auto-determined based on format)",
+)
+@click.option(
+    "--template",
+    "-t",
+    multiple=True,
+    help="Server templates to include (superprompts, github, filesystem)",
+)
+@click.option(
+    "--merge",
+    is_flag=True,
+    help="Merge with existing configuration instead of overwriting",
+)
+@click.option(
+    "--dry-run",
+    is_flag=True,
+    help="Show what would be generated without writing files",
+)
+def create(format: str, output: str | None, template: tuple, merge: bool, dry_run: bool):
+    """Create or update MCP server configuration."""
+    try:
+        generator = MCPConfigGenerator()
+        
+        # Get server templates
+        available_templates = get_available_server_templates()
+        selected_servers = {}
+        
+        if template:
+            for template_name in template:
+                if template_name in available_templates:
+                    selected_servers[template_name] = available_templates[template_name]
+                else:
+                    console.print(f"[yellow]Warning: Unknown template '{template_name}'[/yellow]")
+        else:
+            # Default to superprompts if no templates specified
+            selected_servers = {"superprompts": available_templates["superprompts"]}
+        
+        if not selected_servers:
+            console.print("[red]No valid server templates selected[/red]")
+            return
+        
+        # Generate configuration
+        if format == "cursor":
+            config = generator.generate_cursor_config(selected_servers)
+        elif format == "vscode":
+            config = generator.generate_vscode_config(selected_servers)
+        else:  # generic
+            config = generator.generate_generic_config(selected_servers)
+        
+        # Handle merging with existing config
+        if merge:
+            output_path = Path(output) if output else None
+            if output_path is None:
+                if format == "cursor":
+                    output_path = Path("mcp.json")
+                elif format == "vscode":
+                    output_path = Path(".vscode/mcp.json")
+                else:
+                    output_path = Path("mcp_config.json")
+            
+            existing_config = generator.load_existing_config(output_path)
+            if existing_config:
+                config = generator.merge_configs(existing_config, selected_servers, format)
+        
+        # Validate configuration
+        errors = validate_config(config, format)
+        if errors:
+            console.print("[red]Configuration validation errors:[/red]")
+            for error in errors:
+                console.print(f"  - {error}")
+            return
+        
+        if dry_run:
+            console.print(Panel(
+                json.dumps(config, indent=2),
+                title=f"MCP Configuration ({format}) - Dry Run"
+            ))
+        else:
+            # Save configuration
+            output_path = generator.save_config(config, format, Path(output) if output else None)
+            console.print(f"[green]Configuration saved to: {output_path}[/green]")
+            
+            # Show summary
+            table = Table(title="Generated MCP Configuration")
+            table.add_column("Server", style="cyan")
+            table.add_column("Command", style="green")
+            table.add_column("Description", style="white")
+            
+            for name, server in selected_servers.items():
+                table.add_row(
+                    name,
+                    f"{server.command} {' '.join(server.args)}",
+                    server.description or "No description"
+                )
+            
+            console.print(table)
+    
+    except Exception as e:
+        console.print(f"[red]Error creating configuration: {e}[/red]")
+        sys.exit(1)
+
+
+@config.command()
+@click.argument("config_file", type=click.Path(exists=True))
+@click.option(
+    "--format",
+    "-f",
+    type=click.Choice(["cursor", "vscode", "generic", "auto"]),
+    default="auto",
+    help="Configuration format (auto-detect if not specified)",
+)
+def validate(config_file: str, format: str):
+    """Validate an existing MCP configuration file."""
+    try:
+        config_path = Path(config_file)
+        
+        # Load configuration
+        with open(config_path, "r", encoding="utf-8") as f:
+            config = json.load(f)
+        
+        # Auto-detect format if needed
+        if format == "auto":
+            if "mcpServers" in config:
+                format = "cursor"
+            elif "mcp" in config and "servers" in config.get("mcp", {}):
+                format = "vscode"
+            else:
+                format = "generic"
+        
+        # Validate configuration
+        errors = validate_config(config, format)
+        
+        if not errors:
+            console.print(f"[green]✓ Configuration is valid ({format} format)[/green]")
+            
+            # Show configuration summary
+            if format == "cursor" and "mcpServers" in config:
+                servers = config["mcpServers"]
+            elif format == "vscode" and "mcp" in config:
+                servers = config["mcp"].get("servers", {})
+            elif format == "generic" and "mcp" in config:
+                servers = config["mcp"].get("servers", {})
+            else:
+                servers = {}
+            
+            if servers:
+                table = Table(title=f"Configured Servers ({format})")
+                table.add_column("Name", style="cyan")
+                table.add_column("Command", style="green")
+                
+                for name, server_config in servers.items():
+                    command = server_config.get("command", "N/A")
+                    args = server_config.get("args", [])
+                    full_command = f"{command} {' '.join(args)}" if args else command
+                    table.add_row(name, full_command)
+                
+                console.print(table)
+        else:
+            console.print(f"[red]✗ Configuration has {len(errors)} error(s):[/red]")
+            for error in errors:
+                console.print(f"  - {error}")
+            sys.exit(1)
+    
+    except Exception as e:
+        console.print(f"[red]Error validating configuration: {e}[/red]")
+        sys.exit(1)
+
+
+@config.command()
+def templates():
+    """List available server configuration templates."""
+    try:
+        templates = get_available_server_templates()
+        
+        table = Table(title="Available MCP Server Templates")
+        table.add_column("Name", style="cyan")
+        table.add_column("Command", style="green")
+        table.add_column("Description", style="white")
+        
+        for name, server in templates.items():
+            table.add_row(
+                name,
+                f"{server.command} {' '.join(server.args)}",
+                server.description or "No description"
+            )
+        
+        console.print(table)
+        console.print("\n[yellow]Usage:[/yellow]")
+        console.print("  superprompts config create --template superprompts --template github")
+        console.print("  superprompts config create --format vscode --template superprompts")
+    
+    except Exception as e:
+        console.print(f"[red]Error listing templates: {e}[/red]")
+        sys.exit(1)
+
+
+@config.command()
+@click.argument("config_file", type=click.Path(exists=True))
+@click.option(
+    "--format",
+    "-f",
+    type=click.Choice(["cursor", "vscode", "generic", "auto"]),
+    default="auto",
+    help="Configuration format (auto-detect if not specified)",
+)
+def convert(config_file: str, format: str):
+    """Convert MCP configuration between different formats."""
+    try:
+        config_path = Path(config_file)
+        
+        # Load configuration
+        with open(config_path, "r", encoding="utf-8") as f:
+            config = json.load(f)
+        
+        # Auto-detect source format
+        if "mcpServers" in config:
+            source_format = "cursor"
+        elif "mcp" in config and "servers" in config.get("mcp", {}):
+            source_format = "vscode"
+        else:
+            source_format = "generic"
+        
+        # Extract servers
+        if source_format == "cursor":
+            servers_config = config.get("mcpServers", {})
+        elif source_format == "vscode":
+            servers_config = config.get("mcp", {}).get("servers", {})
+        else:  # generic
+            servers_config = config.get("mcp", {}).get("servers", {})
+        
+        # Convert to MCPServerConfig objects
+        servers = {}
+        for name, server_config in servers_config.items():
+            servers[name] = MCPServerConfig(
+                name=name,
+                command=server_config.get("command", ""),
+                args=server_config.get("args", []),
+                env=server_config.get("env"),
+                cwd=server_config.get("cwd"),
+                description=server_config.get("description"),
+                version=server_config.get("version"),
+            )
+        
+        # Generate new format
+        generator = MCPConfigGenerator()
+        if format == "cursor":
+            new_config = generator.generate_cursor_config(servers)
+        elif format == "vscode":
+            new_config = generator.generate_vscode_config(servers)
+        else:  # generic
+            new_config = generator.generate_generic_config(servers)
+        
+        # Show converted configuration
+        console.print(Panel(
+            json.dumps(new_config, indent=2),
+            title=f"Converted Configuration ({source_format} → {format})"
+        ))
+        
+        # Offer to save
+        if click.confirm(f"Save converted configuration as {format} format?"):
+            output_path = generator.save_config(new_config, format)
+            console.print(f"[green]Converted configuration saved to: {output_path}[/green]")
+    
+    except Exception as e:
+        console.print(f"[red]Error converting configuration: {e}[/red]")
+        sys.exit(1)
+
+
+# Add adapter commands
+create_adapter_cli_commands(main)
 
 
 if __name__ == "__main__":

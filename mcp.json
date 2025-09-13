@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "superprompts": {
+      "command": "poetry",
+      "args": [
+        "run",
+        "python",
+        "-m",
+        "superprompts.mcp.server"
+      ],
+      "env": {},
+      "cwd": null
+    }
+  }
+}

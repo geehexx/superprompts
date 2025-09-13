@@ -282,8 +282,51 @@ SUPERPROMPTS_LOG_LEVEL=DEBUG superprompts-server
 - Review the server logs for detailed error information
 - Ensure all required packages are installed and up to date
 
+## MCP Configuration Management
+
+The SuperPrompts CLI includes comprehensive tools for managing MCP server configurations:
+
+### Configuration Commands
+
+```bash
+# Create MCP configurations
+poetry run superprompts config create --template superprompts --template github
+
+# Validate configurations
+poetry run superprompts config validate mcp.json
+
+# Convert between formats
+poetry run superprompts config convert mcp.json --format vscode
+
+# List available templates
+poetry run superprompts config templates
+```
+
+### Tooling Adapters
+
+Integrate with existing MCP tooling:
+
+```bash
+# List available MCP tools
+poetry run superprompts adapt tools
+
+# Generate config with FastMCP
+poetry run superprompts adapt fastmcp my-server server.py --packages pandas
+
+# Install MCP servers
+poetry run superprompts adapt install github-mcp-server
+
+# Convert from other formats
+poetry run superprompts adapt from-openapi openapi.json my-api
+poetry run superprompts adapt from-docker docker-compose.yml my-service
+poetry run superprompts adapt from-npm package.json start-server
+```
+
+For detailed information, see the [MCP Configuration Guide](mcp_configuration_guide.md).
+
 ## Cross-References
 
+- **[MCP Configuration Guide](mcp_configuration_guide.md)** - Complete MCP configuration management
 - **AI Prompting Best Practices**: [`ai_prompting_best_practices.md`](ai_prompting_best_practices.md)
 - **Available Prompts**: [`../prompts/`](../prompts/)
 - **Main Project**: [`../README.md`](../README.md)
