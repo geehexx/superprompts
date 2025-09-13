@@ -1,2 +1,1 @@
-"""CLI tools for SuperPrompts.
-"""
+"""CLI tools for SuperPrompts."""

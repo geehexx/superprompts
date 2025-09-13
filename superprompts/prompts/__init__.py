@@ -1,2 +1,1 @@
-"""Prompt handlers for the MCP server.
-"""
+"""Prompt handlers for the MCP server."""

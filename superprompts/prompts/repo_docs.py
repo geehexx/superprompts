@@ -1,5 +1,4 @@
-"""Repository Documentation Rebuilder prompt handler.
-"""
+"""Repository Documentation Rebuilder prompt handler."""
 
 from typing import Any
 
@@ -206,20 +205,14 @@ class RepoDocsPrompt(BasePrompt):
             ]
             doc_types = validated["target_doc_types"]
             if isinstance(doc_types, list):
-                validated["target_doc_types"] = [
-                    t for t in doc_types if t in valid_types
-                ]
+                validated["target_doc_types"] = [t for t in doc_types if t in valid_types]
             else:
                 validated["target_doc_types"] = ["all"]
 
         # Validate confidence_threshold
         if "confidence_threshold" in validated:
             threshold = validated["confidence_threshold"]
-            if (
-                not isinstance(threshold, (int, float))
-                or threshold < 0
-                or threshold > 1
-            ):
+            if not isinstance(threshold, (int, float)) or threshold < 0 or threshold > 1:
                 validated["confidence_threshold"] = 0.8
 
         return validated

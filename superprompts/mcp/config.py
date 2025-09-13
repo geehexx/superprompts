@@ -1,52 +1,48 @@
 #!/usr/bin/env python3
-"""MCP Configuration Management
+"""MCP Configuration Management.
 
 This module provides functionality to create and update MCP server definitions
 in various formats (Cursor mcp.json, VS Code, etc.).
 """
 
 import json
-import os
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
-import click
 from pydantic import BaseModel, Field
 from rich.console import Console
-from rich.panel import Panel
-from rich.table import Table
 
 console = Console()
 
 
 class MCPServerConfig(BaseModel):
     """MCP Server Configuration Model."""
-    
+
     name: str = Field(..., description="Server name")
     command: str = Field(..., description="Command to run the server")
-    args: List[str] = Field(default_factory=list, description="Command arguments")
-    env: Optional[Dict[str, str]] = Field(default=None, description="Environment variables")
-    cwd: Optional[str] = Field(default=None, description="Working directory")
-    description: Optional[str] = Field(default=None, description="Server description")
-    version: Optional[str] = Field(default=None, description="Server version")
+    args: list[str] = Field(default_factory=list, description="Command arguments")
+    env: dict[str, str] | None = Field(default=None, description="Environment variables")
+    cwd: str | None = Field(default=None, description="Working directory")
+    description: str | None = Field(default=None, description="Server description")
+    version: str | None = Field(default=None, description="Server version")
 
 
 class MCPConfig(BaseModel):
     """MCP Configuration Model for different formats."""
-    
-    servers: Dict[str, MCPServerConfig] = Field(default_factory=dict)
+
+    servers: dict[str, MCPServerConfig] = Field(default_factory=dict)
     format: str = Field(default="cursor", description="Configuration format")
     version: str = Field(default="1.0.0", description="MCP configuration version")
 
 
 class MCPConfigGenerator:
     """Generator for MCP server configurations in different formats."""
-    
-    def __init__(self, config_path: Optional[Path] = None):
+
+    def __init__(self, config_path: Path | None = None):
         self.config_path = config_path or Path.cwd()
         self.supported_formats = ["cursor", "vscode", "generic"]
-    
-    def generate_cursor_config(self, servers: Dict[str, MCPServerConfig]) -> Dict[str, Any]:
+
+    def generate_cursor_config(self, servers: dict[str, MCPServerConfig]) -> dict[str, Any]:
         """Generate Cursor-compatible mcp.json configuration."""
         return {
             "mcpServers": {
@@ -59,8 +55,8 @@ class MCPConfigGenerator:
                 for name, server in servers.items()
             }
         }
-    
-    def generate_vscode_config(self, servers: Dict[str, MCPServerConfig]) -> Dict[str, Any]:
+
+    def generate_vscode_config(self, servers: dict[str, MCPServerConfig]) -> dict[str, Any]:
         """Generate VS Code-compatible MCP configuration."""
         return {
             "mcp": {
@@ -75,8 +71,8 @@ class MCPConfigGenerator:
                 }
             }
         }
-    
-    def generate_generic_config(self, servers: Dict[str, MCPServerConfig]) -> Dict[str, Any]:
+
+    def generate_generic_config(self, servers: dict[str, MCPServerConfig]) -> dict[str, Any]:
         """Generate generic MCP configuration."""
         return {
             "mcp": {
@@ -92,16 +88,11 @@ class MCPConfigGenerator:
                         "version": server.version,
                     }
                     for name, server in servers.items()
-                }
+                },
             }
         }
-    
-    def save_config(
-        self, 
-        config: Dict[str, Any], 
-        format_type: str, 
-        output_path: Optional[Path] = None
-    ) -> Path:
+
+    def save_config(self, config: dict[str, Any], format_type: str, output_path: Path | None = None) -> Path:
         """Save configuration to file."""
         if output_path is None:
             if format_type == "cursor":
@@ -110,34 +101,34 @@ class MCPConfigGenerator:
                 output_path = self.config_path / ".vscode" / "mcp.json"
             else:
                 output_path = self.config_path / "mcp_config.json"
-        
+
         # Ensure directory exists
         output_path.parent.mkdir(parents=True, exist_ok=True)
-        
+
         # Write configuration
         with open(output_path, "w", encoding="utf-8") as f:
             json.dump(config, f, indent=2, ensure_ascii=False)
-        
+
         return output_path
-    
-    def load_existing_config(self, config_path: Path) -> Optional[Dict[str, Any]]:
+
+    def load_existing_config(self, config_path: Path) -> dict[str, Any] | None:
         """Load existing configuration if it exists."""
         if not config_path.exists():
             return None
-        
+
         try:
-            with open(config_path, "r", encoding="utf-8") as f:
+            with open(config_path, encoding="utf-8") as f:
                 return json.load(f)
-        except (json.JSONDecodeError, IOError) as e:
+        except (OSError, json.JSONDecodeError) as e:
             console.print(f"[yellow]Warning: Could not load existing config: {e}[/yellow]")
             return None
-    
+
     def merge_configs(
-        self, 
-        existing: Dict[str, Any], 
-        new_servers: Dict[str, MCPServerConfig],
-        format_type: str
-    ) -> Dict[str, Any]:
+        self,
+        existing: dict[str, Any],
+        new_servers: dict[str, MCPServerConfig],
+        format_type: str,
+    ) -> dict[str, Any]:
         """Merge new servers into existing configuration."""
         if format_type == "cursor":
             if "mcpServers" not in existing:
@@ -176,7 +167,7 @@ class MCPConfigGenerator:
                     "description": server.description,
                     "version": server.version,
                 }
-        
+
         return existing
 
 
@@ -187,7 +178,7 @@ def create_superprompts_server_config() -> MCPServerConfig:
         command="poetry",
         args=["run", "python", "-m", "superprompts.mcp.server"],
         description="SuperPrompts MCP Server - Access to AI prompt collection",
-        version="1.0.0"
+        version="1.0.0",
     )
 
 
@@ -198,7 +189,7 @@ def create_github_server_config() -> MCPServerConfig:
         command="npx",
         args=["-y", "github-mcp-server"],
         description="GitHub MCP Server - Repository operations",
-        version="1.0.0"
+        version="1.0.0",
     )
 
 
@@ -209,11 +200,11 @@ def create_filesystem_server_config() -> MCPServerConfig:
         command="npx",
         args=["-y", "@modelcontextprotocol/server-filesystem", "/path/to/your/project"],
         description="Filesystem MCP Server - File operations",
-        version="1.0.0"
+        version="1.0.0",
     )
 
 
-def get_available_server_templates() -> Dict[str, MCPServerConfig]:
+def get_available_server_templates() -> dict[str, MCPServerConfig]:
     """Get available server configuration templates."""
     return {
         "superprompts": create_superprompts_server_config(),
@@ -222,10 +213,10 @@ def get_available_server_templates() -> Dict[str, MCPServerConfig]:
     }
 
 
-def validate_config(config: Dict[str, Any], format_type: str) -> List[str]:
+def validate_config(config: dict[str, Any], format_type: str) -> list[str]:
     """Validate MCP configuration and return any errors."""
     errors = []
-    
+
     if format_type == "cursor":
         if "mcpServers" not in config:
             errors.append("Missing 'mcpServers' key in Cursor configuration")
@@ -238,16 +229,15 @@ def validate_config(config: Dict[str, Any], format_type: str) -> List[str]:
             errors.append("Missing 'mcp' key in VS Code configuration")
         elif "servers" not in config["mcp"]:
             errors.append("Missing 'servers' key in VS Code configuration")
-    else:  # generic
-        if "mcp" not in config:
-            errors.append("Missing 'mcp' key in generic configuration")
-        elif "servers" not in config["mcp"]:
-            errors.append("Missing 'servers' key in generic configuration")
-        else:
-            for name, server_config in config["mcp"]["servers"].items():
-                if "name" not in server_config:
-                    errors.append(f"Server '{name}' missing 'name' field in generic configuration")
-                if "command" not in server_config:
-                    errors.append(f"Server '{name}' missing 'command' field in generic configuration")
-    
+    elif "mcp" not in config:
+        errors.append("Missing 'mcp' key in generic configuration")
+    elif "servers" not in config["mcp"]:
+        errors.append("Missing 'servers' key in generic configuration")
+    else:
+        for name, server_config in config["mcp"]["servers"].items():
+            if "name" not in server_config:
+                errors.append(f"Server '{name}' missing 'name' field in generic configuration")
+            if "command" not in server_config:
+                errors.append(f"Server '{name}' missing 'command' field in generic configuration")
+
     return errors

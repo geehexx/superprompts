@@ -1,5 +1,4 @@
-"""Base classes for prompt handling in the MCP server.
-"""
+"""Base classes for prompt handling in the MCP server."""
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass

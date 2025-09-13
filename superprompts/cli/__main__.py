@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""CLI entry point for SuperPrompts.
-"""
+"""CLI entry point for SuperPrompts."""
 
 from superprompts.cli.main import main
 

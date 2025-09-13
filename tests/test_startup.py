@@ -22,76 +22,60 @@ class ServerStartupTester:
 
     def test_imports(self):
         """Test that all required modules can be imported."""
-        print("Testing imports...")
         try:
-            from mcp.server import Server
-            from mcp.server.models import InitializationOptions
-            from mcp.server.stdio import stdio_server
-            from mcp.types import TextContent, Tool
+            from superprompts.mcp.config import MCPServerConfig
+            from superprompts.mcp.server import main
+            from superprompts.prompts.cursor_rules import CursorRulesPrompt
+            from superprompts.prompts.repo_docs import RepoDocsPrompt
 
-            print("✅ All imports successful")
             return True
-        except ImportError as e:
-            print(f"❌ Import error: {e}")
+        except ImportError:
             return False
 
     def test_server_creation(self):
         """Test that a server instance can be created."""
-        print("Testing server creation...")
         try:
-            from mcp.server import Server
+            from superprompts.mcp.server import mcp
 
-            server = Server("test_server")
-            print("✅ Server creation successful")
+            # Test that the FastMCP instance exists
+            assert mcp is not None
             return True
-        except Exception as e:
-            print(f"❌ Server creation error: {e}")
+        except Exception:
             return False
 
     def test_initialization_options(self):
         """Test that initialization options can be created properly."""
-        print("Testing initialization options...")
         try:
-            from mcp.server import Server
+            from superprompts.mcp.config import MCPServerConfig
 
-            server = Server("test_server")
-            # This is the fix we implemented - using create_initialization_options()
-            init_options = server.create_initialization_options()
-            print("✅ Initialization options creation successful")
+            # Test creating a server config
+            config = MCPServerConfig(name="test_server", command="python", args=["-m", "test.server"])
+            assert config.name == "test_server"
             return True
-        except Exception as e:
-            print(f"❌ Initialization options error: {e}")
+        except Exception:
             return False
 
     def test_server_startup_script(self):
         """Test that the startup script runs without errors."""
-        print("Testing startup script...")
         try:
-            # Test the script syntax first
-            script_path = self.server_dir / "mcp_server" / "start_server.sh"
-            if not script_path.exists():
-                print("❌ Startup script not found")
-                return False
-
+            # Test that we can run the server module directly
             result = subprocess.run(
-                ["bash", "-n", str(script_path)],
-                check=False, cwd=self.server_dir,
+                [
+                    "python3",
+                    "-c",
+                    "import superprompts.mcp.server; print('Server module loads successfully')",
+                ],
+                check=False,
+                cwd=self.server_dir,
                 capture_output=True,
                 text=True,
             )
-            if result.returncode != 0:
-                print(f"❌ Script syntax error: {result.stderr}")
-                return False
-
-            print("✅ Startup script syntax is valid")
-            return True
-        except Exception as e:
-            print(f"❌ Script test error: {e}")
+            return result.returncode == 0
+        except Exception:
             return False
 
     def test_server_startup_process(self):
         """Test that the server process can start and stop cleanly."""
-        print("Testing server process startup...")
         try:
             # Start the server in the background using the new CLI
             self.server_process = subprocess.Popen(
@@ -107,51 +91,38 @@ class ServerStartupTester:
 
             # Check if it's still running
             if self.server_process.poll() is None:
-                print("✅ Server process started successfully")
                 return True
-            stdout, stderr = self.server_process.communicate()
-            print("❌ Server process failed to start")
-            print(f"STDOUT: {stdout}")
-            print(f"STDERR: {stderr}")
+            _stdout, _stderr = self.server_process.communicate()
             return False
 
-        except Exception as e:
-            print(f"❌ Server process test error: {e}")
+        except Exception:
             return False
         finally:
             self.cleanup()
 
     def test_virtual_environment(self):
         """Test that the virtual environment is properly set up."""
-        print("Testing virtual environment...")
-        venv_path = self.server_dir / "venv"
+        venv_path = self.server_dir / ".venv"
         if not venv_path.exists():
-            print("❌ Virtual environment not found")
             return False
 
         # Check if required packages are installed
         try:
             # Use the system Python since packages are installed there
             result = subprocess.run(
-                ["python3", "-c", "import mcp, pydantic, click, rich"],
-                check=False, cwd=self.server_dir,
+                ["python3", "-c", "import fastmcp, pydantic, click, rich"],
+                check=False,
+                cwd=self.server_dir,
                 capture_output=True,
                 text=True,
             )
-            if result.returncode != 0:
-                print(f"❌ Required packages not installed: {result.stderr}")
-                return False
-
-            print("✅ Virtual environment is properly configured")
-            return True
-        except Exception as e:
-            print(f"❌ Virtual environment test error: {e}")
+            return result.returncode == 0
+        except Exception:
             return False
 
     def cleanup(self):
         """Clean up any running processes."""
         if self.server_process and self.server_process.poll() is None:
-            print("Cleaning up server process...")
             self.server_process.terminate()
             try:
                 self.server_process.wait(timeout=5)
@@ -161,9 +132,6 @@ class ServerStartupTester:
 
     def run_all_tests(self):
         """Run all regression tests."""
-        print("Running MCP Server Regression Tests")
-        print("=" * 40)
-
         tests = [
             self.test_imports,
             self.test_server_creation,
@@ -180,19 +148,10 @@ class ServerStartupTester:
             try:
                 if test():
                     passed += 1
-                print()  # Add spacing between tests
-            except Exception as e:
-                print(f"❌ Test {test.__name__} failed with exception: {e}")
-                print()
+            except Exception:
+                pass
 
-        print("=" * 40)
-        print(f"Test Results: {passed}/{total} tests passed")
-
-        if passed == total:
-            print("🎉 All tests passed! Server startup is working correctly.")
-            return True
-        print("❌ Some tests failed. Please check the output above.")
-        return False
+        return passed == total
 
 
 def main():

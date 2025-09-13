@@ -1,5 +1,4 @@
-"""Cursor Rules Generator prompt handler.
-"""
+"""Cursor Rules Generator prompt handler."""
 
 from typing import Any
 
@@ -73,9 +72,7 @@ class CursorRulesPrompt(BasePrompt):
                 "general",
             ],
         )
-        rule_types = params.get(
-            "rule_types", ["Always", "Auto Attached", "Agent Requested", "Manual"]
-        )
+        rule_types = params.get("rule_types", ["Always", "Auto Attached", "Agent Requested", "Manual"])
         similarity_threshold = params.get("similarity_threshold", 0.7)
         confidence_threshold = params.get("confidence_threshold", 0.8)
         max_rules_per_category = params.get("max_rules_per_category", 5)
@@ -258,9 +255,7 @@ class CursorRulesPrompt(BasePrompt):
             ]
             categories = validated["target_categories"]
             if isinstance(categories, list):
-                validated["target_categories"] = [
-                    c for c in categories if c in valid_categories
-                ]
+                validated["target_categories"] = [c for c in categories if c in valid_categories]
             else:
                 validated["target_categories"] = valid_categories
 
@@ -276,21 +271,13 @@ class CursorRulesPrompt(BasePrompt):
         # Validate similarity_threshold
         if "similarity_threshold" in validated:
             threshold = validated["similarity_threshold"]
-            if (
-                not isinstance(threshold, (int, float))
-                or threshold < 0
-                or threshold > 1
-            ):
+            if not isinstance(threshold, (int, float)) or threshold < 0 or threshold > 1:
                 validated["similarity_threshold"] = 0.7
 
         # Validate confidence_threshold
         if "confidence_threshold" in validated:
             threshold = validated["confidence_threshold"]
-            if (
-                not isinstance(threshold, (int, float))
-                or threshold < 0
-                or threshold > 1
-            ):
+            if not isinstance(threshold, (int, float)) or threshold < 0 or threshold > 1:
                 validated["confidence_threshold"] = 0.8
 
         # Validate max_rules_per_category
