@@ -59,7 +59,11 @@ def list_prompts_cmd(category: str) -> None:
                 prompt["id"],
                 prompt["name"],
                 prompt["category"],
-                prompt["description"][:MAX_DESCRIPTION_LENGTH] + "..." if len(prompt["description"]) > MAX_DESCRIPTION_LENGTH else prompt["description"],
+                (
+                    prompt["description"][:MAX_DESCRIPTION_LENGTH] + "..."
+                    if len(prompt["description"]) > MAX_DESCRIPTION_LENGTH
+                    else prompt["description"]
+                ),
             )
 
         console.print(table)
