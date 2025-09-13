@@ -7,6 +7,7 @@ and making it easier to adapt configurations to different specifications.
 
 import json
 import logging
+import shutil
 import subprocess
 import tempfile
 from pathlib import Path
@@ -26,7 +27,7 @@ console = Console()
 
 
 def _save_or_display_config(config: dict[str, Any] | None, output: str | None, title: str) -> None:
-    """Helper function to save config to file or display it."""
+    """Save config to file or display it."""
     if not config:
         console.print("[yellow]No configuration generated[/yellow]")
         return
@@ -42,17 +43,17 @@ def _save_or_display_config(config: dict[str, Any] | None, output: str | None, t
             logger.info("Configuration saved to: %s", output)
             console.print(f"[green]Configuration saved to: {output}[/green]")
         except OSError as e:
-            logger.exception("Error saving configuration to %s: %s", output, e)
+            logger.exception("Error saving configuration to %s", output)
             console.print(f"[red]Error saving configuration: {e}[/red]")
         except (json.JSONDecodeError, TypeError) as e:
-            logger.exception("Error encoding configuration as JSON: %s", e)
+            logger.exception("Error encoding configuration as JSON")
             console.print(f"[red]Error encoding configuration: {e}[/red]")
     else:
         try:
             formatted_config = json.dumps(config, indent=2, ensure_ascii=False)
             console.print(Panel(formatted_config, title=title))
         except (json.JSONDecodeError, TypeError) as e:
-            logger.exception("Error encoding configuration for display: %s", e)
+            logger.exception("Error encoding configuration for display")
             console.print(f"[red]Error displaying configuration: {e}[/red]")
 
 
@@ -67,31 +68,47 @@ class MCPToolingAdapter:
         tools = {}
 
         # Check for FastMCP
-        try:
-            result = subprocess.run(["fastmcp", "--version"], check=False, capture_output=True, text=True, timeout=5)
-            tools["fastmcp"] = result.returncode == 0
-        except (subprocess.TimeoutExpired, FileNotFoundError):
+        fastmcp_path = shutil.which("fastmcp")
+        if fastmcp_path:
+            try:
+                result = subprocess.run([fastmcp_path, "--version"], check=False, capture_output=True, text=True, timeout=5)
+                tools["fastmcp"] = result.returncode == 0
+            except (subprocess.TimeoutExpired, FileNotFoundError):
+                tools["fastmcp"] = False
+        else:
             tools["fastmcp"] = False
 
         # Check for mcp-cli
-        try:
-            result = subprocess.run(["mcp", "--version"], check=False, capture_output=True, text=True, timeout=5)
-            tools["mcp-cli"] = result.returncode == 0
-        except (subprocess.TimeoutExpired, FileNotFoundError):
+        mcp_path = shutil.which("mcp")
+        if mcp_path:
+            try:
+                result = subprocess.run([mcp_path, "--version"], check=False, capture_output=True, text=True, timeout=5)
+                tools["mcp-cli"] = result.returncode == 0
+            except (subprocess.TimeoutExpired, FileNotFoundError):
+                tools["mcp-cli"] = False
+        else:
             tools["mcp-cli"] = False
 
         # Check for mcp-tools-cli
-        try:
-            result = subprocess.run(["mcp-tools-cli", "--version"], check=False, capture_output=True, text=True, timeout=5)
-            tools["mcp-tools-cli"] = result.returncode == 0
-        except (subprocess.TimeoutExpired, FileNotFoundError):
+        mcp_tools_path = shutil.which("mcp-tools-cli")
+        if mcp_tools_path:
+            try:
+                result = subprocess.run([mcp_tools_path, "--version"], check=False, capture_output=True, text=True, timeout=5)
+                tools["mcp-tools-cli"] = result.returncode == 0
+            except (subprocess.TimeoutExpired, FileNotFoundError):
+                tools["mcp-tools-cli"] = False
+        else:
             tools["mcp-tools-cli"] = False
 
         # Check for npm (for npx-based tools)
-        try:
-            result = subprocess.run(["npm", "--version"], check=False, capture_output=True, text=True, timeout=5)
-            tools["npm"] = result.returncode == 0
-        except (subprocess.TimeoutExpired, FileNotFoundError):
+        npm_path = shutil.which("npm")
+        if npm_path:
+            try:
+                result = subprocess.run([npm_path, "--version"], check=False, capture_output=True, text=True, timeout=5)
+                tools["npm"] = result.returncode == 0
+            except (subprocess.TimeoutExpired, FileNotFoundError):
+                tools["npm"] = False
+        else:
             tools["npm"] = False
 
         return tools
@@ -117,6 +134,35 @@ class MCPToolingAdapter:
 
         console.print(table)
 
+    def _prepare_fastmcp_command(self, server_name: str, server_path: str, packages: list[str] | None = None) -> list[str]:
+        """Prepare FastMCP command arguments."""
+        cmd = ["fastmcp", "install", "mcp-json", server_path, "--name", server_name]
+        if packages:
+            cmd.extend(["--with", *packages])
+        return cmd
+
+    def _run_fastmcp_command(self, cmd: list[str], temp_path: Path) -> subprocess.CompletedProcess[str]:
+        """Run FastMCP command and return result."""
+        fastmcp_path = shutil.which("fastmcp")
+        if not fastmcp_path:
+            raise FileNotFoundError("FastMCP not found in PATH")
+        cmd[0] = fastmcp_path
+        return subprocess.run(cmd, check=False, cwd=temp_path, capture_output=True, text=True, timeout=30)
+
+    def _load_fastmcp_config(self, temp_path: Path) -> dict[str, Any] | None:
+        """Load configuration file generated by FastMCP."""
+        config_files = list(temp_path.glob("*.json"))
+        if not config_files:
+            console.print("[yellow]No configuration file generated by FastMCP[/yellow]")
+            return None
+
+        # Load the first JSON file found
+        with config_files[0].open() as f:
+            data = json.load(f)
+            if isinstance(data, dict):
+                return data
+            return None
+
     def generate_fastmcp_config(self, server_name: str, server_path: str, packages: list[str] | None = None) -> dict[str, Any] | None:
         """Generate MCP configuration using FastMCP."""
         if not self.available_tools.get("fastmcp"):
@@ -128,30 +174,16 @@ class MCPToolingAdapter:
             with tempfile.TemporaryDirectory() as temp_dir:
                 temp_path = Path(temp_dir)
 
-                # Prepare FastMCP command
-                cmd = ["fastmcp", "install", "mcp-json", server_path, "--name", server_name]
-                if packages:
-                    cmd.extend(["--with", *packages])
-
-                # Run FastMCP
-                result = subprocess.run(cmd, check=False, cwd=temp_path, capture_output=True, text=True, timeout=30)
+                # Prepare and run FastMCP command
+                cmd = self._prepare_fastmcp_command(server_name, server_path, packages)
+                result = self._run_fastmcp_command(cmd, temp_path)
 
                 if result.returncode != 0:
                     console.print(f"[red]FastMCP error: {result.stderr}[/red]")
                     return None
 
-                # Look for generated configuration
-                config_files = list(temp_path.glob("*.json"))
-                if not config_files:
-                    console.print("[yellow]No configuration file generated by FastMCP[/yellow]")
-                    return None
-
-                # Load the first JSON file found
-                with open(config_files[0]) as f:
-                    data = json.load(f)
-                    if isinstance(data, dict):
-                        return data
-                    return None
+                # Load generated configuration
+                return self._load_fastmcp_config(temp_path)
 
         except subprocess.TimeoutExpired:
             console.print("[red]FastMCP command timed out[/red]")
@@ -168,12 +200,15 @@ class MCPToolingAdapter:
 
         try:
             # Install server
-            result = subprocess.run(["mcp", "install", server_package], check=False, capture_output=True, text=True, timeout=60)
+            mcp_path = shutil.which("mcp")
+            if not mcp_path:
+                console.print("[red]MCP CLI not found in PATH[/red]")
+                return False
+            result = subprocess.run([mcp_path, "install", server_package], check=False, capture_output=True, text=True, timeout=60)
 
             if result.returncode != 0:
                 console.print(f"[red]mcp-cli install error: {result.stderr}[/red]")
                 return False
-
             console.print(f"[green]Successfully installed MCP server: {server_name}[/green]")
             return True
 
@@ -191,19 +226,18 @@ class MCPToolingAdapter:
             return []
 
         try:
-            result = subprocess.run(["mcp", "list"], check=False, capture_output=True, text=True, timeout=30)
+            mcp_path = shutil.which("mcp")
+            if not mcp_path:
+                console.print("[red]MCP CLI not found in PATH[/red]")
+                return []
+            result = subprocess.run([mcp_path, "list"], check=False, capture_output=True, text=True, timeout=30)
 
             if result.returncode != 0:
                 console.print(f"[red]mcp-cli list error: {result.stderr}[/red]")
                 return []
 
             # Parse output to extract server names
-            servers = []
-            for line in result.stdout.split("\n"):
-                if line.strip() and not line.startswith("Name"):
-                    servers.append(line.strip())
-
-            return servers
+            return [line.strip() for line in result.stdout.split("\n") if line.strip() and not line.startswith("Name")]
 
         except subprocess.TimeoutExpired:
             console.print("[red]mcp-cli list timed out[/red]")
@@ -220,8 +254,12 @@ class MCPToolingAdapter:
 
         try:
             # List tools first
+            mcp_tools_path = shutil.which("mcp-tools-cli")
+            if not mcp_tools_path:
+                console.print("[red]mcp-tools-cli not found in PATH[/red]")
+                return False
             result = subprocess.run(
-                ["mcp-tools-cli", "list-tools", "--mcp-name", server_name], check=False, capture_output=True, text=True, timeout=30
+                [mcp_tools_path, "list-tools", "--mcp-name", server_name], check=False, capture_output=True, text=True, timeout=30
             )
 
             if result.returncode != 0:
@@ -234,7 +272,7 @@ class MCPToolingAdapter:
             # Test specific tool if provided
             if tool_name:
                 test_result = subprocess.run(
-                    ["mcp-tools-cli", "call-tool", "--mcp-name", server_name, "--tool-name", tool_name, "--tool-args", "{}"],
+                    [mcp_tools_path, "call-tool", "--mcp-name", server_name, "--tool-name", tool_name, "--tool-args", "{}"],
                     check=False,
                     capture_output=True,
                     text=True,
@@ -244,7 +282,6 @@ class MCPToolingAdapter:
                 if test_result.returncode != 0:
                     console.print(f"[red]Error testing tool {tool_name}: {test_result.stderr}[/red]")
                     return False
-
                 console.print(f"[green]Tool {tool_name} test successful:[/green]")
                 console.print(test_result.stdout)
 
@@ -268,7 +305,7 @@ class MCPFormatConverter:
         """Convert OpenAPI specification to MCP configuration."""
         try:
             if isinstance(openapi_spec, str):
-                with open(openapi_spec) as f:
+                with Path(openapi_spec).open() as f:
                     spec = json.load(f)
             else:
                 spec = openapi_spec
@@ -302,7 +339,7 @@ class MCPFormatConverter:
     def convert_from_docker_compose(self, compose_file: str, service_name: str) -> dict[str, Any] | None:
         """Convert Docker Compose service to MCP configuration."""
         try:
-            with open(compose_file) as f:
+            with Path(compose_file).open() as f:
                 compose_data = json.load(f)
 
             services = compose_data.get("services", {})
@@ -341,7 +378,7 @@ class MCPFormatConverter:
     def convert_from_package_json(self, package_file: str, script_name: str) -> dict[str, Any] | None:
         """Convert npm script to MCP configuration."""
         try:
-            with open(package_file) as f:
+            with Path(package_file).open() as f:
                 package_data = json.load(f)
 
             scripts = package_data.get("scripts", {})
@@ -378,12 +415,8 @@ class MCPFormatConverter:
             return None
 
 
-def create_adapter_cli_commands(main_group: click.Group) -> None:
-    """Add adapter CLI commands to the main CLI group."""
-
-    @main_group.group()
-    def adapt() -> None:
-        """MCP tooling adapters and format converters."""
+def _create_tools_commands(adapt: click.Group) -> None:
+    """Create tools-related commands."""
 
     @adapt.command()
     def tools() -> None:
@@ -403,7 +436,7 @@ def create_adapter_cli_commands(main_group: click.Group) -> None:
             config = adapter.generate_fastmcp_config(server_name, server_path, list(packages))
             _save_or_display_config(config, output, f"FastMCP Configuration: {server_name}")
         except Exception as e:
-            logger.exception("Unexpected error in FastMCP command: %s", e)
+            logger.exception("Unexpected error in FastMCP command")
             console.print(f"[red]Unexpected error: {e}[/red]")
 
     @adapt.command()
@@ -414,7 +447,7 @@ def create_adapter_cli_commands(main_group: click.Group) -> None:
             adapter = MCPToolingAdapter()
             adapter.install_mcp_server(server_package, server_package)
         except Exception as e:
-            logger.exception("Unexpected error in install command: %s", e)
+            logger.exception("Unexpected error in install command")
             console.print(f"[red]Unexpected error: {e}[/red]")
 
     @adapt.command()
@@ -435,7 +468,7 @@ def create_adapter_cli_commands(main_group: click.Group) -> None:
             else:
                 console.print("[yellow]No installed servers found[/yellow]")
         except Exception as e:
-            logger.exception("Unexpected error in list_servers command: %s", e)
+            logger.exception("Unexpected error in list_servers command")
             console.print(f"[red]Unexpected error: {e}[/red]")
 
     @adapt.command()
@@ -447,8 +480,12 @@ def create_adapter_cli_commands(main_group: click.Group) -> None:
             adapter = MCPToolingAdapter()
             adapter.test_mcp_server(server_name, tool)
         except Exception as e:
-            logger.exception("Unexpected error in test command: %s", e)
+            logger.exception("Unexpected error in test command")
             console.print(f"[red]Unexpected error: {e}[/red]")
+
+
+def _create_converter_commands(adapt: click.Group) -> None:
+    """Create format converter commands."""
 
     @adapt.command()
     @click.argument("openapi_spec")
@@ -461,7 +498,7 @@ def create_adapter_cli_commands(main_group: click.Group) -> None:
             config = converter.convert_from_openapi(openapi_spec, server_name)
             _save_or_display_config(config, output, f"OpenAPI → MCP Configuration: {server_name}")
         except Exception as e:
-            logger.exception("Unexpected error in from_openapi command: %s", e)
+            logger.exception("Unexpected error in from_openapi command")
             console.print(f"[red]Unexpected error: {e}[/red]")
 
     @adapt.command()
@@ -475,7 +512,7 @@ def create_adapter_cli_commands(main_group: click.Group) -> None:
             config = converter.convert_from_docker_compose(compose_file, service_name)
             _save_or_display_config(config, output, f"Docker → MCP Configuration: {service_name}")
         except Exception as e:
-            logger.exception("Unexpected error in from_docker command: %s", e)
+            logger.exception("Unexpected error in from_docker command")
             console.print(f"[red]Unexpected error: {e}[/red]")
 
     @adapt.command()
@@ -489,5 +526,16 @@ def create_adapter_cli_commands(main_group: click.Group) -> None:
             config = converter.convert_from_package_json(package_file, script_name)
             _save_or_display_config(config, output, f"npm → MCP Configuration: {script_name}")
         except Exception as e:
-            logger.exception("Unexpected error in from_npm command: %s", e)
+            logger.exception("Unexpected error in from_npm command")
             console.print(f"[red]Unexpected error: {e}[/red]")
+
+
+def create_adapter_cli_commands(main_group: click.Group) -> None:
+    """Add adapter CLI commands to the main CLI group."""
+
+    @main_group.group()
+    def adapt() -> None:
+        """MCP tooling adapters and format converters."""
+
+    _create_tools_commands(adapt)
+    _create_converter_commands(adapt)

@@ -4,6 +4,7 @@
 import json
 import sys
 from pathlib import Path
+from typing import Any
 
 import click
 from rich.console import Console
@@ -140,8 +141,109 @@ def metadata(prompt_id: str) -> None:
 # Legacy tool commands removed - use the MCP server directly for tool functionality
 
 
+def _select_server_templates(template: tuple) -> dict[str, Any]:
+    """Select server templates based on input."""
+    available_templates = get_available_server_templates()
+    selected_servers = {}
+
+    if template:
+        for template_name in template:
+            if template_name in available_templates:
+                selected_servers[template_name] = available_templates[template_name]
+            else:
+                console.print(f"[yellow]Warning: Unknown template '{template_name}'[/yellow]")
+    else:
+        # Default to superprompts if no templates specified
+        selected_servers = {"superprompts": available_templates["superprompts"]}
+
+    return selected_servers
+
+
+def _generate_config_by_format(generator: MCPConfigGenerator, selected_servers: dict[str, Any], format_type: str) -> dict[str, Any]:
+    """Generate configuration based on format type."""
+    if format_type == "cursor":
+        return generator.generate_cursor_config(selected_servers)
+    if format_type == "vscode":
+        return generator.generate_vscode_config(selected_servers)
+    # generic
+    return generator.generate_generic_config(selected_servers)
+
+
+def _handle_config_merge(
+    generator: MCPConfigGenerator, config: dict[str, Any], selected_servers: dict[str, Any], format_type: str, output: str | None
+) -> dict[str, Any]:
+    """Handle merging with existing configuration."""
+    output_path = Path(output) if output else None
+    if output_path is None:
+        if format_type == "cursor":
+            output_path = Path("mcp.json")
+        elif format_type == "vscode":
+            output_path = Path(".vscode/mcp.json")
+        else:
+            output_path = Path("mcp_config.json")
+
+    existing_config = generator.load_existing_config(output_path)
+    if existing_config:
+        config = generator.merge_configs(existing_config, selected_servers, format_type)
+
+    return config
+
+
+def _display_config_summary(selected_servers: dict[str, Any]) -> None:
+    """Display configuration summary table."""
+    table = Table(title="Generated MCP Configuration")
+    table.add_column("Server", style="cyan")
+    table.add_column("Command", style="green")
+    table.add_column("Description", style="white")
+
+    for name, server in selected_servers.items():
+        table.add_row(
+            name,
+            f"{server.command} {' '.join(server.args)}",
+            server.description or "No description",
+        )
+
+    console.print(table)
+
+
+def _detect_config_format(config: dict[str, Any]) -> str:
+    """Auto-detect configuration format."""
+    if "mcpServers" in config:
+        return "cursor"
+    if "mcp" in config and "servers" in config.get("mcp", {}):
+        return "vscode"
+    return "generic"
+
+
+def _extract_servers_from_config(config: dict[str, Any], format_type: str) -> dict[str, Any]:
+    """Extract servers from configuration based on format."""
+    if format_type == "cursor" and "mcpServers" in config:
+        return config["mcpServers"]
+    if (format_type == "vscode" and "mcp" in config) or (format_type == "generic" and "mcp" in config):
+        return config["mcp"].get("servers", {})
+    return {}
+
+
+def _display_validation_summary(servers: dict[str, Any], format_type: str) -> None:
+    """Display validation summary table."""
+    if not servers:
+        return
+
+    table = Table(title=f"Configured Servers ({format_type})")
+    table.add_column("Name", style="cyan")
+    table.add_column("Command", style="green")
+
+    for name, server_config in servers.items():
+        command = server_config.get("command", "N/A")
+        args = server_config.get("args", [])
+        full_command = f"{command} {' '.join(args)}" if args else command
+        table.add_row(name, full_command)
+
+    console.print(table)
+
+
 @main.group()
-def config():
+def config() -> None:
     """Manage MCP server configurations."""
 
 
@@ -181,45 +283,18 @@ def create(format_type: str, output: str | None, template: tuple, merge: bool, d
         generator = MCPConfigGenerator()
 
         # Get server templates
-        available_templates = get_available_server_templates()
-        selected_servers = {}
-
-        if template:
-            for template_name in template:
-                if template_name in available_templates:
-                    selected_servers[template_name] = available_templates[template_name]
-                else:
-                    console.print(f"[yellow]Warning: Unknown template '{template_name}'[/yellow]")
-        else:
-            # Default to superprompts if no templates specified
-            selected_servers = {"superprompts": available_templates["superprompts"]}
+        selected_servers = _select_server_templates(template)
 
         if not selected_servers:
             console.print("[red]No valid server templates selected[/red]")
             return
 
         # Generate configuration
-        if format_type == "cursor":
-            config = generator.generate_cursor_config(selected_servers)
-        elif format_type == "vscode":
-            config = generator.generate_vscode_config(selected_servers)
-        else:  # generic
-            config = generator.generate_generic_config(selected_servers)
+        config = _generate_config_by_format(generator, selected_servers, format_type)
 
         # Handle merging with existing config
         if merge:
-            output_path = Path(output) if output else None
-            if output_path is None:
-                if format_type == "cursor":
-                    output_path = Path("mcp.json")
-                elif format_type == "vscode":
-                    output_path = Path(".vscode/mcp.json")
-                else:
-                    output_path = Path("mcp_config.json")
-
-            existing_config = generator.load_existing_config(output_path)
-            if existing_config:
-                config = generator.merge_configs(existing_config, selected_servers, format_type)
+            config = _handle_config_merge(generator, config, selected_servers, format_type, output)
 
         # Validate configuration
         errors = validate_config(config, format_type)
@@ -242,19 +317,7 @@ def create(format_type: str, output: str | None, template: tuple, merge: bool, d
             console.print(f"[green]Configuration saved to: {output_path}[/green]")
 
             # Show summary
-            table = Table(title="Generated MCP Configuration")
-            table.add_column("Server", style="cyan")
-            table.add_column("Command", style="green")
-            table.add_column("Description", style="white")
-
-            for name, server in selected_servers.items():
-                table.add_row(
-                    name,
-                    f"{server.command} {' '.join(server.args)}",
-                    server.description or "No description",
-                )
-
-            console.print(table)
+            _display_config_summary(selected_servers)
 
     except Exception as e:
         console.print(f"[red]Error creating configuration: {e}[/red]")
@@ -276,17 +339,12 @@ def validate(config_file: str, format_type: str) -> None:
         config_path = Path(config_file)
 
         # Load configuration
-        with open(config_path, encoding="utf-8") as f:
+        with config_path.open(encoding="utf-8") as f:
             config = json.load(f)
 
         # Auto-detect format if needed
         if format_type == "auto":
-            if "mcpServers" in config:
-                format_type = "cursor"
-            elif "mcp" in config and "servers" in config.get("mcp", {}):
-                format_type = "vscode"
-            else:
-                format_type = "generic"
+            format_type = _detect_config_format(config)
 
         # Validate configuration
         errors = validate_config(config, format_type)
@@ -295,25 +353,8 @@ def validate(config_file: str, format_type: str) -> None:
             console.print(f"[green]✓ Configuration is valid ({format_type} format)[/green]")
 
             # Show configuration summary
-            if format_type == "cursor" and "mcpServers" in config:
-                servers = config["mcpServers"]
-            elif (format_type == "vscode" and "mcp" in config) or (format_type == "generic" and "mcp" in config):
-                servers = config["mcp"].get("servers", {})
-            else:
-                servers = {}
-
-            if servers:
-                table = Table(title=f"Configured Servers ({format_type})")
-                table.add_column("Name", style="cyan")
-                table.add_column("Command", style="green")
-
-                for name, server_config in servers.items():
-                    command = server_config.get("command", "N/A")
-                    args = server_config.get("args", [])
-                    full_command = f"{command} {' '.join(args)}" if args else command
-                    table.add_row(name, full_command)
-
-                console.print(table)
+            servers = _extract_servers_from_config(config, format_type)
+            _display_validation_summary(servers, format_type)
         else:
             console.print(f"[red]✗ Configuration has {len(errors)} error(s):[/red]")
             for error in errors:
@@ -326,7 +367,7 @@ def validate(config_file: str, format_type: str) -> None:
 
 
 @config.command()
-def templates():
+def templates() -> None:
     """List available server configuration templates."""
     try:
         templates = get_available_server_templates()
@@ -368,7 +409,7 @@ def convert(config_file: str, format_type: str) -> None:
         config_path = Path(config_file)
 
         # Load configuration
-        with open(config_path, encoding="utf-8") as f:
+        with config_path.open(encoding="utf-8") as f:
             config = json.load(f)
 
         # Auto-detect source format

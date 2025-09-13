@@ -75,12 +75,11 @@ Tasks are configured with the following constants:
 - SCHEMAS_DIR: "schemas"
 """
 
-import os
 import sys
 from pathlib import Path
+from typing import Any
 
 from invoke import Context, task
-from typing import Any
 
 # Project configuration
 PROJECT_NAME = "superprompts"
@@ -124,13 +123,13 @@ def install(c: Context) -> None:
 
 
 @task
-def update(c):
+def update(c: Context) -> None:
     """Update dependencies with Poetry."""
     run_poetry(c, "update")
 
 
 @task
-def test(c, unit=False, integration=False, startup=False, coverage=False):
+def test(c: Context, unit: bool = False, integration: bool = False, startup: bool = False, coverage: bool = False) -> None:
     """Run tests."""
     if unit:
         run_poetry(c, "run", "pytest", f"{TEST_DIR}/", "-v")
@@ -165,26 +164,26 @@ def format_code(c: Context, check: bool = False) -> None:
 
 
 @task
-def lint(c):
+def lint(c: Context) -> None:
     """Run linting with Ruff."""
     run_poetry(c, "run", "ruff", "check", ".")
 
 
 @task
-def type_check(c):
+def type_check(c: Context) -> None:
     """Run type checking with mypy."""
     run_poetry(c, "run", "mypy", f"{PACKAGE_NAME}/")
 
 
 @task
-def check_all(c):
+def check_all(c: Context) -> None:
     """Run all code quality checks."""
     lint(c)
     type_check(c)
 
 
 @task
-def validate(c, cursor_rules=False, schemas=False):
+def validate(c: Context, cursor_rules: bool = False, schemas: bool = False) -> None:
     """Run validation checks."""
     if cursor_rules:
         Path("artifacts").mkdir(parents=True, exist_ok=True)
@@ -215,7 +214,7 @@ def validate(c, cursor_rules=False, schemas=False):
 
 
 @task
-def run_server(c, debug=False):
+def run_server(c: Context, debug: bool = False) -> None:
     """Run the MCP server."""
     if debug:
         run_poetry(c, "run", "python", "-m", f"{PACKAGE_NAME}.mcp.server", "--debug")
@@ -224,13 +223,13 @@ def run_server(c, debug=False):
 
 
 @task
-def build(c):
+def build(c: Context) -> None:
     """Build the package with Poetry."""
     run_poetry(c, "build")
 
 
 @task
-def publish(c):
+def publish(c: Context) -> None:
     """Publish package to PyPI with Poetry."""
     run_poetry(c, "publish")
 
@@ -263,21 +262,21 @@ def clean(c: Context, cache: bool = False, all_artifacts: bool = False) -> None:
 
 
 @task
-def setup(c):
+def setup(c: Context) -> None:
     """Complete development setup."""
     install(c)
-    format(c)
+    format_code(c)
     check_all(c)
 
 
 @task
-def pre_commit(c):
+def pre_commit(c: Context) -> None:
     """Run pre-commit checks."""
     run_poetry(c, "run", "pre-commit", "run", "--all-files")
 
 
 @task
-def ci(c):
+def ci(c: Context) -> None:
     """Run CI pipeline locally."""
     check_all(c)
     test(c)
@@ -285,13 +284,13 @@ def ci(c):
 
 
 @task
-def nox(c, session="test"):
+def nox(c: Context, session: str = "test") -> None:
     """Run Nox sessions."""
     run_poetry(c, "run", "nox", "-s", session)
 
 
 @task
-def status(c):
+def status(c: Context) -> None:
     """Show project status."""
     # Python version
     c.run("poetry run python --version", hide=True)

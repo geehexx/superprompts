@@ -125,7 +125,7 @@ class TestMCPConfigGenerator:
         assert output_path.name == "mcp.json"
         assert output_path.exists()
 
-        with open(output_path) as f:
+        with output_path.open() as f:
             saved_config = json.load(f)
 
         assert saved_config == config
@@ -168,7 +168,7 @@ class TestMCPConfigGenerator:
         test_config = {"mcpServers": {"existing": {"command": "python", "args": ["-m", "existing.server"]}}}
 
         config_path = self.temp_dir / "mcp.json"
-        with open(config_path, "w") as f:
+        with config_path.open("w") as f:
             json.dump(test_config, f)
 
         loaded_config = self.generator.load_existing_config(config_path)

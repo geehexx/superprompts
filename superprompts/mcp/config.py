@@ -106,7 +106,7 @@ class MCPConfigGenerator:
         output_path.parent.mkdir(parents=True, exist_ok=True)
 
         # Write configuration
-        with open(output_path, "w", encoding="utf-8") as f:
+        with output_path.open("w", encoding="utf-8") as f:
             json.dump(config, f, indent=2, ensure_ascii=False)
 
         return output_path
@@ -117,7 +117,7 @@ class MCPConfigGenerator:
             return None
 
         try:
-            with open(config_path, encoding="utf-8") as f:
+            with config_path.open(encoding="utf-8") as f:
                 data = json.load(f)
                 if isinstance(data, dict):
                     return data
@@ -125,6 +125,52 @@ class MCPConfigGenerator:
         except (OSError, json.JSONDecodeError) as e:
             console.print(f"[yellow]Warning: Could not load existing config: {e}[/yellow]")
             return None
+
+    def _server_to_dict(self, server: MCPServerConfig) -> dict[str, Any]:
+        """Convert MCPServerConfig to dictionary."""
+        return {
+            "command": server.command,
+            "args": server.args,
+            "env": server.env or {},
+            "cwd": server.cwd,
+        }
+
+    def _server_to_generic_dict(self, server: MCPServerConfig) -> dict[str, Any]:
+        """Convert MCPServerConfig to generic dictionary format."""
+        return {
+            "name": server.name,
+            "command": server.command,
+            "args": server.args,
+            "env": server.env or {},
+            "cwd": server.cwd,
+            "description": server.description,
+            "version": server.version,
+        }
+
+    def _merge_cursor_config(self, existing: dict[str, Any], new_servers: dict[str, MCPServerConfig]) -> None:
+        """Merge servers into Cursor format configuration."""
+        if "mcpServers" not in existing:
+            existing["mcpServers"] = {}
+        for name, server in new_servers.items():
+            existing["mcpServers"][name] = self._server_to_dict(server)
+
+    def _merge_vscode_config(self, existing: dict[str, Any], new_servers: dict[str, MCPServerConfig]) -> None:
+        """Merge servers into VS Code format configuration."""
+        if "mcp" not in existing:
+            existing["mcp"] = {}
+        if "servers" not in existing["mcp"]:
+            existing["mcp"]["servers"] = {}
+        for name, server in new_servers.items():
+            existing["mcp"]["servers"][name] = self._server_to_dict(server)
+
+    def _merge_generic_config(self, existing: dict[str, Any], new_servers: dict[str, MCPServerConfig]) -> None:
+        """Merge servers into generic format configuration."""
+        if "mcp" not in existing:
+            existing["mcp"] = {"version": "1.0.0", "servers": {}}
+        if "servers" not in existing["mcp"]:
+            existing["mcp"]["servers"] = {}
+        for name, server in new_servers.items():
+            existing["mcp"]["servers"][name] = self._server_to_generic_dict(server)
 
     def merge_configs(
         self,
@@ -134,42 +180,11 @@ class MCPConfigGenerator:
     ) -> dict[str, Any]:
         """Merge new servers into existing configuration."""
         if format_type == "cursor":
-            if "mcpServers" not in existing:
-                existing["mcpServers"] = {}
-            for name, server in new_servers.items():
-                existing["mcpServers"][name] = {
-                    "command": server.command,
-                    "args": server.args,
-                    "env": server.env or {},
-                    "cwd": server.cwd,
-                }
+            self._merge_cursor_config(existing, new_servers)
         elif format_type == "vscode":
-            if "mcp" not in existing:
-                existing["mcp"] = {}
-            if "servers" not in existing["mcp"]:
-                existing["mcp"]["servers"] = {}
-            for name, server in new_servers.items():
-                existing["mcp"]["servers"][name] = {
-                    "command": server.command,
-                    "args": server.args,
-                    "env": server.env or {},
-                    "cwd": server.cwd,
-                }
+            self._merge_vscode_config(existing, new_servers)
         else:  # generic
-            if "mcp" not in existing:
-                existing["mcp"] = {"version": "1.0.0", "servers": {}}
-            if "servers" not in existing["mcp"]:
-                existing["mcp"]["servers"] = {}
-            for name, server in new_servers.items():
-                existing["mcp"]["servers"][name] = {
-                    "name": server.name,
-                    "command": server.command,
-                    "args": server.args,
-                    "env": server.env or {},
-                    "cwd": server.cwd,
-                    "description": server.description,
-                    "version": server.version,
-                }
+            self._merge_generic_config(existing, new_servers)
 
         return existing
 
@@ -216,23 +231,32 @@ def get_available_server_templates() -> dict[str, MCPServerConfig]:
     }
 
 
-def validate_config(config: dict[str, Any], format_type: str) -> list[str]:
-    """Validate MCP configuration and return any errors."""
+def _validate_cursor_config(config: dict[str, Any]) -> list[str]:
+    """Validate Cursor format configuration."""
     errors = []
+    if "mcpServers" not in config:
+        errors.append("Missing 'mcpServers' key in Cursor configuration")
+    else:
+        for name, server_config in config["mcpServers"].items():
+            if "command" not in server_config:
+                errors.append(f"Server '{name}' missing 'command' field")
+    return errors
 
-    if format_type == "cursor":
-        if "mcpServers" not in config:
-            errors.append("Missing 'mcpServers' key in Cursor configuration")
-        else:
-            for name, server_config in config["mcpServers"].items():
-                if "command" not in server_config:
-                    errors.append(f"Server '{name}' missing 'command' field")
-    elif format_type == "vscode":
-        if "mcp" not in config:
-            errors.append("Missing 'mcp' key in VS Code configuration")
-        elif "servers" not in config["mcp"]:
-            errors.append("Missing 'servers' key in VS Code configuration")
-    elif "mcp" not in config:
+
+def _validate_vscode_config(config: dict[str, Any]) -> list[str]:
+    """Validate VS Code format configuration."""
+    errors = []
+    if "mcp" not in config:
+        errors.append("Missing 'mcp' key in VS Code configuration")
+    elif "servers" not in config["mcp"]:
+        errors.append("Missing 'servers' key in VS Code configuration")
+    return errors
+
+
+def _validate_generic_config(config: dict[str, Any]) -> list[str]:
+    """Validate generic format configuration."""
+    errors = []
+    if "mcp" not in config:
         errors.append("Missing 'mcp' key in generic configuration")
     elif "servers" not in config["mcp"]:
         errors.append("Missing 'servers' key in generic configuration")
@@ -242,5 +266,13 @@ def validate_config(config: dict[str, Any], format_type: str) -> list[str]:
                 errors.append(f"Server '{name}' missing 'name' field in generic configuration")
             if "command" not in server_config:
                 errors.append(f"Server '{name}' missing 'command' field in generic configuration")
-
     return errors
+
+
+def validate_config(config: dict[str, Any], format_type: str) -> list[str]:
+    """Validate MCP configuration and return any errors."""
+    if format_type == "cursor":
+        return _validate_cursor_config(config)
+    if format_type == "vscode":
+        return _validate_vscode_config(config)
+    return _validate_generic_config(config)

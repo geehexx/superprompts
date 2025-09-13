@@ -4,6 +4,7 @@
 These tests ensure that the server can start properly and handle initialization correctly.
 """
 
+import shutil
 import subprocess
 import sys
 import time
@@ -24,45 +25,50 @@ class ServerStartupTester:
     def test_imports(self) -> bool:
         """Test that all required modules can be imported."""
         try:
-            import superprompts.mcp.config
-            import superprompts.mcp.server
-            import superprompts.prompts.cursor_rules
-            import superprompts.prompts.repo_docs
-
-            return True
+            import superprompts.mcp.config  # noqa: PLC0415
+            import superprompts.mcp.server  # noqa: PLC0415
+            import superprompts.prompts.cursor_rules  # noqa: PLC0415
+            import superprompts.prompts.repo_docs  # noqa: F401, PLC0415
         except ImportError:
             return False
+        else:
+            return True
 
     def test_server_creation(self) -> bool:
         """Test that a server instance can be created."""
         try:
-            from superprompts.mcp.server import mcp
+            from superprompts.mcp.server import mcp  # noqa: PLC0415
 
             # Test that the FastMCP instance exists
             assert mcp is not None
-            return True
         except Exception:
             return False
+        else:
+            return True
 
     def test_initialization_options(self) -> bool:
         """Test that initialization options can be created properly."""
         try:
-            from superprompts.mcp.config import MCPServerConfig
+            from superprompts.mcp.config import MCPServerConfig  # noqa: PLC0415
 
             # Test creating a server config
             config = MCPServerConfig(name="test_server", command="python", args=["-m", "test.server"])
             assert config.name == "test_server"
-            return True
         except Exception:
             return False
+        else:
+            return True
 
     def test_server_startup_script(self) -> bool:
         """Test that the startup script runs without errors."""
         try:
             # Test that we can run the server module directly
+            python_path = shutil.which("python3")
+            if not python_path:
+                return False
             result = subprocess.run(
                 [
-                    "python3",
+                    python_path,
                     "-c",
                     "import superprompts.mcp.server; print('Server module loads successfully')",
                 ],
@@ -71,16 +77,20 @@ class ServerStartupTester:
                 capture_output=True,
                 text=True,
             )
-            return result.returncode == 0
         except Exception:
             return False
+        else:
+            return result.returncode == 0
 
     def test_server_startup_process(self) -> bool:
         """Test that the server process can start and stop cleanly."""
         try:
             # Start the server in the background using the new CLI
+            python_path = shutil.which("python3")
+            if not python_path:
+                return False
             self.server_process = subprocess.Popen(
-                ["python3", "-m", "superprompts.mcp.server"],
+                [python_path, "-m", "superprompts.mcp.server"],
                 cwd=self.server_dir,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
@@ -110,16 +120,20 @@ class ServerStartupTester:
         # Check if required packages are installed
         try:
             # Use the system Python since packages are installed there
+            python_path = shutil.which("python3")
+            if not python_path:
+                return False
             result = subprocess.run(
-                ["python3", "-c", "import fastmcp, pydantic, click, rich"],
+                [python_path, "-c", "import fastmcp, pydantic, click, rich"],
                 check=False,
                 cwd=self.server_dir,
                 capture_output=True,
                 text=True,
             )
-            return result.returncode == 0
         except Exception:
             return False
+        else:
+            return result.returncode == 0
 
     def cleanup(self) -> None:
         """Clean up any running processes."""
@@ -156,7 +170,7 @@ class ServerStartupTester:
 
 
 def main() -> None:
-    """Main entry point for the test script."""
+    """Run the main test script."""
     tester = ServerStartupTester()
     try:
         success = tester.run_all_tests()

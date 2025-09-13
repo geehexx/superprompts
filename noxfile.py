@@ -92,7 +92,7 @@ def format_code(session: Any) -> None:
 
 
 @nox.session(python="3.12")
-def type_check(session):
+def type_check(session: Any) -> None:
     """Run type checking with mypy."""
     session.install("uv")
     session.run("uv", "install", external=True)
@@ -100,7 +100,7 @@ def type_check(session):
 
 
 @nox.session(python="3.12")
-def security(session):
+def security(session: Any) -> None:
     """Run security checks with bandit."""
     session.install("uv")
     session.run("uv", "install", external=True)
@@ -118,7 +118,7 @@ def security(session):
 
 
 @nox.session(python="3.12")
-def coverage(session):
+def coverage(session: Any) -> None:
     """Run tests with coverage."""
     session.install("uv")
     session.run("uv", "install", external=True)
@@ -134,7 +134,7 @@ def coverage(session):
 
 
 @nox.session(python="3.12")
-def docs(session):
+def docs(session: Any) -> None:
     """Build documentation."""
     session.install("uv")
     session.run("uv", "install", external=True)
@@ -143,7 +143,7 @@ def docs(session):
 
 
 @nox.session(python="3.12")
-def clean(session):
+def clean(session: Any) -> None:
     """Clean up build artifacts."""
     session.run(
         "rm",
@@ -175,7 +175,7 @@ def clean(session):
 
 
 @nox.session(python=PYTHON_VERSIONS)
-def ci(session):
+def ci(session: Any) -> None:
     """Run CI pipeline."""
     session.install("uv")
     session.run("uv", "install", external=True)
