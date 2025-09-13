@@ -136,7 +136,7 @@ def compose_prompt(
 
     # Get base prompt
     if base_prompt_id == "repo_docs":
-        base_prompt = repo_docs_prompt
+        base_prompt: RepoDocsPrompt | CursorRulesPrompt = repo_docs_prompt
     elif base_prompt_id == "cursor_rules":
         base_prompt = cursor_rules_prompt
     else:
@@ -152,13 +152,16 @@ def compose_prompt(
         element_name = addition.get("element_name")
 
         if source_prompt_id == "repo_docs":
-            source_prompt = repo_docs_prompt
+            source_prompt: RepoDocsPrompt | CursorRulesPrompt = repo_docs_prompt
         elif source_prompt_id == "cursor_rules":
             source_prompt = cursor_rules_prompt
         else:
             continue
 
-        element = source_prompt.get_element(element_type, element_name)
+        if element_type and element_name:
+            element = source_prompt.get_element(element_type, element_name)
+        else:
+            element = None
         if element:
             composed_text += f"\n\n## {element_name}\n{element}"
 
@@ -172,7 +175,7 @@ def compose_prompt(
     return composed_text
 
 
-def main():
+def main() -> None:
     """Main entry point for the MCP server."""
     mcp.run()
 

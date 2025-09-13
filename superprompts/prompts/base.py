@@ -31,7 +31,7 @@ class PromptMetadata:
 class BasePrompt(ABC):
     """Base class for all prompts."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.metadata = self._create_metadata()
 
     @abstractmethod

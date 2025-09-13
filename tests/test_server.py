@@ -12,7 +12,7 @@ sys.path.insert(0, str(project_root))
 from superprompts.mcp.server import compose_prompt, get_prompt, get_prompt_metadata, list_prompts
 
 
-async def test_server():
+async def test_server() -> None:
     """Test the MCP server functionality."""
     # Test list_prompts
     prompts = list_prompts.fn("all")

@@ -44,14 +44,14 @@ def _save_or_display_config(config: dict[str, Any] | None, output: str | None, t
         except OSError as e:
             logger.exception("Error saving configuration to %s: %s", output, e)
             console.print(f"[red]Error saving configuration: {e}[/red]")
-        except json.JSONEncodeError as e:
+        except (json.JSONDecodeError, TypeError) as e:
             logger.exception("Error encoding configuration as JSON: %s", e)
             console.print(f"[red]Error encoding configuration: {e}[/red]")
     else:
         try:
             formatted_config = json.dumps(config, indent=2, ensure_ascii=False)
             console.print(Panel(formatted_config, title=title))
-        except json.JSONEncodeError as e:
+        except (json.JSONDecodeError, TypeError) as e:
             logger.exception("Error encoding configuration for display: %s", e)
             console.print(f"[red]Error displaying configuration: {e}[/red]")
 
@@ -59,7 +59,7 @@ def _save_or_display_config(config: dict[str, Any] | None, output: str | None, t
 class MCPToolingAdapter:
     """Adapter for integrating with existing MCP tooling."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.available_tools = self._detect_available_tools()
 
     def _detect_available_tools(self) -> dict[str, bool]:
@@ -148,7 +148,10 @@ class MCPToolingAdapter:
 
                 # Load the first JSON file found
                 with open(config_files[0]) as f:
-                    return json.load(f)
+                    data = json.load(f)
+                    if isinstance(data, dict):
+                        return data
+                    return None
 
         except subprocess.TimeoutExpired:
             console.print("[red]FastMCP command timed out[/red]")
@@ -258,7 +261,7 @@ class MCPToolingAdapter:
 class MCPFormatConverter:
     """Converter for adapting MCP configurations between different formats."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.generator = MCPConfigGenerator()
 
     def convert_from_openapi(self, openapi_spec: str | dict[str, Any], server_name: str) -> dict[str, Any] | None:

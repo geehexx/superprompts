@@ -21,6 +21,8 @@ Python package with dynamic prompt generators and CLI tools.
 General documentation on prompting techniques, best practices, and standards.
 
 - **[Available Prompts](docs/available_prompts.md)** - Complete index of all available prompts with usage patterns
+- **[Architecture Guide](docs/architecture_guide.md)** - System architecture and design principles
+- **[API Reference](docs/api_reference.md)** - Complete API documentation with examples
 - **[AI Prompting Best Practices](docs/ai_prompting_best_practices.md)** - Core principles and reusable patterns for designing robust prompts
 - **[AI-Ready Documentation Standards](docs/ai_ready_documentation_standards.md)** - Standards for creating maintainable, discoverable documentation
 - **[Commit Message Standards](docs/commit_message_standards.md)** - Git commit message conventions and best practices
@@ -32,9 +34,11 @@ General documentation on prompting techniques, best practices, and standards.
 ### Using Prompts Directly
 1. **Quick Start**: Follow the [Quick Start Guide](docs/quick_start_guide.md) to get up and running in minutes
 2. **Browse Prompts**: Check the [Available Prompts](docs/available_prompts.md) index for ready-to-use prompts
-3. **Learn Techniques**: Read the guides in [docs/](docs/) to understand the underlying principles
-4. **Use CLI Tools**: Use `uv run superprompts get-prompt <prompt_id>` to generate prompts with parameters
-5. **Customize**: Adjust parameters to adapt prompts to your specific needs
+3. **Learn Architecture**: Read the [Architecture Guide](docs/architecture_guide.md) to understand the system design
+4. **API Reference**: Check the [API Reference](docs/api_reference.md) for detailed usage examples
+5. **Learn Techniques**: Read the guides in [docs/](docs/) to understand the underlying principles
+6. **Use CLI Tools**: Use `uv run superprompts get-prompt <prompt_id>` to generate prompts with parameters
+7. **Customize**: Adjust parameters to adapt prompts to your specific needs
 
 ### Using the MCP Server with Cursor IDE
 1. **Install**: `uv sync` (from source) or `pip install superprompts` (from PyPI)
@@ -86,7 +90,7 @@ See the [Development Guide](docs/development_guide.md) for comprehensive setup a
   - Standard pre-commit hooks for common issues
 - **Multi-environment Testing**: `uv run nox` (tests across Python 3.10, 3.11, 3.12)
 - **CI/CD**: GitHub Actions workflow with comprehensive testing and validation
-- **Code Quality**: 
+- **Code Quality**:
   - Ruff for fast linting and formatting
   - MyPy for comprehensive type checking
   - Bandit for security analysis

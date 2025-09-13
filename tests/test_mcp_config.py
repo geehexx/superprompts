@@ -2,6 +2,7 @@
 """Tests for MCP configuration management functionality."""
 
 import json
+import shutil
 import tempfile
 from pathlib import Path
 
@@ -22,7 +23,7 @@ from superprompts.mcp.config import (
 class TestMCPServerConfig:
     """Test MCPServerConfig model."""
 
-    def test_valid_server_config(self):
+    def test_valid_server_config(self) -> None:
         """Test creating a valid server configuration."""
         config = MCPServerConfig(
             name="test-server",
@@ -40,7 +41,7 @@ class TestMCPServerConfig:
         assert config.env is None
         assert config.cwd is None
 
-    def test_minimal_server_config(self):
+    def test_minimal_server_config(self) -> None:
         """Test creating a minimal server configuration."""
         config = MCPServerConfig(name="minimal", command="echo")
 
@@ -50,7 +51,7 @@ class TestMCPServerConfig:
         assert config.description is None
         assert config.version is None
 
-    def test_invalid_server_config(self):
+    def test_invalid_server_config(self) -> None:
         """Test validation errors for invalid configurations."""
         with pytest.raises(ValidationError):
             MCPServerConfig()  # Missing required fields
@@ -62,18 +63,16 @@ class TestMCPServerConfig:
 class TestMCPConfigGenerator:
     """Test MCPConfigGenerator functionality."""
 
-    def setup_method(self):
+    def setup_method(self) -> None:
         """Set up test fixtures."""
         self.temp_dir = Path(tempfile.mkdtemp())
         self.generator = MCPConfigGenerator(self.temp_dir)
 
-    def teardown_method(self):
+    def teardown_method(self) -> None:
         """Clean up test fixtures."""
-        import shutil
-
         shutil.rmtree(self.temp_dir, ignore_errors=True)
 
-    def test_generate_cursor_config(self):
+    def test_generate_cursor_config(self) -> None:
         """Test generating Cursor-compatible configuration."""
         servers = {"test": MCPServerConfig(name="test", command="python", args=["-m", "test.server"])}
 
@@ -84,7 +83,7 @@ class TestMCPConfigGenerator:
         assert config["mcpServers"]["test"]["command"] == "python"
         assert config["mcpServers"]["test"]["args"] == ["-m", "test.server"]
 
-    def test_generate_vscode_config(self):
+    def test_generate_vscode_config(self) -> None:
         """Test generating VS Code-compatible configuration."""
         servers = {"test": MCPServerConfig(name="test", command="python", args=["-m", "test.server"])}
 
@@ -95,7 +94,7 @@ class TestMCPConfigGenerator:
         assert "test" in config["mcp"]["servers"]
         assert config["mcp"]["servers"]["test"]["command"] == "python"
 
-    def test_generate_generic_config(self):
+    def test_generate_generic_config(self) -> None:
         """Test generating generic configuration."""
         servers = {
             "test": MCPServerConfig(
@@ -116,7 +115,7 @@ class TestMCPConfigGenerator:
         assert config["mcp"]["servers"]["test"]["name"] == "test"
         assert config["mcp"]["servers"]["test"]["description"] == "Test server"
 
-    def test_save_config_cursor(self):
+    def test_save_config_cursor(self) -> None:
         """Test saving Cursor configuration."""
         servers = {"test": MCPServerConfig(name="test", command="python", args=["-m", "test.server"])}
 
@@ -131,7 +130,7 @@ class TestMCPConfigGenerator:
 
         assert saved_config == config
 
-    def test_save_config_vscode(self):
+    def test_save_config_vscode(self) -> None:
         """Test saving VS Code configuration."""
         servers = {"test": MCPServerConfig(name="test", command="python", args=["-m", "test.server"])}
 
@@ -142,7 +141,7 @@ class TestMCPConfigGenerator:
         assert output_path.name == "mcp.json"
         assert output_path.exists()
 
-    def test_save_config_generic(self):
+    def test_save_config_generic(self) -> None:
         """Test saving generic configuration."""
         servers = {"test": MCPServerConfig(name="test", command="python", args=["-m", "test.server"])}
 
@@ -152,7 +151,7 @@ class TestMCPConfigGenerator:
         assert output_path.name == "mcp_config.json"
         assert output_path.exists()
 
-    def test_save_config_custom_path(self):
+    def test_save_config_custom_path(self) -> None:
         """Test saving configuration to custom path."""
         servers = {"test": MCPServerConfig(name="test", command="python", args=["-m", "test.server"])}
 
@@ -163,7 +162,7 @@ class TestMCPConfigGenerator:
         assert output_path == custom_path
         assert output_path.exists()
 
-    def test_load_existing_config(self):
+    def test_load_existing_config(self) -> None:
         """Test loading existing configuration."""
         # Create a test config file
         test_config = {"mcpServers": {"existing": {"command": "python", "args": ["-m", "existing.server"]}}}
@@ -175,13 +174,13 @@ class TestMCPConfigGenerator:
         loaded_config = self.generator.load_existing_config(config_path)
         assert loaded_config == test_config
 
-    def test_load_nonexistent_config(self):
+    def test_load_nonexistent_config(self) -> None:
         """Test loading non-existent configuration."""
         config_path = self.temp_dir / "nonexistent.json"
         loaded_config = self.generator.load_existing_config(config_path)
         assert loaded_config is None
 
-    def test_merge_configs_cursor(self):
+    def test_merge_configs_cursor(self) -> None:
         """Test merging configurations for Cursor format."""
         existing = {"mcpServers": {"existing": {"command": "python", "args": ["-m", "existing.server"]}}}
 
@@ -193,7 +192,7 @@ class TestMCPConfigGenerator:
         assert "new" in merged["mcpServers"]
         assert merged["mcpServers"]["new"]["command"] == "node"
 
-    def test_merge_configs_vscode(self):
+    def test_merge_configs_vscode(self) -> None:
         """Test merging configurations for VS Code format."""
         existing = {"mcp": {"servers": {"existing": {"command": "python", "args": ["-m", "existing.server"]}}}}
 
@@ -209,7 +208,7 @@ class TestMCPConfigGenerator:
 class TestServerTemplates:
     """Test server configuration templates."""
 
-    def test_superprompts_template(self):
+    def test_superprompts_template(self) -> None:
         """Test SuperPrompts server template."""
         config = create_superprompts_server_config()
 
@@ -219,7 +218,7 @@ class TestServerTemplates:
         assert config.description is not None
         assert config.version == "1.0.0"
 
-    def test_github_template(self):
+    def test_github_template(self) -> None:
         """Test GitHub server template."""
         config = create_github_server_config()
 
@@ -228,7 +227,7 @@ class TestServerTemplates:
         assert "github-mcp-server" in " ".join(config.args)
         assert config.description is not None
 
-    def test_filesystem_template(self):
+    def test_filesystem_template(self) -> None:
         """Test filesystem server template."""
         config = create_filesystem_server_config()
 
@@ -237,7 +236,7 @@ class TestServerTemplates:
         assert "@modelcontextprotocol/server-filesystem" in " ".join(config.args)
         assert config.description is not None
 
-    def test_get_available_templates(self):
+    def test_get_available_templates(self) -> None:
         """Test getting available server templates."""
         templates = get_available_server_templates()
 
@@ -253,14 +252,14 @@ class TestServerTemplates:
 class TestConfigValidation:
     """Test configuration validation."""
 
-    def test_validate_cursor_config_valid(self):
+    def test_validate_cursor_config_valid(self) -> None:
         """Test validating valid Cursor configuration."""
         config = {"mcpServers": {"test": {"command": "python", "args": ["-m", "test.server"]}}}
 
         errors = validate_config(config, "cursor")
         assert len(errors) == 0
 
-    def test_validate_cursor_config_invalid(self):
+    def test_validate_cursor_config_invalid(self) -> None:
         """Test validating invalid Cursor configuration."""
         config = {"servers": {"test": {"command": "python"}}}  # Wrong key
 
@@ -268,21 +267,21 @@ class TestConfigValidation:
         assert len(errors) > 0
         assert any("mcpServers" in error for error in errors)
 
-    def test_validate_vscode_config_valid(self):
+    def test_validate_vscode_config_valid(self) -> None:
         """Test validating valid VS Code configuration."""
         config = {"mcp": {"servers": {"test": {"command": "python", "args": ["-m", "test.server"]}}}}
 
         errors = validate_config(config, "vscode")
         assert len(errors) == 0
 
-    def test_validate_vscode_config_invalid(self):
+    def test_validate_vscode_config_invalid(self) -> None:
         """Test validating invalid VS Code configuration."""
         config = {"mcpServers": {"test": {"command": "python"}}}  # Wrong structure
 
         errors = validate_config(config, "vscode")
         assert len(errors) > 0
 
-    def test_validate_generic_config_valid(self):
+    def test_validate_generic_config_valid(self) -> None:
         """Test validating valid generic configuration."""
         config = {
             "mcp": {
@@ -300,7 +299,7 @@ class TestConfigValidation:
         errors = validate_config(config, "generic")
         assert len(errors) == 0
 
-    def test_validate_generic_config_invalid(self):
+    def test_validate_generic_config_invalid(self) -> None:
         """Test validating invalid generic configuration."""
         config = {
             "mcp": {
@@ -320,18 +319,16 @@ class TestConfigValidation:
 class TestIntegration:
     """Integration tests for MCP configuration management."""
 
-    def setup_method(self):
+    def setup_method(self) -> None:
         """Set up test fixtures."""
         self.temp_dir = Path(tempfile.mkdtemp())
         self.generator = MCPConfigGenerator(self.temp_dir)
 
-    def teardown_method(self):
+    def teardown_method(self) -> None:
         """Clean up test fixtures."""
-        import shutil
-
         shutil.rmtree(self.temp_dir, ignore_errors=True)
 
-    def test_full_workflow_cursor(self):
+    def test_full_workflow_cursor(self) -> None:
         """Test complete workflow for Cursor configuration."""
         # Create server configs
         servers = {
@@ -354,7 +351,7 @@ class TestIntegration:
         loaded_config = self.generator.load_existing_config(output_path)
         assert loaded_config == config
 
-    def test_merge_workflow(self):
+    def test_merge_workflow(self) -> None:
         """Test merging new servers into existing configuration."""
         # Create initial configuration
         initial_servers = {"existing": MCPServerConfig(name="existing", command="python", args=["-m", "existing.server"])}
@@ -364,6 +361,7 @@ class TestIntegration:
 
         # Load existing configuration
         existing_config = self.generator.load_existing_config(config_path)
+        assert existing_config is not None, "Failed to load existing config"
 
         # Add new servers
         new_servers = {
@@ -383,7 +381,7 @@ class TestIntegration:
         errors = validate_config(merged_config, "cursor")
         assert len(errors) == 0
 
-    def test_format_conversion(self):
+    def test_format_conversion(self) -> None:
         """Test converting between different configuration formats."""
         # Start with Cursor format
         servers = {

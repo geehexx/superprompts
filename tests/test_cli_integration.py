@@ -6,10 +6,12 @@ and handle various scenarios appropriately.
 """
 
 import json
+import shutil
 import tempfile
 from pathlib import Path
 from unittest.mock import patch
 
+import click
 from click.testing import CliRunner
 
 from superprompts.mcp.adapters import MCPFormatConverter, MCPToolingAdapter, create_adapter_cli_commands
@@ -18,23 +20,20 @@ from superprompts.mcp.adapters import MCPFormatConverter, MCPToolingAdapter, cre
 class TestCLIIntegration:
     """Test CLI command integration."""
 
-    def setup_method(self):
+    def setup_method(self) -> None:
         """Set up test fixtures."""
         self.runner = CliRunner()
         self.temp_dir = Path(tempfile.mkdtemp())
 
-    def teardown_method(self):
+    def teardown_method(self) -> None:
         """Clean up test fixtures."""
-        import shutil
-
         shutil.rmtree(self.temp_dir, ignore_errors=True)
 
-    def test_tools_command(self):
+    def test_tools_command(self) -> None:
         """Test the tools command."""
-        import click
 
         @click.group()
-        def cli():
+        def cli() -> None:
             pass
 
         create_adapter_cli_commands(cli)
@@ -47,12 +46,11 @@ class TestCLIIntegration:
             assert "Available MCP Tools" in result.output
             assert "fastmcp" in result.output
 
-    def test_fastmcp_command_success(self):
+    def test_fastmcp_command_success(self) -> None:
         """Test successful FastMCP configuration generation."""
-        import click
 
         @click.group()
-        def cli():
+        def cli() -> None:
             pass
 
         create_adapter_cli_commands(cli)
@@ -66,12 +64,11 @@ class TestCLIIntegration:
             assert result.exit_code == 0
             mock_gen.assert_called_once()
 
-    def test_fastmcp_command_with_output(self):
+    def test_fastmcp_command_with_output(self) -> None:
         """Test FastMCP configuration generation with output file."""
-        import click
 
         @click.group()
-        def cli():
+        def cli() -> None:
             pass
 
         create_adapter_cli_commands(cli)
@@ -91,12 +88,11 @@ class TestCLIIntegration:
                 saved_config = json.load(f)
             assert saved_config == mock_config
 
-    def test_fastmcp_command_failure(self):
+    def test_fastmcp_command_failure(self) -> None:
         """Test FastMCP configuration generation failure."""
-        import click
 
         @click.group()
-        def cli():
+        def cli() -> None:
             pass
 
         create_adapter_cli_commands(cli)
@@ -108,12 +104,11 @@ class TestCLIIntegration:
             assert result.exit_code == 0
             assert "No configuration generated" in result.output
 
-    def test_install_command(self):
+    def test_install_command(self) -> None:
         """Test the install command."""
-        import click
 
         @click.group()
-        def cli():
+        def cli() -> None:
             pass
 
         create_adapter_cli_commands(cli)
@@ -125,12 +120,11 @@ class TestCLIIntegration:
             assert result.exit_code == 0
             mock_install.assert_called_once_with("test-package", "test-package")
 
-    def test_list_servers_command(self):
+    def test_list_servers_command(self) -> None:
         """Test the list servers command."""
-        import click
 
         @click.group()
-        def cli():
+        def cli() -> None:
             pass
 
         create_adapter_cli_commands(cli)
@@ -144,12 +138,11 @@ class TestCLIIntegration:
             assert "server1" in result.output
             assert "server2" in result.output
 
-    def test_list_servers_empty(self):
+    def test_list_servers_empty(self) -> None:
         """Test the list servers command with no servers."""
-        import click
 
         @click.group()
-        def cli():
+        def cli() -> None:
             pass
 
         create_adapter_cli_commands(cli)
@@ -161,12 +154,11 @@ class TestCLIIntegration:
             assert result.exit_code == 0
             assert "No installed servers found" in result.output
 
-    def test_test_command(self):
+    def test_test_command(self) -> None:
         """Test the test command."""
-        import click
 
         @click.group()
-        def cli():
+        def cli() -> None:
             pass
 
         create_adapter_cli_commands(cli)
@@ -178,12 +170,11 @@ class TestCLIIntegration:
             assert result.exit_code == 0
             mock_test.assert_called_once_with("test-server", None)
 
-    def test_test_command_with_tool(self):
+    def test_test_command_with_tool(self) -> None:
         """Test the test command with specific tool."""
-        import click
 
         @click.group()
-        def cli():
+        def cli() -> None:
             pass
 
         create_adapter_cli_commands(cli)
@@ -195,12 +186,11 @@ class TestCLIIntegration:
             assert result.exit_code == 0
             mock_test.assert_called_once_with("test-server", "test-tool")
 
-    def test_from_openapi_command(self):
+    def test_from_openapi_command(self) -> None:
         """Test the from-openapi command."""
-        import click
 
         @click.group()
-        def cli():
+        def cli() -> None:
             pass
 
         create_adapter_cli_commands(cli)
@@ -214,12 +204,11 @@ class TestCLIIntegration:
             assert result.exit_code == 0
             mock_convert.assert_called_once_with("openapi.json", "api-server")
 
-    def test_from_docker_command(self):
+    def test_from_docker_command(self) -> None:
         """Test the from-docker command."""
-        import click
 
         @click.group()
-        def cli():
+        def cli() -> None:
             pass
 
         create_adapter_cli_commands(cli)
@@ -233,12 +222,11 @@ class TestCLIIntegration:
             assert result.exit_code == 0
             mock_convert.assert_called_once_with("docker-compose.yml", "docker-service")
 
-    def test_from_npm_command(self):
+    def test_from_npm_command(self) -> None:
         """Test the from-npm command."""
-        import click
 
         @click.group()
-        def cli():
+        def cli() -> None:
             pass
 
         create_adapter_cli_commands(cli)
@@ -252,12 +240,11 @@ class TestCLIIntegration:
             assert result.exit_code == 0
             mock_convert.assert_called_once_with("package.json", "npm-script")
 
-    def test_error_handling(self):
+    def test_error_handling(self) -> None:
         """Test error handling in CLI commands."""
-        import click
 
         @click.group()
-        def cli():
+        def cli() -> None:
             pass
 
         create_adapter_cli_commands(cli)
@@ -273,18 +260,16 @@ class TestCLIIntegration:
 class TestFormatConverter:
     """Test format converter functionality."""
 
-    def setup_method(self):
+    def setup_method(self) -> None:
         """Set up test fixtures."""
         self.converter = MCPFormatConverter()
         self.temp_dir = Path(tempfile.mkdtemp())
 
-    def teardown_method(self):
+    def teardown_method(self) -> None:
         """Clean up test fixtures."""
-        import shutil
-
         shutil.rmtree(self.temp_dir, ignore_errors=True)
 
-    def test_openapi_conversion(self):
+    def test_openapi_conversion(self) -> None:
         """Test OpenAPI to MCP conversion."""
         openapi_spec = {
             "openapi": "3.0.0",
@@ -297,7 +282,7 @@ class TestFormatConverter:
         assert "mcpServers" in result
         assert "test-api" in result["mcpServers"]
 
-    def test_docker_compose_conversion(self):
+    def test_docker_compose_conversion(self) -> None:
         """Test Docker Compose to MCP conversion."""
         compose_file = self.temp_dir / "docker-compose.yml"
         compose_data = {"services": {"web": {"image": "nginx", "command": ["nginx", "-g", "daemon off;"]}}}
@@ -310,7 +295,7 @@ class TestFormatConverter:
         assert "mcpServers" in result
         assert "web" in result["mcpServers"]
 
-    def test_package_json_conversion(self):
+    def test_package_json_conversion(self) -> None:
         """Test package.json to MCP conversion."""
         package_file = self.temp_dir / "package.json"
         package_data = {"name": "test-package", "version": "1.0.0", "scripts": {"start": "node server.js", "test": "npm test"}}

@@ -6,6 +6,10 @@ This directory contains general documentation about AI prompting techniques, bes
 
 ### Core Guides
 
+- **[Architecture Guide](architecture_guide.md)** - System architecture and design principles for understanding the SuperPrompts codebase.
+
+- **[API Reference](api_reference.md)** - Complete API documentation with examples, type hints, and usage patterns.
+
 - **[AI Prompting Best Practices](ai_prompting_best_practices.md)** - A comprehensive guide to designing robust prompts that generate accurate, auditable, and maintainable outputs across diverse repositories and tasks.
 
 - **[AI-Ready Documentation Standards](ai_ready_documentation_standards.md)** - Practical, AI-optimized documentation standards that improve discoverability, readability, and safe maintenance across repositories.
@@ -20,11 +24,15 @@ This directory contains general documentation about AI prompting techniques, bes
 
 ### Development Guides
 
-- **[Development Guide](development_guide.md)** - Complete development setup and workflow using Poetry, Ruff, Nox, and Invoke.
+- **[Development Guide](development_guide.md)** - Complete development setup and workflow using uv, Ruff, Nox, and Invoke.
 
 - **[Contributing Guide](contributing_guide.md)** - How to contribute to the project with modern development tools and practices.
 
 - **[Troubleshooting Guide](troubleshooting_guide.md)** - Common issues and solutions for development environment and tools.
+
+### Project Management
+
+- **[CHANGELOG](../CHANGELOG.md)** - Version history and change tracking for the project.
 
 ### Prompt Documentation
 

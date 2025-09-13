@@ -201,7 +201,7 @@ async def main():
         async with ClientSession(read, write) as session:
             # List available tools
             tools = await session.list_tools()
-            
+
             # Call a tool
             result = await session.call_tool("list_prompts", {"category": "all"})
             print(result)

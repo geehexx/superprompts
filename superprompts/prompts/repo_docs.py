@@ -179,7 +179,10 @@ class RepoDocsPrompt(BasePrompt):
             "output_contract": "1) RepoDocsInventory (JSON)\n2) DocGapsReport (JSON)\n3) MappingPlan (JSON) + BatchPlan (≤5 items)\n4) ProposedDocs (new files; full contents)\n5) ProposedEdits (existing files; minimal diffs or full contents)\n6) ContentAtRisk\n7) DocDiffReport + Recoverables\n8) IndexProposal\n9) QA Checklist\n10) Generic Commands\n11) NextBatchRecommendation",
         }
 
-        return elements.get(element_type, {}).get(element_name, "")
+        element_dict = elements.get(element_type, {})
+        if isinstance(element_dict, dict):
+            return element_dict.get(element_name, "")
+        return ""
 
     def validate_parameters(self, parameters: dict[str, Any]) -> dict[str, Any]:
         """Validate and sanitize parameters."""

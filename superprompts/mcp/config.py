@@ -118,7 +118,10 @@ class MCPConfigGenerator:
 
         try:
             with open(config_path, encoding="utf-8") as f:
-                return json.load(f)
+                data = json.load(f)
+                if isinstance(data, dict):
+                    return data
+                return None
         except (OSError, json.JSONDecodeError) as e:
             console.print(f"[yellow]Warning: Could not load existing config: {e}[/yellow]")
             return None

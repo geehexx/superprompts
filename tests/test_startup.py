@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Regression tests for MCP server startup and initialization.
+
 These tests ensure that the server can start properly and handle initialization correctly.
 """
 
@@ -16,23 +17,23 @@ sys.path.insert(0, str(project_root))
 class ServerStartupTester:
     """Test class for server startup functionality."""
 
-    def __init__(self):
-        self.server_process = None
+    def __init__(self) -> None:
+        self.server_process: subprocess.Popen[str] | None = None
         self.server_dir = Path(__file__).parent.parent  # Project root
 
-    def test_imports(self):
+    def test_imports(self) -> bool:
         """Test that all required modules can be imported."""
         try:
-            from superprompts.mcp.config import MCPServerConfig
-            from superprompts.mcp.server import main
-            from superprompts.prompts.cursor_rules import CursorRulesPrompt
-            from superprompts.prompts.repo_docs import RepoDocsPrompt
+            import superprompts.mcp.config
+            import superprompts.mcp.server
+            import superprompts.prompts.cursor_rules
+            import superprompts.prompts.repo_docs
 
             return True
         except ImportError:
             return False
 
-    def test_server_creation(self):
+    def test_server_creation(self) -> bool:
         """Test that a server instance can be created."""
         try:
             from superprompts.mcp.server import mcp
@@ -43,7 +44,7 @@ class ServerStartupTester:
         except Exception:
             return False
 
-    def test_initialization_options(self):
+    def test_initialization_options(self) -> bool:
         """Test that initialization options can be created properly."""
         try:
             from superprompts.mcp.config import MCPServerConfig
@@ -55,7 +56,7 @@ class ServerStartupTester:
         except Exception:
             return False
 
-    def test_server_startup_script(self):
+    def test_server_startup_script(self) -> bool:
         """Test that the startup script runs without errors."""
         try:
             # Test that we can run the server module directly
@@ -74,7 +75,7 @@ class ServerStartupTester:
         except Exception:
             return False
 
-    def test_server_startup_process(self):
+    def test_server_startup_process(self) -> bool:
         """Test that the server process can start and stop cleanly."""
         try:
             # Start the server in the background using the new CLI
@@ -100,7 +101,7 @@ class ServerStartupTester:
         finally:
             self.cleanup()
 
-    def test_virtual_environment(self):
+    def test_virtual_environment(self) -> bool:
         """Test that the virtual environment is properly set up."""
         venv_path = self.server_dir / ".venv"
         if not venv_path.exists():
@@ -120,9 +121,9 @@ class ServerStartupTester:
         except Exception:
             return False
 
-    def cleanup(self):
+    def cleanup(self) -> None:
         """Clean up any running processes."""
-        if self.server_process and self.server_process.poll() is None:
+        if self.server_process is not None and self.server_process.poll() is None:
             self.server_process.terminate()
             try:
                 self.server_process.wait(timeout=5)
@@ -130,7 +131,7 @@ class ServerStartupTester:
                 self.server_process.kill()
             self.server_process = None
 
-    def run_all_tests(self):
+    def run_all_tests(self) -> bool:
         """Run all regression tests."""
         tests = [
             self.test_imports,
@@ -154,7 +155,7 @@ class ServerStartupTester:
         return passed == total
 
 
-def main():
+def main() -> None:
     """Main entry point for the test script."""
     tester = ServerStartupTester()
     try:

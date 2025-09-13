@@ -167,22 +167,22 @@ def generate_prompt(
     customizations: dict[str, Any] | None = None
 ) -> str:
     """Generate a prompt with the given parameters.
-    
+
     Args:
         prompt_id: The ID of the prompt to generate
         parameters: Parameters for the prompt
         customizations: Optional customizations to apply
-        
+
     Returns:
         The generated prompt text
-        
+
     Raises:
         ValueError: If prompt_id is invalid
         TypeError: If parameters are not a dictionary
     """
     if not prompt_id:
         raise ValueError("prompt_id cannot be empty")
-    
+
     # Implementation here
     return generated_prompt
 ```

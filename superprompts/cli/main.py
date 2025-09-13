@@ -14,14 +14,14 @@ from rich.text import Text
 
 from superprompts.mcp.adapters import create_adapter_cli_commands
 from superprompts.mcp.config import MCPConfigGenerator, MCPServerConfig, get_available_server_templates, validate_config
-from superprompts.mcp.server import compose_prompt, get_prompt, get_prompt_metadata, handle_call_tool, handle_list_tools, list_prompts
+from superprompts.mcp.server import compose_prompt, get_prompt, get_prompt_metadata, list_prompts
 
 console = Console()
 
 
 @click.group()
 @click.version_option(version="1.0.0")
-def main():
+def main() -> None:
     """SuperPrompts CLI - Manage AI prompts and MCP server."""
 
 
@@ -178,61 +178,7 @@ def compose(
     asyncio.run(_compose())
 
 
-@main.command()
-def tools():
-    """List all available MCP tools."""
-
-    async def _list_tools():
-        try:
-            tools = await handle_list_tools()
-
-            table = Table(title="Available MCP Tools")
-            table.add_column("Name", style="cyan")
-            table.add_column("Description", style="white")
-
-            for tool in tools:
-                table.add_row(tool.name, tool.description)
-
-            console.print(table)
-
-        except Exception as e:
-            console.print(f"[red]Error listing tools: {e}[/red]")
-            sys.exit(1)
-
-    asyncio.run(_list_tools())
-
-
-@main.command()
-@click.argument("tool_name")
-@click.argument("arguments", required=False)
-def call_tool(tool_name: str, arguments: str | None):
-    """Call a specific MCP tool with arguments."""
-
-    async def _call_tool():
-        try:
-            # Parse arguments if provided
-            args = {}
-            if arguments:
-                try:
-                    args = json.loads(arguments)
-                except json.JSONDecodeError:
-                    console.print(f"[red]Invalid JSON in arguments: {arguments}[/red]")
-                    sys.exit(1)
-
-            result = await handle_call_tool(tool_name, args)
-
-            # Display result
-            for content in result:
-                if hasattr(content, "text"):
-                    console.print(Panel(content.text, title=f"Tool: {tool_name}"))
-                else:
-                    console.print(f"[yellow]Tool {tool_name} returned: {content}[/yellow]")
-
-        except Exception as e:
-            console.print(f"[red]Error calling tool: {e}[/red]")
-            sys.exit(1)
-
-    asyncio.run(_call_tool())
+# Legacy tool commands removed - use the MCP server directly for tool functionality
 
 
 @main.group()
