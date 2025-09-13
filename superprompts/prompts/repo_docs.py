@@ -94,7 +94,7 @@ class RepoDocsPrompt(BasePrompt):
             "Global Guardrails",
             "- No silent content loss. Any removal/condensing must appear in ContentAtRisk with reinsertion targets.",
             "- Batches ≤{batch_size} files per round; await approval.",
-            "- Tooling-agnostic: suggest generic commands; never assume Makefiles or project-specific scripts.",
+            "- Tooling-agnostic: suggest generic commands; never assume specific build tools or project-specific scripts.",
             "",
             "Advanced Prompting Controls",
             "- Plan then Act: think step-by-step, then produce outputs.",
@@ -175,7 +175,7 @@ class RepoDocsPrompt(BasePrompt):
             "guardrail": {
                 "no_silent_loss": "No silent content loss. Any removal/condensing must appear in ContentAtRisk with reinsertion targets.",
                 "batch_approval": "Batches ≤5 files per round; await approval.",
-                "tooling_agnostic": "Tooling-agnostic: suggest generic commands; never assume Makefiles or project-specific scripts.",
+                "tooling_agnostic": "Tooling-agnostic: suggest generic commands; never assume specific build tools or project-specific scripts.",
             },
             "output_contract": "1) RepoDocsInventory (JSON)\n2) DocGapsReport (JSON)\n3) MappingPlan (JSON) + BatchPlan (≤5 items)\n4) ProposedDocs (new files; full contents)\n5) ProposedEdits (existing files; minimal diffs or full contents)\n6) ContentAtRisk\n7) DocDiffReport + Recoverables\n8) IndexProposal\n9) QA Checklist\n10) Generic Commands\n11) NextBatchRecommendation",
         }

@@ -214,7 +214,6 @@ tests/
 - `tasks.py` - Invoke task definitions
 - `noxfile.py` - Nox testing configuration
 - `.pre-commit-config.yaml` - Pre-commit hooks
-- `Makefile` - Legacy Makefile (still supported)
 
 ### Environment Variables
 

@@ -18,7 +18,6 @@ This guide covers the complete development workflow for the SuperPrompts project
 - **Python 3.10+**: Required for MCP compatibility
 - **Poetry**: For dependency management and packaging
 - **Git**: For version control
-- **Make** (optional): For legacy Makefile targets
 
 ## Initial Setup
 
@@ -367,18 +366,11 @@ The CI/CD pipeline is configured in `.github/workflows/ci.yml` and includes:
 3. **API Documentation**: Document all public APIs
 4. **README Updates**: Keep README files current
 
-## Legacy Makefile Support
+## Development Commands
 
-While we've migrated to Invoke, the original Makefile is still available for compatibility:
+Use Invoke for all development tasks:
 
 ```bash
-# Legacy commands (still work)
-make help
-make test
-make clean
-make install
-
-# But prefer Invoke commands
 poetry run invoke help
 poetry run invoke test
 poetry run invoke clean

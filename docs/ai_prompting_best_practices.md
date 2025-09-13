@@ -35,7 +35,7 @@ A reusable, high-signal reference for designing robust prompts that generate acc
 - For any destructive change, require a loss auditor: {removed_blocks[], modified_blocks[], moved_blocks[], risk_level} and Recoverables + Revert options.
 
 ### 6) Tooling-Agnostic Commands
-- Suggest common commands in order of likelihood; never assume a Makefile.
+- Suggest common commands in order of likelihood; never assume specific build tools.
 - Encourage graceful skipping if not present.
 
 ## Quality Checklists
