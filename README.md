@@ -36,11 +36,24 @@ General documentation on prompting techniques, best practices, and standards.
 4. **Use CLI Tools**: Use `poetry run superprompts get-prompt <prompt_id>` to generate prompts with parameters
 5. **Customize**: Adjust parameters to adapt prompts to your specific needs
 
-### Using the MCP Server
+### Using the MCP Server with Cursor IDE
 1. **Install**: `poetry install` (from source) or `pip install superprompts` (from PyPI)
-2. **Start Server**: `poetry run superprompts-server` or `poetry run python -m superprompts.mcp.server`
-3. **Use CLI**: `poetry run superprompts list-prompts` to see available prompts
-4. **Integrate**: Use the MCP protocol to integrate with AI tools
+2. **Setup Cursor**: Create `.cursor/mcp.json` with the server configuration:
+   ```json
+   {
+     "mcpServers": {
+       "superprompts": {
+         "command": "poetry",
+         "args": ["run", "python", "-m", "superprompts.mcp.server"],
+         "env": {},
+         "cwd": "/absolute/path/to/your/project"
+       }
+     }
+   }
+   ```
+3. **Add to .gitignore**: Add `.cursor/mcp.json` to prevent committing machine-specific paths
+4. **Restart Cursor**: Restart Cursor IDE to load the MCP server
+5. **Use Tools**: Access 4 MCP tools in Cursor: `list_prompts`, `get_prompt`, `get_prompt_metadata`, `compose_prompt`
 
 ### MCP Configuration Management
 1. **Create Config**: `poetry run superprompts config create --template superprompts --template github`

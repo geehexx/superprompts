@@ -37,7 +37,59 @@ pip install -e .
 
 ## Usage
 
-### Starting the MCP Server
+### Cursor IDE Integration
+
+The SuperPrompts MCP server is designed to work seamlessly with Cursor IDE. Follow these steps to set it up:
+
+#### 1. Create Cursor Configuration
+
+Create the `.cursor` directory and MCP configuration file:
+
+```bash
+# Create .cursor directory
+mkdir -p .cursor
+
+# Create MCP configuration
+cat > .cursor/mcp.json << 'EOF'
+{
+  "mcpServers": {
+    "superprompts": {
+      "command": "poetry",
+      "args": ["run", "python", "-m", "superprompts.mcp.server"],
+      "env": {},
+      "cwd": "/absolute/path/to/your/project"
+    }
+  }
+}
+EOF
+```
+
+#### 2. Update Configuration
+
+Replace `/absolute/path/to/your/project` with your actual project directory path.
+
+#### 3. Add to .gitignore
+
+Add the following line to your `.gitignore` file:
+
+```
+# Cursor MCP configuration (machine-specific)
+.cursor/mcp.json
+```
+
+#### 4. Restart Cursor
+
+Restart Cursor IDE to load the MCP server configuration.
+
+#### 5. Verify Integration
+
+Once Cursor restarts, you should see the SuperPrompts MCP server available with the following tools:
+- `list_prompts` - List all available prompts with their metadata
+- `get_prompt` - Get a specific prompt by ID with optional parameters
+- `get_prompt_metadata` - Get detailed metadata about a specific prompt
+- `compose_prompt` - Compose a custom prompt by combining elements from different prompts
+
+### Starting the MCP Server Manually
 
 #### Using Poetry (Recommended)
 ```bash

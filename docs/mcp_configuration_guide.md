@@ -35,9 +35,9 @@ poetry run superprompts config templates
 
 ## Configuration Formats
 
-### Cursor Format (`mcp.json`)
+### Cursor Format (`.cursor/mcp.json`)
 
-The Cursor IDE uses a specific format for MCP server configurations:
+The Cursor IDE uses a specific format for MCP server configurations. **Important**: The configuration file must be placed in `.cursor/mcp.json` (not in the project root) and should not be committed to version control as it contains machine-specific paths.
 
 ```json
 {
@@ -45,16 +45,19 @@ The Cursor IDE uses a specific format for MCP server configurations:
     "superprompts": {
       "command": "poetry",
       "args": ["run", "python", "-m", "superprompts.mcp.server"],
-      "description": "SuperPrompts MCP Server - Access to AI prompt collection"
-    },
-    "github": {
-      "command": "npx",
-      "args": ["-y", "github-mcp-server"],
-      "description": "GitHub MCP Server - Repository operations"
+      "env": {},
+      "cwd": "/absolute/path/to/your/project"
     }
   }
 }
 ```
+
+**Setup Instructions:**
+1. Create the `.cursor` directory in your project root
+2. Place the `mcp.json` file inside `.cursor/mcp.json`
+3. Update the `cwd` path to your actual project directory
+4. Add `.cursor/mcp.json` to your `.gitignore` file
+5. Restart Cursor IDE
 
 ### VS Code Format (`.vscode/mcp.json`)
 
@@ -284,16 +287,36 @@ Specify a working directory for MCP servers:
 
 ### Cursor IDE
 
-1. Create MCP configuration:
+1. Create the `.cursor` directory in your project root:
    ```bash
-   poetry run superprompts config create --format cursor
+   mkdir -p .cursor
    ```
 
-2. Place the generated `mcp.json` in your project root
+2. Create MCP configuration file `.cursor/mcp.json`:
+   ```json
+   {
+     "mcpServers": {
+       "superprompts": {
+         "command": "poetry",
+         "args": ["run", "python", "-m", "superprompts.mcp.server"],
+         "env": {},
+         "cwd": "/absolute/path/to/your/project"
+       }
+     }
+   }
+   ```
 
-3. Restart Cursor IDE
+3. Update the `cwd` path to your actual project directory
 
-4. The MCP servers will be available in Cursor's AI features
+4. Add `.cursor/mcp.json` to your `.gitignore` file:
+   ```
+   # Cursor MCP configuration (machine-specific)
+   .cursor/mcp.json
+   ```
+
+5. Restart Cursor IDE
+
+6. The MCP servers will be available in Cursor's AI features
 
 ### VS Code
 
@@ -332,7 +355,7 @@ Specify a working directory for MCP servers:
    ```
 
 2. Check file location:
-   - Cursor: `mcp.json` in project root
+   - Cursor: `.cursor/mcp.json` in project root (not `mcp.json`)
    - VS Code: `.vscode/mcp.json` in project root
 
 3. Restart your AI tool/IDE
