@@ -81,17 +81,47 @@ For other MCP-compatible tools:
 
 ### Installation
 
-1. Install SuperPrompts:
-   ```bash
-   pip install superprompts
-   # or
-   uv add superprompts
-   ```
+#### From Source (Recommended)
+```bash
+# Clone the repository
+git clone <repository-url>
+cd superprompts
 
-2. Verify installation:
-   ```bash
-   uv run python -m superprompts.mcp.server --help
-   ```
+# Install uv (if not already installed)
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Install dependencies
+uv sync --dev
+
+# Verify installation
+uv run superprompts --help
+```
+
+#### From PyPI (when published)
+```bash
+pip install superprompts
+# or
+uv add superprompts
+```
+
+### FastMCP Implementation
+
+The SuperPrompts MCP server is built using **FastMCP**, providing:
+- Simplified development with decorator-based API
+- Better performance and efficiency
+- Type safety with modern Python 3.10+ syntax
+- Async support and rich features
+- Comprehensive testing and code quality
+
+### Running the Server
+
+```bash
+# Start MCP server
+uv run python -m superprompts.mcp.server
+
+# With debug mode
+SUPERPROMPTS_LOG_LEVEL=DEBUG uv run python -m superprompts.mcp.server
+```
 
 ### Configuration
 
@@ -140,14 +170,47 @@ The SuperPrompts MCP server provides access to a collection of high-quality AI p
 }
 ```
 
-### Available Tools
+### Available Prompts
 
-The SuperPrompts MCP server provides these tools:
+The SuperPrompts MCP server provides these prompts:
 
-- `list_prompts` - List all available prompts
-- `get_prompt` - Get a specific prompt with parameters
-- `get_prompt_metadata` - Get prompt metadata
-- `compose_prompt` - Compose custom prompts
+- `repo_docs` - Repository Documentation Rebuilder prompt
+- `cursor_rules` - Cursor Rules Generator prompt
+
+## Integration Examples
+
+### Cursor IDE Integration
+
+1. **Create Configuration**:
+   - Create `.cursor/mcp.json` manually using the examples above
+
+2. **Place Configuration**:
+   - Place config in `.cursor/mcp.json`
+   - Ensure absolute paths are correct
+   - Don't commit to version control
+
+3. **Restart Cursor**:
+   - Close and reopen Cursor
+   - Check MCP server status in settings
+
+### VS Code Integration
+
+1. **Create Configuration**:
+   - Create `.vscode/mcp.json` manually using the examples above
+
+2. **Add to Settings**:
+   - Open VS Code settings
+   - Add MCP configuration to settings.json
+   - Restart VS Code
+
+### Generic MCP Client Integration
+
+1. **Create Configuration**:
+   - Create MCP configuration manually using the examples above
+
+2. **Use with Client**:
+   - Configure your MCP client with the generated config
+   - Ensure the server command is accessible
 
 ## Other MCP Servers
 

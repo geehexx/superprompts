@@ -56,13 +56,13 @@ General documentation on prompting techniques, best practices, and standards.
    ```
 3. **Add to .gitignore**: Add `.cursor/mcp.json` to prevent committing machine-specific paths
 4. **Restart Cursor**: Restart Cursor IDE to load the MCP server
-5. **Use Tools**: Access 4 MCP tools in Cursor: `list_prompts`, `get_prompt`, `get_prompt_metadata`, `compose_prompt`
+5. **Use Prompts**: Access 2 MCP prompts in Cursor: `repo_docs`, `cursor_rules`
 
 ### MCP Configuration Management
 1. **Configure MCP Client**: Follow the [MCP Configuration Guide](docs/mcp_configuration.md)
 2. **Use Prompts**: Access prompts through your MCP client or CLI
 
-See the [MCP Server Guide](docs/mcp_server_guide.md) and [MCP Configuration Guide](docs/mcp_configuration_guide.md) for detailed usage instructions.
+See the [MCP Configuration Guide](docs/mcp_configuration.md) and [CLI Reference](docs/cli_reference.md) for detailed usage instructions.
 
 ### Development Setup
 

@@ -7,11 +7,9 @@ This module provides MCP server functionality for the SuperPrompts project.
 ### Server (`server.py`)
 FastMCP-based server that provides access to SuperPrompts functionality via MCP protocol.
 
-**Available Tools:**
-- `list_prompts` - List all available prompts
-- `get_prompt` - Get specific prompt with parameters
-- `get_prompt_metadata` - Get prompt metadata
-- `compose_prompt` - Compose custom prompts
+**Available Prompts:**
+- `repo_docs` - Repository Documentation Rebuilder prompt
+- `cursor_rules` - Cursor Rules Generator prompt
 
 ### Configuration
 For detailed MCP server configuration instructions, see the [MCP Configuration Guide](../../docs/mcp_configuration.md).
@@ -80,4 +78,4 @@ For detailed MCP server configuration instructions, see the [MCP Configuration G
 2. Register with `@server.tool()` decorator
 3. Update documentation
 
-For detailed API documentation, see the [main documentation](../../docs/README.md).
+For detailed API documentation, see the [API Reference](../../docs/api.md), [CLI Reference](../../docs/cli_reference.md), and [MCP Server Reference](../../docs/mcp_reference.md).

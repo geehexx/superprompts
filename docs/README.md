@@ -8,7 +8,9 @@ This directory contains general documentation about AI prompting techniques, bes
 
 - **[Architecture](architecture.md)** - System architecture and design principles for understanding the SuperPrompts codebase.
 
-- **[API](api.md)** - Complete API documentation with examples, type hints, and usage patterns.
+- **[API](api.md)** - Python API documentation with examples, type hints, and usage patterns.
+- **[CLI Reference](cli_reference.md)** - Complete CLI command reference and usage examples.
+- **[MCP Server Reference](mcp_reference.md)** - MCP server details and integration guide.
 
 - **[AI Prompting Best Practices](ai_prompting_best_practices.md)** - A comprehensive guide to designing robust prompts that generate accurate, auditable, and maintainable outputs across diverse repositories and tasks.
 
@@ -20,7 +22,7 @@ This directory contains general documentation about AI prompting techniques, bes
 
 - **[Cursor Rules Guide](cursor_rules_guide.md)** - Rule types, frontmatter fields, and validation for `.cursor/rules/`.
 
-- **[MCP Guide](mcp_guide.md)** - Complete guide to using the MCP server and CLI tools for programmatic access to prompts.
+- **[MCP Configuration Guide](mcp_configuration.md)** - Complete guide to configuring MCP servers for AI tools.
 
 ### Development Guides
 

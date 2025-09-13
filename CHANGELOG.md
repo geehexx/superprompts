@@ -55,7 +55,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Features
 - **Prompt System**: Modular prompt architecture with BasePrompt abstract class
-- **MCP Integration**: FastMCP server with 4 core tools (list_prompts, get_prompt, get_prompt_metadata, compose_prompt)
+- **MCP Integration**: FastMCP server with 2 core prompts (repo_docs, cursor_rules)
 - **CLI Interface**: Click-based command groups with async operations
 - **Configuration Management**: Support for multiple MCP server formats and templates
 - **Type Safety**: Full type hints and Pydantic models for data validation
@@ -91,7 +91,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **PromptMetadata**: Data class for prompt metadata
 - **RepoDocsPrompt**: Repository documentation rebuilder
 - **CursorRulesPrompt**: Cursor IDE rules generator
-- **MCP Server Tools**: list_prompts, get_prompt, get_prompt_metadata, compose_prompt
+- **MCP Server Prompts**: repo_docs, cursor_rules
 - **Configuration**: External MCP client configuration only
 - **CLI Commands**: list-prompts, get-prompt, metadata, compose, config
 

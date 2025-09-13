@@ -10,9 +10,9 @@ SuperPrompts is built around a modular architecture that separates concerns betw
 ┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
 │   CLI Tools     │    │   MCP Server     │    │  Prompt System  │
 │                 │    │                  │    │                 │
-│ • list-prompts  │◄──►│ • list_prompts   │◄──►│ • BasePrompt    │
-│ • get-prompt    │    │ • get_prompt     │    │ • RepoDocsPrompt│
-│ • config        │    │ • compose_prompt │    │ • CursorRules   │
+│ • list-prompts  │◄──►│ • repo_docs      │◄──►│ • BasePrompt    │
+│ • get-prompt    │    │ • cursor_rules   │    │ • RepoDocsPrompt│
+│ • metadata      │    │                  │    │ • CursorRules   │
 └─────────────────┘    └──────────────────┘    └─────────────────┘
          │                       │                       │
          └───────────────────────┼───────────────────────┘
@@ -163,3 +163,11 @@ Configuration is handled by external MCP clients, not by this project.
 - Caching layer for frequently used prompts
 - Metrics and analytics collection
 - Multi-language prompt support
+
+## Documentation
+
+For detailed API documentation, see:
+- [API Reference](api.md) - Python API documentation
+- [CLI Reference](cli_reference.md) - CLI command reference
+- [MCP Server Reference](mcp_reference.md) - MCP server details
+- [MCP Configuration Guide](mcp_configuration.md) - MCP server configuration
