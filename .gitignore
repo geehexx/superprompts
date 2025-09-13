@@ -307,3 +307,6 @@ requirements-lock.txt
 # Local development overrides
 local/
 locals/
+
+# Cursor MCP configuration (machine-specific)
+.cursor/mcp.json
