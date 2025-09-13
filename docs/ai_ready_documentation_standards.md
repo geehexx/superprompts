@@ -14,6 +14,7 @@ Provide practical, AI‑optimized documentation standards that improve discovera
 
 - **Root README**: quick value, install/run basics, links to canonical docs.
 - **Docs Index** (docs/README.md or similar): navigable tree to Task/Tutorial/Reference/Explanation.
+- **Code-specific documentation**: Co-locate with code (e.g., `schemas/README.md`, `superprompts/mcp/README.md`)
 - **Core topics** (suggested):
   - Getting Started (Task)
   - Architecture (Explanation/Reference)

@@ -1,6 +1,61 @@
-"""Nox configuration for SuperPrompts MCP Server."""
+"""Nox configuration for SuperPrompts MCP Server.
+
+This module provides multi-environment testing and development tasks using Nox.
+All sessions can be run using `uv run nox -s <session-name>` or `poetry run nox -s <session-name>`.
+
+## Available Sessions
+
+### Testing
+- `test` - Run tests across multiple Python versions (3.10, 3.11, 3.12)
+- `ci` - Run CI pipeline across multiple Python versions
+
+### Code Quality
+- `lint` - Run linting with Ruff
+- `format` - Format code with Ruff (--fix to auto-fix)
+- `type_check` - Run type checking with MyPy
+
+### Security and Coverage
+- `security` - Run security checks with Bandit
+- `coverage` - Run tests with coverage reporting
+
+### Documentation
+- `docs` - Build documentation (placeholder)
+
+### Maintenance
+- `clean` - Clean up build artifacts
+
+## Usage Examples
+
+```bash
+# Run all default sessions
+uv run nox
+
+# Run specific session
+uv run nox -s test
+uv run nox -s lint
+uv run nox -s type_check
+
+# Run tests on specific Python version
+uv run nox -s test-3.11
+uv run nox -s test-3.12
+
+# Run multiple sessions
+uv run nox -s lint -s type_check -s test
+
+# Run with verbose output
+uv run nox -s test --verbose
+```
+
+## Configuration
+
+- Python versions tested: 3.10, 3.11, 3.12
+- Default sessions: lint, type-check, test
+- All sessions use uv for dependency management
+- Sessions run in isolated virtual environments
+"""
 
 import nox
+from typing import Any
 
 # Python versions to test against
 PYTHON_VERSIONS = ["3.10", "3.11", "3.12"]
@@ -10,7 +65,7 @@ nox.options.sessions = ["lint", "type-check", "test"]
 
 
 @nox.session(python=PYTHON_VERSIONS)
-def test(session):
+def test(session: Any) -> None:
     """Run tests with pytest."""
     session.install("uv")
     session.run("uv", "sync", "--dev", external=True)
@@ -18,7 +73,7 @@ def test(session):
 
 
 @nox.session(python="3.12")
-def lint(session):
+def lint(session: Any) -> None:
     """Run linting with ruff."""
     session.install("uv")
     session.run("uv", "sync", "--dev", external=True)
@@ -27,7 +82,7 @@ def lint(session):
 
 
 @nox.session(python="3.12")
-def format(session):
+def format_code(session: Any) -> None:
     """Format code with ruff."""
     session.install("uv")
     session.run("uv", "install", external=True)

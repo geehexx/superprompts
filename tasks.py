@@ -1,10 +1,86 @@
-"""Invoke tasks for SuperPrompts MCP Server."""
+"""Invoke tasks for SuperPrompts MCP Server.
+
+This module provides task automation for the SuperPrompts project using Invoke.
+All tasks can be run using `uv run invoke <task-name>` or `poetry run invoke <task-name>`.
+
+## Available Tasks
+
+### Development Setup
+- `setup` - Complete development environment setup
+- `install` - Install dependencies with Poetry
+- `update` - Update dependencies with Poetry
+
+### Testing
+- `test` - Run tests with various options (--unit, --integration, --startup, --coverage)
+- `nox` - Run Nox sessions for multi-environment testing
+
+### Code Quality
+- `format` - Format code with Ruff (--check for validation only)
+- `lint` - Run linting with Ruff
+- `type_check` - Run type checking with MyPy
+- `check_all` - Run all code quality checks
+
+### Validation
+- `validate` - Run validation checks (--cursor-rules, --schemas)
+
+### Server Management
+- `run_server` - Run the MCP server (--debug for debug mode)
+
+### Build and Distribution
+- `build` - Build the package with Poetry
+- `publish` - Publish package to PyPI with Poetry
+
+### Maintenance
+- `clean` - Clean build artifacts and temporary files (--cache, --all)
+- `pre_commit` - Run pre-commit checks
+
+### CI/CD
+- `ci` - Run CI pipeline locally
+
+### Project Status
+- `status` - Show project status
+- `help` - Show available tasks
+
+## Usage Examples
+
+```bash
+# Development workflow
+uv run invoke setup
+uv run invoke format
+uv run invoke check_all
+uv run invoke test
+
+# Run specific tests
+uv run invoke test --unit
+uv run invoke test --integration --coverage
+
+# Run Nox sessions
+uv run invoke nox
+uv run invoke nox --session test
+
+# Clean up
+uv run invoke clean --all
+
+# Run full CI locally
+uv run invoke ci
+```
+
+## Configuration
+
+Tasks are configured with the following constants:
+- PROJECT_NAME: "superprompts"
+- PACKAGE_NAME: "superprompts"
+- TEST_DIR: "tests"
+- SCRIPTS_DIR: "scripts"
+- SCHEMAS_DIR: "schemas"
+"""
 
 import os
 import sys
 from pathlib import Path
 
-from invoke import task
+from invoke import Context, task
+from typing import Any
 
 # Project configuration
 PROJECT_NAME = "superprompts"
@@ -23,7 +99,7 @@ class Colors:
     NC = "\033[0m"  # No Color
 
 
-def run_poetry(c, command, *args):
+def run_poetry(c: Context, command: str, *args: str) -> Any:
     """Run a poetry command with proper error handling."""
     full_command = f"poetry {command}"
     if args:
@@ -36,13 +112,13 @@ def run_poetry(c, command, *args):
 
 
 @task
-def help(c):
+def show_help(c: Context) -> None:
     """Show available tasks."""
     c.run("invoke --list")
 
 
 @task
-def install(c):
+def install(c: Context) -> None:
     """Install dependencies with Poetry."""
     run_poetry(c, "install")
 
@@ -79,7 +155,7 @@ def test(c, unit=False, integration=False, startup=False, coverage=False):
 
 
 @task
-def format(c, check=False):
+def format_code(c: Context, check: bool = False) -> None:
     """Format code with Ruff."""
     if check:
         run_poetry(c, "run", "ruff", "format", "--check", ".")
@@ -111,7 +187,7 @@ def check_all(c):
 def validate(c, cursor_rules=False, schemas=False):
     """Run validation checks."""
     if cursor_rules:
-        os.makedirs("artifacts", exist_ok=True)
+        Path("artifacts").mkdir(parents=True, exist_ok=True)
         run_poetry(
             c,
             "run",
@@ -160,9 +236,9 @@ def publish(c):
 
 
 @task
-def clean(c, cache=False, all=False):
+def clean(c: Context, cache: bool = False, all_artifacts: bool = False) -> None:
     """Clean build artifacts and temporary files."""
-    if all:
+    if all_artifacts:
         run_poetry(c, "cache", "clear", "--all", "pypi")
         clean(c, cache=True)
     elif cache:
@@ -241,6 +317,6 @@ def status(c):
 
 # Default task
 @task(default=True)
-def default(c):
-    """Default task - show help."""
-    help(c)
+def default(c: Context) -> None:
+    """Show help by default."""
+    show_help(c)
