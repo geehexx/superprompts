@@ -6,10 +6,15 @@ repos:
         args: [--fix, --exit-non-zero-on-fix]
       - id: ruff-format
 
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.18.1
+  - repo: local
     hooks:
       - id: mypy
+        name: mypy (uv, repo-wide)
+        entry: uv run mypy .
+        language: system
+        pass_filenames: false
+        types: [python]
+        require_serial: true
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v5.0.0
