@@ -56,7 +56,7 @@ uv run nox -s test --verbose
 
 from typing import Any
 
-import nox
+import nox  # type: ignore[import-not-found]
 
 # Python versions to test against
 PYTHON_VERSIONS = ["3.10", "3.11", "3.12"]
@@ -65,7 +65,7 @@ PYTHON_VERSIONS = ["3.10", "3.11", "3.12"]
 nox.options.sessions = ["lint", "type-check", "test"]
 
 
-@nox.session(python=PYTHON_VERSIONS)
+@nox.session(python=PYTHON_VERSIONS)  # type: ignore[misc]
 def test(session: Any) -> None:
     """Run tests with pytest."""
     session.install("uv")
@@ -73,7 +73,7 @@ def test(session: Any) -> None:
     session.run("uv", "run", "pytest", "tests/", "-v")
 
 
-@nox.session(python="3.12")
+@nox.session(python="3.12")  # type: ignore[misc]
 def lint(session: Any) -> None:
     """Run linting with ruff."""
     session.install("uv")
@@ -82,7 +82,7 @@ def lint(session: Any) -> None:
     session.run("uv", "run", "ruff", "format", "--check", ".")
 
 
-@nox.session(python="3.12")
+@nox.session(python="3.12")  # type: ignore[misc]
 def format_code(session: Any) -> None:
     """Format code with ruff."""
     session.install("uv")
@@ -91,7 +91,7 @@ def format_code(session: Any) -> None:
     session.run("uv", "run", "ruff", "format", ".")
 
 
-@nox.session(python="3.12")
+@nox.session(python="3.12")  # type: ignore[misc]
 def type_check(session: Any) -> None:
     """Run type checking with mypy."""
     session.install("uv")
@@ -99,7 +99,7 @@ def type_check(session: Any) -> None:
     session.run("uv", "run", "mypy", "superprompts/")
 
 
-@nox.session(python="3.12")
+@nox.session(python="3.12")  # type: ignore[misc]
 def security(session: Any) -> None:
     """Run security checks with bandit."""
     session.install("uv")
@@ -117,7 +117,7 @@ def security(session: Any) -> None:
     )
 
 
-@nox.session(python="3.12")
+@nox.session(python="3.12")  # type: ignore[misc]
 def coverage(session: Any) -> None:
     """Run tests with coverage."""
     session.install("uv")
@@ -133,7 +133,7 @@ def coverage(session: Any) -> None:
     )
 
 
-@nox.session(python="3.12")
+@nox.session(python="3.12")  # type: ignore[misc]
 def docs(session: Any) -> None:
     """Build documentation."""
     session.install("uv")
@@ -142,7 +142,7 @@ def docs(session: Any) -> None:
     session.log("Documentation building not yet implemented")
 
 
-@nox.session(python="3.12")
+@nox.session(python="3.12")  # type: ignore[misc]
 def clean(session: Any) -> None:
     """Clean up build artifacts."""
     session.run(
@@ -174,7 +174,7 @@ def clean(session: Any) -> None:
     session.run("find", ".", "-type", "f", "-name", "*.pyc", "-delete", external=True)
 
 
-@nox.session(python=PYTHON_VERSIONS)
+@nox.session(python=PYTHON_VERSIONS)  # type: ignore[misc]
 def ci(session: Any) -> None:
     """Run CI pipeline."""
     session.install("uv")

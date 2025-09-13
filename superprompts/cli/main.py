@@ -92,9 +92,9 @@ def get_prompt_cmd(prompt_id: str, parameters: str | None, output: str | None) -
 
         # Get the appropriate prompt handler
         if prompt_id == "repo_docs":
-            prompt_text = repo_docs_prompt_handler.fn(params)
+            prompt_text: str = repo_docs_prompt_handler.fn(params)  # type: ignore[assignment]
         elif prompt_id == "cursor_rules":
-            prompt_text = cursor_rules_prompt_handler.fn(params)
+            prompt_text = cursor_rules_prompt_handler.fn(params)  # type: ignore[assignment]
         else:
             console.print(f"[red]Unknown prompt ID: {prompt_id}[/red]")
             sys.exit(1)
@@ -218,9 +218,9 @@ def _detect_config_format(config: dict[str, Any]) -> str:
 def _extract_servers_from_config(config: dict[str, Any], format_type: str) -> dict[str, Any]:
     """Extract servers from configuration based on format."""
     if format_type == "cursor" and "mcpServers" in config:
-        return config["mcpServers"]
+        return config["mcpServers"]  # type: ignore[no-any-return]
     if (format_type == "vscode" and "mcp" in config) or (format_type == "generic" and "mcp" in config):
-        return config["mcp"].get("servers", {})
+        return config["mcp"].get("servers", {})  # type: ignore[no-any-return]
     return {}
 
 

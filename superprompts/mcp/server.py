@@ -25,7 +25,7 @@ PROMPTS = {
 }
 
 
-@mcp.prompt("repo_docs")  # type: ignore[misc]
+@mcp.prompt("repo_docs")
 def repo_docs_prompt_handler(parameters: dict[str, Any] | None = None) -> str:
     """Repository Documentation Rebuilder prompt.
 
@@ -43,7 +43,7 @@ def repo_docs_prompt_handler(parameters: dict[str, Any] | None = None) -> str:
     return repo_docs_prompt.get_prompt(parameters)
 
 
-@mcp.prompt("cursor_rules")  # type: ignore[misc]
+@mcp.prompt("cursor_rules")
 def cursor_rules_prompt_handler(parameters: dict[str, Any] | None = None) -> str:
     """Cursor Rules Generator prompt.
 

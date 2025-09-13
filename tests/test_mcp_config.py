@@ -54,10 +54,10 @@ class TestMCPServerConfig:
     def test_invalid_server_config(self) -> None:
         """Test validation errors for invalid configurations."""
         with pytest.raises(ValidationError):
-            MCPServerConfig()  # Missing required fields
+            MCPServerConfig()  # type: ignore[call-arg] # Missing required fields
 
         with pytest.raises(ValidationError):
-            MCPServerConfig(name="test")  # Missing command
+            MCPServerConfig(name="test")  # type: ignore[call-arg] # Missing command
 
 
 class TestMCPConfigGenerator:

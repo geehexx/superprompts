@@ -79,7 +79,7 @@ import sys
 from pathlib import Path
 from typing import Any
 
-from invoke import Context, task
+from invoke import Context, task  # type: ignore[import-not-found]
 
 # Project configuration
 PROJECT_NAME = "superprompts"
@@ -110,25 +110,25 @@ def run_poetry(c: Context, command: str, *args: str) -> Any:
     return result
 
 
-@task
+@task  # type: ignore[misc]  # type: ignore[misc]
 def show_help(c: Context) -> None:
     """Show available tasks."""
     c.run("invoke --list")
 
 
-@task
+@task  # type: ignore[misc]  # type: ignore[misc]
 def install(c: Context) -> None:
     """Install dependencies with Poetry."""
     run_poetry(c, "install")
 
 
-@task
+@task  # type: ignore[misc]
 def update(c: Context) -> None:
     """Update dependencies with Poetry."""
     run_poetry(c, "update")
 
 
-@task
+@task  # type: ignore[misc]
 def test(c: Context, unit: bool = False, integration: bool = False, startup: bool = False, coverage: bool = False) -> None:
     """Run tests."""
     if unit:
@@ -153,7 +153,7 @@ def test(c: Context, unit: bool = False, integration: bool = False, startup: boo
         run_poetry(c, "run", "python", f"{TEST_DIR}/test_server.py")
 
 
-@task
+@task  # type: ignore[misc]
 def format_code(c: Context, check: bool = False) -> None:
     """Format code with Ruff."""
     if check:
@@ -163,26 +163,26 @@ def format_code(c: Context, check: bool = False) -> None:
         run_poetry(c, "run", "ruff", "format", ".")
 
 
-@task
+@task  # type: ignore[misc]
 def lint(c: Context) -> None:
     """Run linting with Ruff."""
     run_poetry(c, "run", "ruff", "check", ".")
 
 
-@task
+@task  # type: ignore[misc]
 def type_check(c: Context) -> None:
     """Run type checking with mypy."""
     run_poetry(c, "run", "mypy", f"{PACKAGE_NAME}/")
 
 
-@task
+@task  # type: ignore[misc]
 def check_all(c: Context) -> None:
     """Run all code quality checks."""
     lint(c)
     type_check(c)
 
 
-@task
+@task  # type: ignore[misc]
 def validate(c: Context, cursor_rules: bool = False, schemas: bool = False) -> None:
     """Run validation checks."""
     if cursor_rules:
@@ -213,7 +213,7 @@ def validate(c: Context, cursor_rules: bool = False, schemas: bool = False) -> N
         validate(c, schemas=True)
 
 
-@task
+@task  # type: ignore[misc]
 def run_server(c: Context, debug: bool = False) -> None:
     """Run the MCP server."""
     if debug:
@@ -222,19 +222,19 @@ def run_server(c: Context, debug: bool = False) -> None:
         run_poetry(c, "run", "python", "-m", f"{PACKAGE_NAME}.mcp.server")
 
 
-@task
+@task  # type: ignore[misc]
 def build(c: Context) -> None:
     """Build the package with Poetry."""
     run_poetry(c, "build")
 
 
-@task
+@task  # type: ignore[misc]
 def publish(c: Context) -> None:
     """Publish package to PyPI with Poetry."""
     run_poetry(c, "publish")
 
 
-@task
+@task  # type: ignore[misc]
 def clean(c: Context, cache: bool = False, all_artifacts: bool = False) -> None:
     """Clean build artifacts and temporary files."""
     if all_artifacts:
@@ -261,7 +261,7 @@ def clean(c: Context, cache: bool = False, all_artifacts: bool = False) -> None:
         c.run("find . -type f -name '*.pyo' -delete 2>/dev/null || true", warn=True)
 
 
-@task
+@task  # type: ignore[misc]
 def setup(c: Context) -> None:
     """Complete development setup."""
     install(c)
@@ -269,13 +269,13 @@ def setup(c: Context) -> None:
     check_all(c)
 
 
-@task
+@task  # type: ignore[misc]
 def pre_commit(c: Context) -> None:
     """Run pre-commit checks."""
     run_poetry(c, "run", "pre-commit", "run", "--all-files")
 
 
-@task
+@task  # type: ignore[misc]
 def ci(c: Context) -> None:
     """Run CI pipeline locally."""
     check_all(c)
@@ -283,13 +283,13 @@ def ci(c: Context) -> None:
     validate(c)
 
 
-@task
+@task  # type: ignore[misc]
 def nox(c: Context, session: str = "test") -> None:
     """Run Nox sessions."""
     run_poetry(c, "run", "nox", "-s", session)
 
 
-@task
+@task  # type: ignore[misc]
 def status(c: Context) -> None:
     """Show project status."""
     # Python version
@@ -315,7 +315,7 @@ def status(c: Context) -> None:
 
 
 # Default task
-@task(default=True)
+@task(default=True)  # type: ignore[misc]
 def default(c: Context) -> None:
     """Show help by default."""
     show_help(c)
