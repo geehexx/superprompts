@@ -92,15 +92,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **RepoDocsPrompt**: Repository documentation rebuilder
 - **CursorRulesPrompt**: Cursor IDE rules generator
 - **MCP Server Tools**: list_prompts, get_prompt, get_prompt_metadata, compose_prompt
-- **Configuration Classes**: MCPServerConfig
+- **Configuration**: External MCP client configuration only
 - **CLI Commands**: list-prompts, get-prompt, metadata, compose, config
 
-### Configuration
-- **MCP Server Templates**: superprompts, github, filesystem
-- **Format Support**: Cursor, VSCode, Generic
-- **Validation**: Configuration validation and error reporting
-- **Conversion**: Convert between different configuration formats
-- **Merging**: Merge with existing configurations
 
 ### Quality Assurance
 - **Confidence Scoring**: All generated content includes confidence scores

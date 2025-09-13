@@ -13,11 +13,8 @@ FastMCP-based server that provides access to SuperPrompts functionality via MCP 
 - `get_prompt_metadata` - Get prompt metadata
 - `compose_prompt` - Compose custom prompts
 
-### Configuration (`config.py`)
-Basic configuration models for MCP servers.
-
-**Key Classes:**
-- `MCPServerConfig` - MCP server configuration model
+### Configuration
+For detailed MCP server configuration instructions, see the [MCP Configuration Guide](../../docs/mcp_configuration.md).
 
 ## Usage
 

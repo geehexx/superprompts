@@ -243,24 +243,6 @@ suggestions = get_completion_suggestions("cursor_rules", "target_categories")
 
 ### Configuration Management
 
-#### `MCPServerConfig`
-
-Configuration model for MCP servers.
-
-```python
-from superprompts.mcp.config import MCPServerConfig
-
-config = MCPServerConfig(
-    name="superprompts",
-    command="uv",
-    args=["run", "python", "-m", "superprompts.mcp.server"],
-    env={"PYTHONPATH": "/path/to/project"},
-    cwd="/path/to/project",
-    description="SuperPrompts MCP Server",
-    version="1.0.0"
-)
-```
-
 For detailed MCP server configuration instructions, see the [MCP Configuration Guide](mcp_configuration.md).
 
 ### CLI Commands
@@ -449,18 +431,7 @@ asyncio.run(main())
 
 ### Configuration Management
 
-```python
-from superprompts.mcp.config import MCPServerConfig
-
-# Create server configuration
-config = MCPServerConfig(
-    name="superprompts",
-    command="uv",
-    args=["run", "python", "-m", "superprompts.mcp.server"]
-)
-
-# For detailed configuration instructions, see the MCP Configuration Guide
-```
+For detailed MCP server configuration instructions, see the [MCP Configuration Guide](mcp_configuration.md).
 
 ## Cross-References
 

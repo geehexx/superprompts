@@ -141,10 +141,9 @@ def test_config_validation():
 
 def test_config_generation():
     """Test MCP configuration generation."""
-    from superprompts.mcp.config import MCPServerConfig
-    config = MCPServerConfig(name="test", command="test")
-    assert config.name == "test"
-    assert config.command == "test"
+    # Configuration is handled by external MCP clients
+    # No internal configuration models to test
+    pass
 ```
 
 ## Running Tests

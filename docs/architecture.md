@@ -70,13 +70,10 @@ def cursor_rules_prompt_handler(parameters: dict[str, Any] | None = None) -> str
 - MCP-standard metadata structure
 - Support for `prompts/list` and `prompts/get` messages
 
-### 3. Configuration Management (`superprompts/mcp/config.py`)
+### 3. Configuration Management
 
-**MCPServerConfig**
-- Pydantic model for server configuration
-- Supports multiple MCP server types (superprompts, github, filesystem)
-- Handles environment variables and working directories
-- Basic configuration model for MCP servers
+Configuration is handled through external MCP client configuration files.
+For detailed instructions, see the [MCP Configuration Guide](mcp_configuration.md).
 
 ### 4. CLI Interface (`superprompts/cli/main.py`)
 
@@ -144,10 +141,7 @@ Cursor IDE → MCP Protocol → FastMCP Server → Prompt System → Response
 3. Update documentation and help text
 
 ### Adding New Configuration Formats
-1. Extend `MCPServerConfig` model
-2. Add format-specific generation methods
-3. Update validation logic
-4. Add CLI options for new format
+Configuration is handled by external MCP clients, not by this project.
 
 ## Security Considerations
 

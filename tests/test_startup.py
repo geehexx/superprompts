@@ -44,7 +44,6 @@ class ServerStartupTester:
     def test_imports(self) -> bool:
         """Test that all required modules can be imported."""
         try:
-            import superprompts.mcp.config  # noqa: PLC0415
             import superprompts.mcp.server  # noqa: PLC0415
             import superprompts.prompts.cursor_rules  # noqa: PLC0415
             import superprompts.prompts.repo_docs  # noqa: F401, PLC0415
@@ -67,16 +66,8 @@ class ServerStartupTester:
 
     def test_initialization_options(self) -> bool:
         """Test that initialization options can be created properly."""
-        try:
-            from superprompts.mcp.config import MCPServerConfig  # noqa: PLC0415
-
-            # Test creating a server config
-            config = MCPServerConfig(name="test_server", command="python", args=["-m", "test.server"])
-            assert config.name == "test_server"
-        except Exception:
-            return False
-        else:
-            return True
+        # No longer needed - we don't manage MCP server configurations
+        return True
 
     def test_server_startup_script(self) -> bool:
         """Test that the startup script runs without errors."""
