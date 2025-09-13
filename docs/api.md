@@ -245,7 +245,7 @@ suggestions = get_completion_suggestions("cursor_rules", "target_categories")
 
 #### `MCPServerConfig`
 
-Configuration for MCP servers.
+Configuration model for MCP servers.
 
 ```python
 from superprompts.mcp.config import MCPServerConfig
@@ -261,38 +261,7 @@ config = MCPServerConfig(
 )
 ```
 
-#### `MCPConfig`
-
-Main configuration container.
-
-```python
-from superprompts.mcp.config import MCPConfig
-
-config = MCPConfig(
-    mcp_servers={
-        "superprompts": server_config
-    }
-)
-```
-
-#### `MCPConfigGenerator`
-
-Generate and manage MCP configurations.
-
-```python
-from superprompts.mcp.config import MCPConfigGenerator
-
-generator = MCPConfigGenerator()
-
-# Generate Cursor configuration
-cursor_config = generator.generate_cursor_config(servers)
-
-# Generate VSCode configuration
-vscode_config = generator.generate_vscode_config(servers)
-
-# Validate configuration
-errors = validate_config(config, "cursor")
-```
+For detailed MCP server configuration instructions, see the [MCP Configuration Guide](mcp_configuration.md).
 
 ### CLI Commands
 
@@ -481,19 +450,16 @@ asyncio.run(main())
 ### Configuration Management
 
 ```python
-from superprompts.mcp.config import MCPConfigGenerator, get_available_server_templates
+from superprompts.mcp.config import MCPServerConfig
 
-# Get available server templates
-templates = get_available_server_templates()
+# Create server configuration
+config = MCPServerConfig(
+    name="superprompts",
+    command="uv",
+    args=["run", "python", "-m", "superprompts.mcp.server"]
+)
 
-# Create generator
-generator = MCPConfigGenerator()
-
-# Generate Cursor configuration
-config = generator.generate_cursor_config(templates)
-
-# Save configuration
-generator.save_config(config, "cursor", Path("mcp.json"))
+# For detailed configuration instructions, see the MCP Configuration Guide
 ```
 
 ## Cross-References

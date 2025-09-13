@@ -76,11 +76,7 @@ def cursor_rules_prompt_handler(parameters: dict[str, Any] | None = None) -> str
 - Pydantic model for server configuration
 - Supports multiple MCP server types (superprompts, github, filesystem)
 - Handles environment variables and working directories
-
-**MCPConfigGenerator**
-- Generates configurations for different formats (Cursor, VSCode, Generic)
-- Validates existing configurations
-- Supports merging and conversion between formats
+- Basic configuration model for MCP servers
 
 ### 4. CLI Interface (`superprompts/cli/main.py`)
 
@@ -148,7 +144,7 @@ Cursor IDE → MCP Protocol → FastMCP Server → Prompt System → Response
 3. Update documentation and help text
 
 ### Adding New Configuration Formats
-1. Extend `MCPConfigGenerator` class
+1. Extend `MCPServerConfig` model
 2. Add format-specific generation methods
 3. Update validation logic
 4. Add CLI options for new format

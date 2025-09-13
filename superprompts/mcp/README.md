@@ -1,6 +1,6 @@
 # MCP (Model Context Protocol) Module
 
-This module provides MCP server functionality, configuration management, and tooling adapters for the SuperPrompts project.
+This module provides MCP server functionality for the SuperPrompts project.
 
 ## Components
 
@@ -14,24 +14,10 @@ FastMCP-based server that provides access to SuperPrompts functionality via MCP 
 - `compose_prompt` - Compose custom prompts
 
 ### Configuration (`config.py`)
-MCP configuration generation, validation, and management for different IDE formats.
-
-**Supported Formats:**
-- Cursor IDE format
-- VS Code format
-- Generic MCP format
+Basic configuration models for MCP servers.
 
 **Key Classes:**
-- `MCPConfigGenerator` - Generate configurations
-- `MCPConfigValidator` - Validate configurations
-- `MCPConfigConverter` - Convert between formats
-
-### Adapters (`adapters.py`)
-MCP tooling integration and format conversion utilities.
-
-**Key Classes:**
-- `MCPToolingAdapter` - Tool integration and server management
-- `MCPFormatConverter` - Format conversion utilities
+- `MCPServerConfig` - MCP server configuration model
 
 ## Usage
 
@@ -44,33 +30,25 @@ uv run python -m superprompts.mcp.server
 SUPERPROMPTS_LOG_LEVEL=DEBUG uv run python -m superprompts.mcp.server
 ```
 
-### Configuration
+### CLI
 ```bash
-# Generate Cursor configuration
-uv run superprompts config create --format cursor
+# List available prompts
+uv run superprompts list-prompts
 
-# Validate configuration
-uv run superprompts config validate mcp.json
+# Get a specific prompt
+uv run superprompts get-prompt repo_docs
 
-# Convert between formats
-uv run superprompts config convert mcp.json --format vscode
+# Get prompt metadata
+uv run superprompts metadata cursor_rules
 ```
 
-### Adapters
-```bash
-# List available MCP tools
-uv run superprompts adapt tools
+## Configuration
 
-# Generate FastMCP configuration
-uv run superprompts adapt fastmcp my-server /path/to/server.py
+For detailed MCP server configuration instructions, see the [MCP Configuration Guide](../../docs/mcp_configuration.md).
 
-# Install MCP server
-uv run superprompts adapt install github-mcp-server
-```
+### Basic Configuration Examples
 
-## Configuration Examples
-
-### Cursor IDE
+#### Cursor IDE
 ```json
 {
   "mcpServers": {
@@ -83,7 +61,7 @@ uv run superprompts adapt install github-mcp-server
 }
 ```
 
-### VS Code
+#### VS Code
 ```json
 {
   "mcp": {
@@ -104,10 +82,5 @@ uv run superprompts adapt install github-mcp-server
 1. Add tool function to `server.py`
 2. Register with `@server.tool()` decorator
 3. Update documentation
-
-### Adding New Formats
-1. Add format support to `config.py`
-2. Update validation schemas
-3. Add conversion logic
 
 For detailed API documentation, see the [main documentation](../../docs/README.md).

@@ -92,7 +92,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **RepoDocsPrompt**: Repository documentation rebuilder
 - **CursorRulesPrompt**: Cursor IDE rules generator
 - **MCP Server Tools**: list_prompts, get_prompt, get_prompt_metadata, compose_prompt
-- **Configuration Classes**: MCPServerConfig, MCPConfig, MCPConfigGenerator
+- **Configuration Classes**: MCPServerConfig
 - **CLI Commands**: list-prompts, get-prompt, metadata, compose, config
 
 ### Configuration

@@ -62,24 +62,11 @@ poetry run python -m superprompts.mcp.server
 
 ## Configuration Management
 
+For detailed MCP server configuration instructions, see the [MCP Configuration Guide](mcp_configuration.md).
+
 ### Quick Start
 
-```bash
-# Create basic MCP configuration for Cursor
-uv run superprompts config create
-
-# Create configuration with specific templates
-uv run superprompts config create --template superprompts --template github
-
-# Create VS Code configuration
-uv run superprompts config create --format vscode --template superprompts
-
-# Validate existing configuration
-uv run superprompts config validate mcp.json
-
-# List available templates
-uv run superprompts config templates
-```
+The SuperPrompts MCP server can be configured manually by creating the appropriate configuration file for your AI tool.
 
 ### Supported Formats
 

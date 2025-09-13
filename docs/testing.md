@@ -136,17 +136,15 @@ Tests MCP configuration management.
 ```python
 def test_config_validation():
     """Test MCP configuration validation."""
-    from superprompts.mcp.config import validate_config
-    config = {"mcpServers": {"test": {"command": "test"}}}
-    errors = validate_config(config, "cursor")
-    assert len(errors) == 0
+    # Configuration validation is now handled by the MCP client
+    # See the MCP Configuration Guide for details
 
 def test_config_generation():
     """Test MCP configuration generation."""
-    from superprompts.mcp.config import MCPConfigGenerator
-    generator = MCPConfigGenerator()
-    config = generator.generate_cursor_config({})
-    assert "mcpServers" in config
+    from superprompts.mcp.config import MCPServerConfig
+    config = MCPServerConfig(name="test", command="test")
+    assert config.name == "test"
+    assert config.command == "test"
 ```
 
 ## Running Tests
@@ -362,7 +360,6 @@ async def test_async_exception():
 - **Examples**:
   - `test_get_prompt_success`
   - `test_get_prompt_invalid_id`
-  - `test_validate_config_valid`
 
 #### Test Classes
 - **Format**: `Test<ClassName>`
