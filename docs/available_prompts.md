@@ -6,8 +6,8 @@ This document provides a comprehensive index of all available prompts in the Sup
 
 | Prompt | Category | Purpose | CLI Command |
 |--------|----------|---------|-------------|
-| [Cursor Rules Generator](cursor_rules_generator.md) | Rules | Generate Cursor IDE rules | `superprompts get-prompt cursor_rules` |
-| [Repository Documentation Rebuilder](repo_docs_rebuilder.md) | Docs | Rebuild repository documentation | `superprompts get-prompt repo_docs` |
+| [Cursor Rules Generator](cursor_rules_guide.md) | Rules | Generate Cursor IDE rules | `superprompts get-prompt cursor_rules` |
+| [Repository Documentation Rebuilder](#repository-documentation-rebuilder) | Docs | Rebuild repository documentation | `superprompts get-prompt repo_docs` |
 
 ## Detailed Descriptions
 
@@ -40,7 +40,7 @@ superprompts get-prompt cursor_rules --parameters '{
 }'
 ```
 
-**Documentation**: [Cursor Rules Generator Guide](cursor_rules_generator.md)
+**Documentation**: [Cursor Rules Guide](cursor_rules_guide.md)
 
 ---
 
@@ -73,7 +73,20 @@ superprompts get-prompt repo_docs --parameters '{
 }'
 ```
 
-**Documentation**: [Repository Documentation Rebuilder Guide](repo_docs_rebuilder.md)
+**Parameters**:
+- `target_doc_types` - Types of documentation to generate (README, API, guides, architecture, testing, changelog, templates, all)
+- `batch_size` - Number of documents to process per batch (1-10)
+- `include_examples` - Whether to include code examples (true/false)
+- `audit_existing` - Whether to audit existing documentation (true/false)
+- `generate_index` - Whether to generate documentation index (true/false)
+
+**Output Structure**:
+1. **DocAuditReport** - Analysis of existing documentation
+2. **DocGapsReport** - Identification of missing documentation
+3. **DocMappingPlan** - Strategic plan for documentation generation
+4. **GeneratedDocs** - New documentation content
+5. **DocIndexUpdate** - Updated documentation index
+6. **QAReview** - Quality assurance checklist
 
 ## Usage Patterns
 
@@ -216,5 +229,5 @@ All prompts include built-in parameter validation:
 - [Main Project README](../README.md) - Project overview and navigation
 - [AI Prompting Best Practices](ai_prompting_best_practices.md) - Core prompting principles
 - [AI-Ready Documentation Standards](ai_ready_documentation_standards.md) - Documentation standards
-- [MCP Server Guide](mcp_server_guide.md) - Server and CLI usage
-- [Cursor Rules Usage Guide](rules_usage.md) - Cursor rule syntax and validation
+- [MCP Guide](mcp_guide.md) - Server and CLI usage
+- [Cursor Rules Guide](cursor_rules_guide.md) - Cursor rule syntax and validation
