@@ -33,8 +33,8 @@ General documentation on prompting techniques, best practices, and standards.
 ### Using Prompts Directly
 1. **Quick Start**: Follow the [Quick Start Guide](docs/quick_start_guide.md) to get up and running in minutes
 2. **Browse Prompts**: Check the [Available Prompts](docs/available_prompts.md) index for ready-to-use prompts
-3. **Learn Architecture**: Read the [Architecture Guide](docs/architecture_guide.md) to understand the system design
-4. **API Reference**: Check the [API Reference](docs/api_reference.md) for detailed usage examples
+3. **Learn Architecture**: Read the [Architecture Guide](docs/architecture.md) to understand the system design
+4. **API Reference**: Check the [API Reference](docs/api.md) for detailed usage examples
 5. **Learn Techniques**: Read the guides in [docs/](docs/) to understand the underlying principles
 6. **Use CLI Tools**: Use `uv run superprompts get-prompt <prompt_id>` to generate prompts with parameters
 7. **Customize**: Adjust parameters to adapt prompts to your specific needs
@@ -75,7 +75,7 @@ This project uses a modern Python development workflow with `uv`, Ruff, Nox, and
 5. **Format Code**: `uv run invoke format`
 6. **Run Linting**: `uv run invoke lint`
 
-See the [Development Guide](docs/development_guide.md) for comprehensive setup and usage instructions.
+See the [Development Guide](docs/development.md) for comprehensive setup and usage instructions.
 
 ### Code Quality & Validation
 
@@ -128,7 +128,7 @@ We welcome contributions! Please see our [Contributing Guide](docs/contributing_
 - **Documentation**: Comprehensive guides for all development tasks
 - **CI/CD**: Automated testing and validation on every PR
 
-See the [Development Guide](docs/development_guide.md) for complete setup instructions.
+See the [Development Guide](docs/development.md) for complete setup instructions.
 
 ## License
 

@@ -18,6 +18,10 @@ This directory contains general documentation about AI prompting techniques, bes
 
 ### Usage Guides
 
+- **[Getting Started](getting_started.md)** - Complete getting started guide for new users with quick setup and first steps.
+
+- **[Installation Guide](installation_guide.md)** - Detailed installation instructions for all platforms and environments.
+
 - **[Available Prompts](available_prompts.md)** - Complete index of all available prompts with quick reference and usage patterns.
 
 - **[Cursor Rules Guide](cursor_rules_guide.md)** - Rule types, frontmatter fields, and validation for `.cursor/rules/`.
