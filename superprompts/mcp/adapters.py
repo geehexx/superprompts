@@ -37,7 +37,8 @@ def _safe_subprocess_run(cmd: list[str], **kwargs: Any) -> subprocess.CompletedP
         raise MCPExecutableNotFoundError()
     # Ensure check=False is set for security
     kwargs.setdefault("check", False)
-    return subprocess.run(cmd, **kwargs)
+    # Path is validated above, so this is safe
+    return subprocess.run(cmd, check=False, **kwargs)  # noqa: S603
 
 
 # Set up logging
@@ -86,68 +87,27 @@ class MCPToolingAdapter:
     def _detect_available_tools(self) -> dict[str, bool]:
         """Detect which MCP tools are available on the system."""
         tools = {}
+        tool_names = ["fastmcp", "mcp", "mcp-tools-cli", "npm"]
 
-        # Check for FastMCP
-        fastmcp_path = shutil.which("fastmcp")
-        if fastmcp_path:
-            try:
-                # Validate path to prevent command injection
-                if not Path(fastmcp_path).exists() or not os.access(fastmcp_path, os.X_OK):
-                    tools["fastmcp"] = False
-                else:
-                    result = _safe_subprocess_run([fastmcp_path, "--version"], check=False, capture_output=True, text=True, timeout=5)
-                    tools["fastmcp"] = result.returncode == 0
-            except (subprocess.TimeoutExpired, FileNotFoundError):
-                tools["fastmcp"] = False
-        else:
-            tools["fastmcp"] = False
-
-        # Check for mcp-cli
-        mcp_path = shutil.which("mcp")
-        if mcp_path:
-            try:
-                # Validate path to prevent command injection
-                if not Path(mcp_path).exists() or not os.access(mcp_path, os.X_OK):
-                    tools["mcp-cli"] = False
-                else:
-                    result = _safe_subprocess_run([mcp_path, "--version"], check=False, capture_output=True, text=True, timeout=5)
-                    tools["mcp-cli"] = result.returncode == 0
-            except (subprocess.TimeoutExpired, FileNotFoundError):
-                tools["mcp-cli"] = False
-        else:
-            tools["mcp-cli"] = False
-
-        # Check for mcp-tools-cli
-        mcp_tools_path = shutil.which("mcp-tools-cli")
-        if mcp_tools_path:
-            try:
-                # Validate path to prevent command injection
-                if not Path(mcp_tools_path).exists() or not os.access(mcp_tools_path, os.X_OK):
-                    tools["mcp-tools-cli"] = False
-                else:
-                    result = _safe_subprocess_run([mcp_tools_path, "--version"], check=False, capture_output=True, text=True, timeout=5)
-                    tools["mcp-tools-cli"] = result.returncode == 0
-            except (subprocess.TimeoutExpired, FileNotFoundError):
-                tools["mcp-tools-cli"] = False
-        else:
-            tools["mcp-tools-cli"] = False
-
-        # Check for npm (for npx-based tools)
-        npm_path = shutil.which("npm")
-        if npm_path:
-            try:
-                # Validate path to prevent command injection
-                if not Path(npm_path).exists() or not os.access(npm_path, os.X_OK):
-                    tools["npm"] = False
-                else:
-                    result = _safe_subprocess_run([npm_path, "--version"], check=False, capture_output=True, text=True, timeout=5)
-                    tools["npm"] = result.returncode == 0
-            except (subprocess.TimeoutExpired, FileNotFoundError):
-                tools["npm"] = False
-        else:
-            tools["npm"] = False
+        for tool_name in tool_names:
+            tools[tool_name] = self._check_tool_availability(tool_name)
 
         return tools
+
+    def _check_tool_availability(self, tool_name: str) -> bool:
+        """Check if a specific tool is available."""
+        tool_path = shutil.which(tool_name)
+        if not tool_path:
+            return False
+
+        try:
+            # Validate path to prevent command injection
+            if not Path(tool_path).exists() or not os.access(tool_path, os.X_OK):
+                return False
+            result = _safe_subprocess_run([tool_path, "--version"], check=False, capture_output=True, text=True, timeout=5)
+            return result.returncode == 0
+        except (subprocess.TimeoutExpired, FileNotFoundError):
+            return False
 
     def list_available_tools(self) -> None:
         """List available MCP tools on the system."""
@@ -237,16 +197,24 @@ class MCPToolingAdapter:
             console.print("[red]mcp-cli is not available on this system[/red]")
             return False
 
+        return self._install_server_with_validation(server_name, server_package)
+
+    def _install_server_with_validation(self, server_name: str, server_package: str) -> bool:
+        """Install server with path validation."""
+        mcp_path = shutil.which("mcp")
+        if not mcp_path:
+            console.print("[red]MCP CLI not found in PATH[/red]")
+            return False
+
+        if not Path(mcp_path).exists() or not os.access(mcp_path, os.X_OK):
+            console.print("[red]MCP CLI not found or not executable[/red]")
+            return False
+
+        return self._execute_install_command(server_name, server_package, mcp_path)
+
+    def _execute_install_command(self, server_name: str, server_package: str, mcp_path: str) -> bool:
+        """Execute the actual install command."""
         try:
-            # Install server
-            mcp_path = shutil.which("mcp")
-            if not mcp_path:
-                console.print("[red]MCP CLI not found in PATH[/red]")
-                return False
-            # Validate path to prevent command injection
-            if not Path(mcp_path).exists() or not os.access(mcp_path, os.X_OK):
-                console.print("[red]MCP CLI not found or not executable[/red]")
-                return False
             result = _safe_subprocess_run([mcp_path, "install", server_package], check=False, capture_output=True, text=True, timeout=60)
 
             if result.returncode != 0:
@@ -268,15 +236,24 @@ class MCPToolingAdapter:
             console.print("[red]mcp-cli is not available on this system[/red]")
             return []
 
+        return self._list_servers_with_validation()
+
+    def _list_servers_with_validation(self) -> list[str]:
+        """List servers with path validation."""
+        mcp_path = shutil.which("mcp")
+        if not mcp_path:
+            console.print("[red]MCP CLI not found in PATH[/red]")
+            return []
+
+        if not Path(mcp_path).exists() or not os.access(mcp_path, os.X_OK):
+            console.print("[red]MCP CLI not found or not executable[/red]")
+            return []
+
+        return self._execute_list_command(mcp_path)
+
+    def _execute_list_command(self, mcp_path: str) -> list[str]:
+        """Execute the actual list command."""
         try:
-            mcp_path = shutil.which("mcp")
-            if not mcp_path:
-                console.print("[red]MCP CLI not found in PATH[/red]")
-                return []
-            # Validate path to prevent command injection
-            if not Path(mcp_path).exists() or not os.access(mcp_path, os.X_OK):
-                console.print("[red]MCP CLI not found or not executable[/red]")
-                return []
             result = _safe_subprocess_run([mcp_path, "list"], check=False, capture_output=True, text=True, timeout=30)
 
             if result.returncode != 0:
@@ -299,16 +276,25 @@ class MCPToolingAdapter:
             console.print("[red]mcp-tools-cli is not available on this system[/red]")
             return False
 
+        return self._test_server_with_validation(server_name, tool_name)
+
+    def _test_server_with_validation(self, server_name: str, tool_name: str | None) -> bool:
+        """Test server with path validation."""
+        mcp_tools_path = shutil.which("mcp-tools-cli")
+        if not mcp_tools_path:
+            console.print("[red]mcp-tools-cli not found in PATH[/red]")
+            return False
+
+        if not Path(mcp_tools_path).exists() or not os.access(mcp_tools_path, os.X_OK):
+            console.print("[red]mcp-tools-cli not found or not executable[/red]")
+            return False
+
+        return self._execute_test_commands(server_name, tool_name, mcp_tools_path)
+
+    def _execute_test_commands(self, server_name: str, tool_name: str | None, mcp_tools_path: str) -> bool:
+        """Execute the actual test commands."""
         try:
             # List tools first
-            mcp_tools_path = shutil.which("mcp-tools-cli")
-            if not mcp_tools_path:
-                console.print("[red]mcp-tools-cli not found in PATH[/red]")
-                return False
-            # Validate path to prevent command injection
-            if not Path(mcp_tools_path).exists() or not os.access(mcp_tools_path, os.X_OK):
-                console.print("[red]mcp-tools-cli not found or not executable[/red]")
-                return False
             result = _safe_subprocess_run(
                 [mcp_tools_path, "list-tools", "--mcp-name", server_name], check=False, capture_output=True, text=True, timeout=30
             )
@@ -322,19 +308,7 @@ class MCPToolingAdapter:
 
             # Test specific tool if provided
             if tool_name:
-                test_result = _safe_subprocess_run(
-                    [mcp_tools_path, "call-tool", "--mcp-name", server_name, "--tool-name", tool_name, "--tool-args", "{}"],
-                    check=False,
-                    capture_output=True,
-                    text=True,
-                    timeout=30,
-                )
-
-                if test_result.returncode != 0:
-                    console.print(f"[red]Error testing tool {tool_name}: {test_result.stderr}[/red]")
-                    return False
-                console.print(f"[green]Tool {tool_name} test successful:[/green]")
-                console.print(test_result.stdout)
+                return self._test_specific_tool(server_name, tool_name, mcp_tools_path)
             return True
 
         except subprocess.TimeoutExpired:
@@ -343,6 +317,24 @@ class MCPToolingAdapter:
         except Exception as e:
             console.print(f"[red]Error testing MCP server: {e}[/red]")
             return False
+
+    def _test_specific_tool(self, server_name: str, tool_name: str, mcp_tools_path: str) -> bool:
+        """Test a specific tool."""
+        test_result = _safe_subprocess_run(
+            [mcp_tools_path, "call-tool", "--mcp-name", server_name, "--tool-name", tool_name, "--tool-args", "{}"],
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+
+        if test_result.returncode != 0:
+            console.print(f"[red]Error testing tool {tool_name}: {test_result.stderr}[/red]")
+            return False
+
+        console.print(f"[green]Tool {tool_name} test successful:[/green]")
+        console.print(test_result.stdout)
+        return True
 
 
 class MCPFormatConverter:
@@ -467,12 +459,25 @@ class MCPFormatConverter:
 
 def _create_tools_commands(adapt: click.Group) -> None:
     """Create tools-related commands."""
+    _add_tools_list_command(adapt)
+    _add_fastmcp_command(adapt)
+    _add_install_command(adapt)
+    _add_list_servers_command(adapt)
+    _add_test_command(adapt)
+
+
+def _add_tools_list_command(adapt: click.Group) -> None:
+    """Add tools list command."""
 
     @adapt.command()
     def tools() -> None:
         """List available MCP tools on the system."""
         adapter = MCPToolingAdapter()
         adapter.list_available_tools()
+
+
+def _add_fastmcp_command(adapt: click.Group) -> None:
+    """Add FastMCP command."""
 
     @adapt.command()
     @click.argument("server_name")
@@ -489,6 +494,10 @@ def _create_tools_commands(adapt: click.Group) -> None:
             logger.exception("Unexpected error in FastMCP command")
             console.print(f"[red]Unexpected error: {e}[/red]")
 
+
+def _add_install_command(adapt: click.Group) -> None:
+    """Add install command."""
+
     @adapt.command()
     @click.argument("server_package")
     def install(server_package: str) -> None:
@@ -499,6 +508,10 @@ def _create_tools_commands(adapt: click.Group) -> None:
         except Exception as e:
             logger.exception("Unexpected error in install command")
             console.print(f"[red]Unexpected error: {e}[/red]")
+
+
+def _add_list_servers_command(adapt: click.Group) -> None:
+    """Add list servers command."""
 
     @adapt.command()
     def list_servers() -> None:
@@ -520,6 +533,10 @@ def _create_tools_commands(adapt: click.Group) -> None:
         except Exception as e:
             logger.exception("Unexpected error in list_servers command")
             console.print(f"[red]Unexpected error: {e}[/red]")
+
+
+def _add_test_command(adapt: click.Group) -> None:
+    """Add test command."""
 
     @adapt.command()
     @click.argument("server_name")

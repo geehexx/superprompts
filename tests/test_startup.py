@@ -9,6 +9,7 @@ import shutil
 import subprocess
 import sys
 import time
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
@@ -24,7 +25,8 @@ def _safe_subprocess_run(cmd: list[str], **kwargs: Any) -> subprocess.CompletedP
         raise ExecutableNotFoundError()
     # Ensure check=False is set for security
     kwargs.setdefault("check", False)
-    return subprocess.run(cmd, **kwargs)
+    # Path is validated above, so this is safe
+    return subprocess.run(cmd, check=False, **kwargs)  # noqa: S603
 
 
 # Add the project root to the Python path
@@ -113,7 +115,7 @@ class ServerStartupTester:
             if not Path(python_path).exists() or not os.access(python_path, os.X_OK):
                 return False
             # Use subprocess.Popen directly since we've already validated the path
-            self.server_process = subprocess.Popen(
+            self.server_process = subprocess.Popen(  # noqa: S603
                 [python_path, "-m", "superprompts.mcp.server"],
                 cwd=self.server_dir,
                 stdout=subprocess.PIPE,
@@ -187,14 +189,20 @@ class ServerStartupTester:
         total = len(tests)
 
         for test in tests:
-            try:
-                if test():
-                    passed += 1
-            except Exception as e:
-                # Log the exception for debugging but continue with other tests
-                print(f"Test {test.__name__} failed: {e}")
+            if self._run_single_test(test):
+                passed += 1
 
         return passed == total
+
+    def _run_single_test(self, test: Callable[[], bool]) -> bool:
+        """Run a single test with exception handling."""
+        try:
+            result = test()
+            return bool(result)
+        except Exception as e:
+            # Log the exception for debugging but continue with other tests
+            print(f"Test {test.__name__} failed: {e}")
+            return False
 
 
 def main() -> None:
