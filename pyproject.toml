@@ -162,6 +162,7 @@ ignore = [
     "COM812", # Missing trailing comma
     "ISC001", # Implicitly concatenated string literals
     "E501", # Line too long (now 140 chars)
+    "TRY300", # Consider moving statement to else block
 ]
 
 [tool.ruff.lint.per-file-ignores]
