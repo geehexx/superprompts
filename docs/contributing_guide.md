@@ -403,7 +403,7 @@ Our CI/CD pipeline automatically:
 ### Resources
 
 - [Development](development.md) - Complete development setup
-- [MCP Guide](mcp_guide.md) - Using the MCP server
+- [MCP Configuration Guide](mcp_configuration.md) - Using the MCP server
 - [Troubleshooting](troubleshooting.md) - Common issues and solutions
 - [API](api.md) - Complete API documentation
 

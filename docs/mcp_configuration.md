@@ -99,8 +99,6 @@ uv run superprompts --help
 
 #### From PyPI (when published)
 ```bash
-pip install superprompts
-# or
 uv add superprompts
 ```
 

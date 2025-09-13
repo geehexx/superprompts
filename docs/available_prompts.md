@@ -229,5 +229,5 @@ All prompts include built-in parameter validation:
 - [Main Project README](../README.md) - Project overview and navigation
 - [AI Prompting Best Practices](ai_prompting_best_practices.md) - Core prompting principles
 - [AI-Ready Documentation Standards](ai_ready_documentation_standards.md) - Documentation standards
-- [MCP Guide](mcp_guide.md) - Server and CLI usage
+- [MCP Configuration Guide](mcp_configuration.md) - Server and CLI usage
 - [Cursor Rules Guide](cursor_rules_guide.md) - Cursor rule syntax and validation

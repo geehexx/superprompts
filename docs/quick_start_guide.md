@@ -16,13 +16,13 @@ Get up and running with SuperPrompts in minutes!
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-org/superprompts.git
+git clone https://github.com/geehexx/superprompts.git
 cd superprompts
 
 # Install uv (if not already installed)
-curl -sSL https://install.python-poetry.org | python3 -
+curl -LsSf https://astral.sh/uv/install.sh | sh
 
-# Add Poetry to PATH
+# Add uv to PATH
 export PATH="$HOME/.local/bin:$PATH"
 
 # Install dependencies
@@ -35,7 +35,7 @@ uv run superprompts --help
 ### Option 2: From PyPI (When Available)
 
 ```bash
-pip install superprompts
+uv add superprompts
 ```
 
 ## Basic Usage
@@ -103,11 +103,11 @@ uv run invoke setup
 uv run invoke test
 
 # Run specific test types
-uv run invoke test startup
-uv run invoke test integration
+uv run invoke test --startup
+uv run invoke test --integration
 
 # Run with coverage
-uv run invoke test coverage
+uv run invoke test --coverage
 ```
 
 ### Code Quality
@@ -120,7 +120,7 @@ uv run invoke format
 uv run invoke lint
 
 # Run all quality checks
-uv run invoke check-all
+uv run invoke check_all
 ```
 
 ## Common Commands
@@ -140,8 +140,8 @@ uv run invoke check-all
 
 | Command | Description |
 |---------|-------------|
-| `uv run invoke run-server` | Start MCP server |
-| `uv run invoke dev-server` | Start server in debug mode |
+| `uv run invoke run_server` | Start MCP server |
+| `uv run invoke run_server --debug` | Start server in debug mode |
 | `uv run superprompts-server` | Start server directly |
 
 ### Testing Commands
@@ -149,8 +149,8 @@ uv run invoke check-all
 | Command | Description |
 |---------|-------------|
 | `uv run invoke test` | Run all tests |
-| `uv run invoke test startup` | Run startup tests |
-| `uv run invoke test integration` | Run integration tests |
+| `uv run invoke test --startup` | Run startup tests |
+| `uv run invoke test --integration` | Run integration tests |
 | `uv run nox` | Multi-environment testing |
 
 ### CLI Commands
@@ -160,7 +160,6 @@ uv run invoke check-all
 | `uv run superprompts list-prompts` | List all prompts |
 | `uv run superprompts get-prompt <id>` | Get specific prompt |
 | `uv run superprompts metadata <id>` | Get prompt metadata |
-| `uv run superprompts tools` | List MCP tools |
 
 ## Next Steps
 
@@ -168,14 +167,14 @@ uv run invoke check-all
 
 1. **Browse Prompts**: Check [Available Prompts](available_prompts.md) for ready-to-use prompts
 2. **Learn Techniques**: Read [AI Prompting Best Practices](ai_prompting_best_practices.md)
-3. **Use MCP Server**: Follow the [MCP Guide](mcp_guide.md)
+3. **Use MCP Server**: Follow the [MCP Configuration Guide](mcp_configuration.md)
 4. **Customize Prompts**: Learn about parameters and customization options
 
 ### For Developers
 
 1. **Development Setup**: Follow the [Development](development.md)
 2. **Contributing**: Read the [Contributing Guide](contributing_guide.md)
-3. **Troubleshooting**: Check the [Troubleshooting Guide](troubleshooting_guide.md)
+3. **Troubleshooting**: Check the [Troubleshooting Guide](troubleshooting.md)
 4. **API Reference**: Explore the codebase and documentation
 
 ### For Contributors
@@ -200,7 +199,7 @@ superprompts/
 docs/
 ├── development.md
 ├── contributing_guide.md
-├── troubleshooting_guide.md
+├── troubleshooting.md
 └── ...
 
 tests/
@@ -226,7 +225,7 @@ tests/
 
 - [Development](development.md) - Complete development setup
 - [Contributing Guide](contributing_guide.md) - How to contribute
-- [MCP Guide](mcp_guide.md) - Using the MCP server
+- [MCP Configuration Guide](mcp_configuration.md) - Using the MCP server
 - [Troubleshooting](troubleshooting.md) - Common issues and solutions
 
 ### Commands

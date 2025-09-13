@@ -44,7 +44,7 @@ This directory contains general documentation about AI prompting techniques, bes
 
 ### Advanced Topics
 
-- **[MCP Guide](mcp_guide.md)** - MCP server, configuration, and integration
+- **[MCP Configuration Guide](mcp_configuration.md)** - MCP server, configuration, and integration
 
 - **[Cursor Rules Guide](cursor_rules_guide.md)** - Creating and managing Cursor IDE rules
 
@@ -72,9 +72,9 @@ This directory contains general documentation about AI prompting techniques, bes
 
 ### Prompt Documentation
 
-- **[Cursor Rules Generator](cursor_rules_generator.md)** - Comprehensive guide to generating Cursor IDE rules tailored to your stack.
+- **[Cursor Rules Guide](cursor_rules_guide.md)** - Comprehensive guide to generating Cursor IDE rules tailored to your stack.
 
-- **[Repository Documentation Rebuilder](repo_docs_rebuilder.md)** - Complete guide to rebuilding repository documentation with safety checks.
+- **[Available Prompts](available_prompts.md)** - Complete guide to rebuilding repository documentation with safety checks.
 
 ## Purpose
 

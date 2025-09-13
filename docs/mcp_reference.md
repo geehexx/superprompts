@@ -4,7 +4,7 @@ Complete reference for the SuperPrompts MCP server.
 
 ## Overview
 
-The SuperPrompts MCP server provides access to AI prompts through the Model Context Protocol (MCP). It exposes prompts as MCP tools that can be used by AI assistants.
+The SuperPrompts MCP server provides access to AI prompts through the Model Context Protocol (MCP). It exposes prompts as MCP prompts that can be used by AI assistants.
 
 ## Server Details
 

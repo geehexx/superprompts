@@ -73,8 +73,8 @@ uv run invoke setup
 | `uv run invoke test` | Run all tests | `uv run invoke test` |
 | `uv run invoke format` | Format code | `uv run invoke format` |
 | `uv run invoke lint` | Run linting | `uv run invoke lint` |
-| `uv run invoke check-all` | Run all quality checks | `uv run invoke check-all` |
-| `uv run invoke run-server` | Start MCP server | `uv run invoke run-server` |
+| `uv run invoke check_all` | Run all quality checks | `uv run invoke check_all` |
+| `uv run invoke run_server` | Start MCP server | `uv run invoke run_server` |
 | `uv run invoke clean` | Clean build artifacts | `uv run invoke clean` |
 
 ### Testing Commands
@@ -82,9 +82,9 @@ uv run invoke setup
 | Command | Description | Usage |
 |---------|-------------|-------|
 | `uv run invoke test` | Run all tests | `uv run invoke test` |
-| `uv run invoke test startup` | Run startup tests | `uv run invoke test startup` |
-| `uv run invoke test integration` | Run integration tests | `uv run invoke test integration` |
-| `uv run invoke test coverage` | Run with coverage | `uv run invoke test coverage` |
+| `uv run invoke test --startup` | Run startup tests | `uv run invoke test --startup` |
+| `uv run invoke test --integration` | Run integration tests | `uv run invoke test --integration` |
+| `uv run invoke test --coverage` | Run with coverage | `uv run invoke test --coverage` |
 | `uv run nox` | Multi-environment testing | `uv run nox` |
 
 ### Code Quality Commands
@@ -165,12 +165,12 @@ uv run pre-commit run
 uv run invoke test
 
 # Run specific test types
-uv run invoke test startup
-uv run invoke test integration
-uv run invoke test unit
+uv run invoke test --startup
+uv run invoke test --integration
+uv run invoke test --unit
 
 # Run with coverage
-uv run invoke test coverage
+uv run invoke test --coverage
 ```
 
 ### Multi-Environment Testing with Nox
@@ -396,6 +396,6 @@ uv run invoke install
 ## Next Steps
 
 - [Contributing Guide](contributing_guide.md) - How to contribute to the project
-- [MCP Guide](mcp_guide.md) - Using the MCP server
+- [MCP Configuration Guide](mcp_configuration.md) - Using the MCP server
 - [Troubleshooting](troubleshooting.md) - Common issues and solutions
 - [API](api.md) - Complete API documentation

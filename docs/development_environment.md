@@ -128,16 +128,16 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 uv --version
 ```
 
-#### 2. Install Poetry (Alternative)
+#### 2. Install uv (Primary)
 ```bash
-# Install Poetry
-curl -sSL https://install.python-poetry.org | python3 -
+# Install uv
+curl -LsSf https://astral.sh/uv/install.sh | sh
 
 # Add to PATH
 export PATH="$HOME/.local/bin:$PATH"
 
 # Verify installation
-poetry --version
+uv --version
 ```
 
 #### 3. Clone Repository
@@ -151,18 +151,12 @@ cd superprompts
 ```bash
 # Using uv (recommended)
 uv sync --dev
-
-# Using Poetry (alternative)
-poetry install --dev
 ```
 
 #### 5. Install Pre-commit Hooks
 ```bash
 # Install pre-commit hooks
 uv run pre-commit install
-
-# Or using Poetry
-poetry run pre-commit install
 ```
 
 #### 6. Verify Installation

@@ -15,20 +15,20 @@ This guide helps you resolve common issues when working with the SuperPrompts pr
 
 ## Installation Issues
 
-### Poetry Not Found
+### uv Not Found
 
-**Error**: `poetry: command not found`
+**Error**: `uv: command not found`
 
 **Solution**:
 ```bash
 # Install uv
-curl -sSL https://install.python-poetry.org | python3 -
+curl -LsSf https://astral.sh/uv/install.sh | sh
 
 # Add to PATH (add to your shell profile)
 export PATH="$HOME/.local/bin:$PATH"
 
 # Verify installation
-poetry --version
+uv --version
 ```
 
 **Permanent Fix**: Add to your shell profile (`.bashrc`, `.zshrc`, etc.):
@@ -64,17 +64,17 @@ choco install python --version=3.10.0
 
 **Solution**:
 ```bash
-# Clear Poetry cache
-poetry cache clear --all pypi
+# Clear uv cache
+uv cache clean
 
-# Update Poetry
-poetry self update
+# Update uv
+uv self update
 
 # Reinstall dependencies
 uv sync --dev
 ```
 
-## Poetry Issues
+## uv Issues
 
 ### Virtual Environment Not Created
 
@@ -83,40 +83,39 @@ uv sync --dev
 **Solution**:
 ```bash
 # Create virtual environment manually
-poetry env use python3.10
+uv venv
 
 # Install dependencies
 uv sync --dev
 
 # Verify
-poetry env info
+uv run python --version
 ```
 
 ### Lock File Issues
 
-**Error**: `poetry.lock file not found` or lock file conflicts
+**Error**: `uv.lock file not found` or lock file conflicts
 
 **Solution**:
 ```bash
 # Regenerate lock file
-poetry lock
+uv lock
 
 # Update dependencies
-poetry update
+uv sync --dev
 
 # Install with new lock file
 uv sync --dev
 ```
 
-### Poetry Cache Issues
+### uv Cache Issues
 
 **Error**: `Failed to download` or `Cache corrupted`
 
 **Solution**:
 ```bash
 # Clear all caches
-poetry cache clear --all pypi
-poetry cache clear --all _default_cache
+uv cache clean
 
 # Reinstall
 uv sync --dev
@@ -181,7 +180,7 @@ uv sync --dev
 uv run invoke test --verbose
 
 # Run specific test
-uv run invoke test startup
+uv run invoke test --startup
 
 # Debug mode
 uv run pytest tests/ --pdb
@@ -213,10 +212,10 @@ uv run nox --reuse-existing-sessions
 **Solution**:
 ```bash
 # Install coverage dependencies
-poetry add --group dev pytest-cov
+uv add --dev pytest-cov
 
 # Run with coverage
-uv run invoke test coverage
+uv run invoke test --coverage
 
 # Check coverage report
 open htmlcov/index.html
@@ -285,7 +284,7 @@ uv run black .
 uv run invoke status
 
 # Start in debug mode
-uv run invoke dev-server
+uv run invoke run_server --debug
 
 # Check logs
 SUPERPROMPTS_LOG_LEVEL=DEBUG uv run superprompts-server
@@ -480,7 +479,7 @@ If you're still experiencing issues:
 
 - [Development](development.md) - Complete development setup
 - [Contributing Guide](contributing_guide.md) - How to contribute
-- [MCP Guide](mcp_guide.md) - Using the MCP server
-- [Poetry Documentation](https://python-poetry.org/docs/) - Poetry usage
+- [MCP Configuration Guide](mcp_configuration.md) - Using the MCP server
+- [uv Documentation](https://docs.astral.sh/uv/) - uv usage
 - [Ruff Documentation](https://docs.astral.sh/ruff/) - Ruff linting
 - [Nox Documentation](https://nox.thea.codes/) - Nox testing
