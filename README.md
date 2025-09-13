@@ -33,17 +33,17 @@ General documentation on prompting techniques, best practices, and standards.
 1. **Quick Start**: Follow the [Quick Start Guide](docs/quick_start_guide.md) to get up and running in minutes
 2. **Browse Prompts**: Check the [Available Prompts](docs/available_prompts.md) index for ready-to-use prompts
 3. **Learn Techniques**: Read the guides in [docs/](docs/) to understand the underlying principles
-4. **Use CLI Tools**: Use `poetry run superprompts get-prompt <prompt_id>` to generate prompts with parameters
+4. **Use CLI Tools**: Use `uv run superprompts get-prompt <prompt_id>` to generate prompts with parameters
 5. **Customize**: Adjust parameters to adapt prompts to your specific needs
 
 ### Using the MCP Server with Cursor IDE
-1. **Install**: `poetry install` (from source) or `pip install superprompts` (from PyPI)
+1. **Install**: `uv sync` (from source) or `pip install superprompts` (from PyPI)
 2. **Setup Cursor**: Create `.cursor/mcp.json` with the server configuration:
    ```json
    {
      "mcpServers": {
        "superprompts": {
-         "command": "poetry",
+         "command": "uv",
          "args": ["run", "python", "-m", "superprompts.mcp.server"],
          "env": {},
          "cwd": "/absolute/path/to/your/project"
@@ -56,31 +56,42 @@ General documentation on prompting techniques, best practices, and standards.
 5. **Use Tools**: Access 4 MCP tools in Cursor: `list_prompts`, `get_prompt`, `get_prompt_metadata`, `compose_prompt`
 
 ### MCP Configuration Management
-1. **Create Config**: `poetry run superprompts config create --template superprompts --template github`
-2. **Validate Config**: `poetry run superprompts config validate mcp.json`
-3. **Convert Formats**: `poetry run superprompts config convert mcp.json --format vscode`
-4. **Use Adapters**: `poetry run superprompts adapt tools` to integrate with existing MCP tooling
+1. **Create Config**: `uv run superprompts config create --template superprompts --template github`
+2. **Validate Config**: `uv run superprompts config validate mcp.json`
+3. **Convert Formats**: `uv run superprompts config convert mcp.json --format vscode`
+4. **Use Adapters**: `uv run superprompts adapt tools` to integrate with existing MCP tooling
 
 See the [MCP Server Guide](docs/mcp_server_guide.md) and [MCP Configuration Guide](docs/mcp_configuration_guide.md) for detailed usage instructions.
 
 ### Development Setup
 
-This project uses a modern Python development workflow with Poetry, Ruff, Nox, and Invoke:
+This project uses a modern Python development workflow with `uv`, Ruff, Nox, and Invoke:
 
-1. **Install Poetry**: `curl -sSL https://install.python-poetry.org | python3 -`
-2. **Install Dependencies**: `poetry install`
-3. **Run Tests**: `poetry run invoke test`
-4. **Format Code**: `poetry run invoke format`
-5. **Run Linting**: `poetry run invoke lint`
+1. **Install uv**: `curl -LsSf https://astral.sh/uv/install.sh | sh`
+2. **Install Dependencies**: `uv sync --dev`
+3. **Install Pre-commit Hooks**: `uv run pre-commit install`
+4. **Run Tests**: `uv run invoke test`
+5. **Format Code**: `uv run invoke format`
+6. **Run Linting**: `uv run invoke lint`
 
 See the [Development Guide](docs/development_guide.md) for comprehensive setup and usage instructions.
 
-### Validation
+### Code Quality & Validation
 
-- **Pre-commit**: `poetry run pre-commit install` (automated code quality on commit)
-- **Multi-environment Testing**: `poetry run nox` (tests across Python 3.10, 3.11, 3.12)
+- **Pre-commit Hooks**: Automated code quality checks on every commit
+  - Ruff linting and formatting (140 char line length)
+  - MyPy type checking
+  - Black code formatting
+  - isort import organization
+  - Standard pre-commit hooks for common issues
+- **Multi-environment Testing**: `uv run nox` (tests across Python 3.10, 3.11, 3.12)
 - **CI/CD**: GitHub Actions workflow with comprehensive testing and validation
-- **Code Quality**: Ruff for fast linting, MyPy for type checking, Bandit for security
+- **Code Quality**: 
+  - Ruff for fast linting and formatting
+  - MyPy for comprehensive type checking
+  - Bandit for security analysis
+  - 44 comprehensive tests (28 existing + 16 integration tests)
+- **Modern Python**: Full type hints with Python 3.10+ syntax, comprehensive error handling
 
 ## Key Features
 
@@ -105,10 +116,10 @@ We welcome contributions! Please see our [Contributing Guide](docs/contributing_
 
 ### Quick Start for Contributors
 1. **Fork and Clone**: Fork the repository and clone your fork
-2. **Setup Development Environment**: `poetry install && poetry run invoke setup`
+2. **Setup Development Environment**: `uv sync --dev && uv run invoke setup`
 3. **Create Feature Branch**: `git checkout -b feature/your-feature-name`
-4. **Make Changes**: Follow our coding standards and run `poetry run invoke check-all`
-5. **Test Changes**: `poetry run invoke test` and `poetry run nox`
+4. **Make Changes**: Follow our coding standards and run `uv run invoke check-all`
+5. **Test Changes**: `uv run invoke test` and `uv run nox`
 6. **Submit Pull Request**: Create a PR with a clear description
 
 ### Development Workflow

@@ -21,7 +21,7 @@ This guide helps you resolve common issues when working with the SuperPrompts pr
 
 **Solution**:
 ```bash
-# Install Poetry
+# Install uv
 curl -sSL https://install.python-poetry.org | python3 -
 
 # Add to PATH (add to your shell profile)
@@ -71,7 +71,7 @@ poetry cache clear --all pypi
 poetry self update
 
 # Reinstall dependencies
-poetry install
+uv sync --dev
 ```
 
 ## Poetry Issues
@@ -86,7 +86,7 @@ poetry install
 poetry env use python3.10
 
 # Install dependencies
-poetry install
+uv sync --dev
 
 # Verify
 poetry env info
@@ -105,7 +105,7 @@ poetry lock
 poetry update
 
 # Install with new lock file
-poetry install
+uv sync --dev
 ```
 
 ### Poetry Cache Issues
@@ -119,7 +119,7 @@ poetry cache clear --all pypi
 poetry cache clear --all _default_cache
 
 # Reinstall
-poetry install
+uv sync --dev
 ```
 
 ## Development Environment Issues
@@ -131,10 +131,10 @@ poetry install
 **Solution**:
 ```bash
 # Update pre-commit hooks
-poetry run pre-commit autoupdate
+uv run pre-commit autoupdate
 
 # Run hooks manually
-poetry run pre-commit run --all-files
+uv run pre-commit run --all-files
 
 # Skip hooks temporarily (not recommended)
 git commit --no-verify -m "Your commit message"
@@ -147,7 +147,7 @@ git commit --no-verify -m "Your commit message"
 **Solution**:
 ```bash
 # Use Poetry to run invoke
-poetry run invoke --list
+uv run invoke --list
 
 # Or install invoke globally (not recommended)
 pip install invoke
@@ -160,13 +160,13 @@ pip install invoke
 **Solution**:
 ```bash
 # Ensure you're using Poetry
-poetry run python -c "import superprompts"
+uv run python -c "import superprompts"
 
 # Check virtual environment
 poetry env info
 
 # Reinstall dependencies
-poetry install
+uv sync --dev
 ```
 
 ## Testing Issues
@@ -178,16 +178,16 @@ poetry install
 **Solution**:
 ```bash
 # Run tests with verbose output
-poetry run invoke test --verbose
+uv run invoke test --verbose
 
 # Run specific test
-poetry run invoke test startup
+uv run invoke test startup
 
 # Debug mode
-poetry run pytest tests/ --pdb
+uv run pytest tests/ --pdb
 
 # Check test environment
-poetry run invoke status
+uv run invoke status
 ```
 
 ### Nox Issues
@@ -197,13 +197,13 @@ poetry run invoke status
 **Solution**:
 ```bash
 # Run specific Nox session
-poetry run nox -s test
+uv run nox -s test
 
 # Run with verbose output
-poetry run nox -v
+uv run nox -v
 
 # Clean Nox environments
-poetry run nox --reuse-existing-sessions
+uv run nox --reuse-existing-sessions
 ```
 
 ### Coverage Issues
@@ -216,7 +216,7 @@ poetry run nox --reuse-existing-sessions
 poetry add --group dev pytest-cov
 
 # Run with coverage
-poetry run invoke test coverage
+uv run invoke test coverage
 
 # Check coverage report
 open htmlcov/index.html
@@ -231,16 +231,16 @@ open htmlcov/index.html
 **Solution**:
 ```bash
 # Fix auto-fixable issues
-poetry run ruff check . --fix
+uv run ruff check . --fix
 
 # Format code
-poetry run ruff format .
+uv run ruff format .
 
 # Check specific file
-poetry run ruff check superprompts/cli/main.py
+uv run ruff check superprompts/cli/main.py
 
 # Ignore specific rules (temporarily)
-poetry run ruff check . --ignore E501,W503
+uv run ruff check . --ignore E501,W503
 ```
 
 ### MyPy Type Errors
@@ -250,13 +250,13 @@ poetry run ruff check . --ignore E501,W503
 **Solution**:
 ```bash
 # Run MyPy with verbose output
-poetry run mypy superprompts/ --verbose
+uv run mypy superprompts/ --verbose
 
 # Check specific file
-poetry run mypy superprompts/cli/main.py
+uv run mypy superprompts/cli/main.py
 
 # Ignore specific errors (temporarily)
-poetry run mypy superprompts/ --ignore-missing-imports
+uv run mypy superprompts/ --ignore-missing-imports
 ```
 
 ### Black/Isort Conflicts
@@ -266,11 +266,11 @@ poetry run mypy superprompts/ --ignore-missing-imports
 **Solution**:
 ```bash
 # Use Ruff instead (recommended)
-poetry run ruff format .
+uv run ruff format .
 
 # Or configure isort to work with Black
-poetry run isort . --profile black
-poetry run black .
+uv run isort . --profile black
+uv run black .
 ```
 
 ## Server Issues
@@ -282,13 +282,13 @@ poetry run black .
 **Solution**:
 ```bash
 # Check server status
-poetry run invoke status
+uv run invoke status
 
 # Start in debug mode
-poetry run invoke dev-server
+uv run invoke dev-server
 
 # Check logs
-SUPERPROMPTS_LOG_LEVEL=DEBUG poetry run superprompts-server
+SUPERPROMPTS_LOG_LEVEL=DEBUG uv run superprompts-server
 ```
 
 ### CLI Tool Issues
@@ -298,13 +298,13 @@ SUPERPROMPTS_LOG_LEVEL=DEBUG poetry run superprompts-server
 **Solution**:
 ```bash
 # Use Poetry to run CLI
-poetry run superprompts --help
+uv run superprompts --help
 
 # Check installation
-poetry run invoke status
+uv run invoke status
 
 # Reinstall
-poetry install
+uv sync --dev
 ```
 
 ### Import Errors in Server
@@ -314,13 +314,13 @@ poetry install
 **Solution**:
 ```bash
 # Check Python path
-poetry run python -c "import sys; print(sys.path)"
+uv run python -c "import sys; print(sys.path)"
 
 # Verify installation
-poetry run python -c "import superprompts"
+uv run python -c "import superprompts"
 
 # Reinstall
-poetry install
+uv sync --dev
 ```
 
 ## Performance Issues
@@ -332,13 +332,13 @@ poetry install
 **Solution**:
 ```bash
 # Run tests in parallel
-poetry run pytest tests/ -n auto
+uv run pytest tests/ -n auto
 
 # Run specific tests only
-poetry run invoke test startup
+uv run invoke test startup
 
 # Use Nox for multi-environment testing
-poetry run nox -s test
+uv run nox -s test
 ```
 
 ### Slow Linting
@@ -348,10 +348,10 @@ poetry run nox -s test
 **Solution**:
 ```bash
 # Use Ruff's fast mode
-poetry run ruff check . --no-cache
+uv run ruff check . --no-cache
 
 # Check specific files only
-poetry run ruff check superprompts/
+uv run ruff check superprompts/
 
 # Update Ruff
 poetry add --group dev ruff@latest
@@ -364,13 +364,13 @@ poetry add --group dev ruff@latest
 **Solution**:
 ```bash
 # Reduce parallel processes
-poetry run pytest tests/ -n 1
+uv run pytest tests/ -n 1
 
 # Use smaller test batches
-poetry run nox -s test --reuse-existing-sessions
+uv run nox -s test --reuse-existing-sessions
 
 # Check memory usage
-poetry run invoke status
+uv run invoke status
 ```
 
 ## Getting Help
@@ -381,7 +381,7 @@ When reporting issues, include:
 
 ```bash
 # System information
-poetry run invoke status
+uv run invoke status
 
 # Python version
 python3 --version
@@ -393,25 +393,25 @@ poetry --version
 poetry show
 
 # Test output
-poetry run invoke test --verbose
+uv run invoke test --verbose
 ```
 
 ### Common Debug Commands
 
 ```bash
 # Check project status
-poetry run invoke status
+uv run invoke status
 
 # Show all available commands
-poetry run invoke --list
+uv run invoke --list
 
 # Run complete setup
-poetry run invoke setup
+uv run invoke setup
 
 # Clean and reinstall
-poetry run invoke clean
-poetry install
-poetry run invoke setup
+uv run invoke clean
+uv sync --dev
+uv run invoke setup
 ```
 
 ### Log Files
@@ -456,11 +456,11 @@ poetry cache clear --all
 rm poetry.lock
 
 # Clean build artifacts
-poetry run invoke clean-all
+uv run invoke clean-all
 
 # Reinstall everything
-poetry install
-poetry run invoke setup
+uv sync --dev
+uv run invoke setup
 ```
 
 ### Still Need Help?
@@ -472,7 +472,7 @@ If you're still experiencing issues:
 3. **Create a new issue** with:
    - Description of the problem
    - Steps to reproduce
-   - Debug information from `poetry run invoke status`
+   - Debug information from `uv run invoke status`
    - Error messages and logs
 4. **Join our community** discussions for help
 

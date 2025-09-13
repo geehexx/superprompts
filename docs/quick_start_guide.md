@@ -19,17 +19,17 @@ Get up and running with SuperPrompts in minutes!
 git clone https://github.com/your-org/superprompts.git
 cd superprompts
 
-# Install Poetry (if not already installed)
+# Install uv (if not already installed)
 curl -sSL https://install.python-poetry.org | python3 -
 
 # Add Poetry to PATH
 export PATH="$HOME/.local/bin:$PATH"
 
 # Install dependencies
-poetry install
+uv sync --dev
 
 # Verify installation
-poetry run superprompts --help
+uv run superprompts --help
 ```
 
 ### Option 2: From PyPI (When Available)
@@ -44,41 +44,41 @@ pip install superprompts
 
 ```bash
 # List all prompts
-poetry run superprompts list-prompts
+uv run superprompts list-prompts
 
 # List prompts by category
-poetry run superprompts list-prompts --category docs
-poetry run superprompts list-prompts --category rules
+uv run superprompts list-prompts --category docs
+uv run superprompts list-prompts --category rules
 ```
 
 ### Get a Specific Prompt
 
 ```bash
 # Get repository documentation prompt
-poetry run superprompts get-prompt repo_docs
+uv run superprompts get-prompt repo_docs
 
 # Get cursor rules prompt
-poetry run superprompts get-prompt cursor_rules
+uv run superprompts get-prompt cursor_rules
 ```
 
 ### Use Prompts with Parameters
 
 ```bash
 # Get cursor rules for testing category
-poetry run superprompts get-prompt cursor_rules --parameters '{"target_categories": ["testing"]}'
+uv run superprompts get-prompt cursor_rules --parameters '{"target_categories": ["testing"]}'
 
 # Get repository docs with custom parameters
-poetry run superprompts get-prompt repo_docs --parameters '{"target_doc_types": ["README", "API"]}'
+uv run superprompts get-prompt repo_docs --parameters '{"target_doc_types": ["README", "API"]}'
 ```
 
 ### Start the MCP Server
 
 ```bash
 # Start server for AI tool integration
-poetry run superprompts-server
+uv run superprompts-server
 
 # Or using invoke
-poetry run invoke run-server
+uv run invoke run-server
 ```
 
 ## Development Setup
@@ -87,7 +87,7 @@ poetry run invoke run-server
 
 ```bash
 # Setup everything
-poetry run invoke setup
+uv run invoke setup
 
 # This will:
 # - Install all dependencies
@@ -100,27 +100,27 @@ poetry run invoke setup
 
 ```bash
 # Run all tests
-poetry run invoke test
+uv run invoke test
 
 # Run specific test types
-poetry run invoke test startup
-poetry run invoke test integration
+uv run invoke test startup
+uv run invoke test integration
 
 # Run with coverage
-poetry run invoke test coverage
+uv run invoke test coverage
 ```
 
 ### Code Quality
 
 ```bash
 # Format code
-poetry run invoke format
+uv run invoke format
 
 # Run linting
-poetry run invoke lint
+uv run invoke lint
 
 # Run all quality checks
-poetry run invoke check-all
+uv run invoke check-all
 ```
 
 ## Common Commands
@@ -129,38 +129,38 @@ poetry run invoke check-all
 
 | Command | Description |
 |---------|-------------|
-| `poetry run invoke status` | Show project status |
-| `poetry run invoke test` | Run all tests |
-| `poetry run invoke format` | Format code |
-| `poetry run invoke lint` | Run linting |
-| `poetry run invoke clean` | Clean build artifacts |
-| `poetry run invoke setup` | Complete development setup |
+| `uv run invoke status` | Show project status |
+| `uv run invoke test` | Run all tests |
+| `uv run invoke format` | Format code |
+| `uv run invoke lint` | Run linting |
+| `uv run invoke clean` | Clean build artifacts |
+| `uv run invoke setup` | Complete development setup |
 
 ### Server Commands
 
 | Command | Description |
 |---------|-------------|
-| `poetry run invoke run-server` | Start MCP server |
-| `poetry run invoke dev-server` | Start server in debug mode |
-| `poetry run superprompts-server` | Start server directly |
+| `uv run invoke run-server` | Start MCP server |
+| `uv run invoke dev-server` | Start server in debug mode |
+| `uv run superprompts-server` | Start server directly |
 
 ### Testing Commands
 
 | Command | Description |
 |---------|-------------|
-| `poetry run invoke test` | Run all tests |
-| `poetry run invoke test startup` | Run startup tests |
-| `poetry run invoke test integration` | Run integration tests |
-| `poetry run nox` | Multi-environment testing |
+| `uv run invoke test` | Run all tests |
+| `uv run invoke test startup` | Run startup tests |
+| `uv run invoke test integration` | Run integration tests |
+| `uv run nox` | Multi-environment testing |
 
 ### CLI Commands
 
 | Command | Description |
 |---------|-------------|
-| `poetry run superprompts list-prompts` | List all prompts |
-| `poetry run superprompts get-prompt <id>` | Get specific prompt |
-| `poetry run superprompts metadata <id>` | Get prompt metadata |
-| `poetry run superprompts tools` | List MCP tools |
+| `uv run superprompts list-prompts` | List all prompts |
+| `uv run superprompts get-prompt <id>` | Get specific prompt |
+| `uv run superprompts metadata <id>` | Get prompt metadata |
+| `uv run superprompts tools` | List MCP tools |
 
 ## Next Steps
 
@@ -181,7 +181,7 @@ poetry run invoke check-all
 ### For Contributors
 
 1. **Fork and Clone**: Fork the repository and clone your fork
-2. **Setup Environment**: `poetry install && poetry run invoke setup`
+2. **Setup Environment**: `uv sync --dev && uv run invoke setup`
 3. **Create Branch**: `git checkout -b feature/your-feature-name`
 4. **Make Changes**: Follow coding standards and run tests
 5. **Submit PR**: Create a pull request with your changes
@@ -233,16 +233,16 @@ tests/
 
 ```bash
 # Show all available commands
-poetry run invoke --list
+uv run invoke --list
 
 # Show help for specific command
-poetry run invoke help test
+uv run invoke help test
 
 # Show project status
-poetry run invoke status
+uv run invoke status
 
 # Show CLI help
-poetry run superprompts --help
+uv run superprompts --help
 ```
 
 ### Community
@@ -257,30 +257,30 @@ poetry run superprompts --help
 
 ```bash
 # Get a simple prompt
-poetry run superprompts get-prompt repo_docs
+uv run superprompts get-prompt repo_docs
 
 # Get prompt with parameters
-poetry run superprompts get-prompt cursor_rules --parameters '{"target_categories": ["testing", "documentation"]}'
+uv run superprompts get-prompt cursor_rules --parameters '{"target_categories": ["testing", "documentation"]}'
 
 # Get prompt metadata
-poetry run superprompts metadata repo_docs
+uv run superprompts metadata repo_docs
 ```
 
 ### Development Workflow
 
 ```bash
 # Start development
-poetry run invoke setup
+uv run invoke setup
 
 # Make changes to code
 # ... edit files ...
 
 # Format and lint
-poetry run invoke format
-poetry run invoke lint
+uv run invoke format
+uv run invoke lint
 
 # Run tests
-poetry run invoke test
+uv run invoke test
 
 # Commit changes (pre-commit hooks run automatically)
 git add .
@@ -291,11 +291,11 @@ git commit -m "Your changes"
 
 ```bash
 # Start MCP server
-poetry run superprompts-server
+uv run superprompts-server
 
 # In another terminal, use CLI
-poetry run superprompts list-prompts
-poetry run superprompts get-prompt repo_docs
+uv run superprompts list-prompts
+uv run superprompts get-prompt repo_docs
 ```
 
 That's it! You're ready to start using SuperPrompts. 🚀

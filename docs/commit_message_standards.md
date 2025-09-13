@@ -211,10 +211,10 @@ You can manually validate a commit message:
 
 ```bash
 # Validate the last commit message
-poetry run commitlint --from HEAD~1 --to HEAD
+uv run commitlint --from HEAD~1 --to HEAD
 
 # Validate a specific commit message
-echo "feat: add new feature" | poetry run commitlint
+echo "feat: add new feature" | uv run commitlint
 ```
 
 ### IDE Integration

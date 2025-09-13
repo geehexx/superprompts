@@ -18,7 +18,7 @@ Thank you for your interest in contributing to SuperPrompts! This guide will hel
 ### Prerequisites
 
 - Python 3.10 or higher
-- Poetry (for dependency management)
+- uv (for dependency management and packaging)
 - Git (for version control)
 - Basic understanding of Python development
 
@@ -42,33 +42,33 @@ Thank you for your interest in contributing to SuperPrompts! This guide will hel
 
 ## Development Setup
 
-### 1. Install Poetry
+### 1. Install uv
 
 ```bash
-# Install Poetry
-curl -sSL https://install.python-poetry.org | python3 -
+# Install uv
+curl -LsSf https://astral.sh/uv/install.sh | sh
 
 # Add to PATH (add to your shell profile)
 export PATH="$HOME/.local/bin:$PATH"
 
 # Verify installation
-poetry --version
+uv --version
 ```
 
 ### 2. Setup Development Environment
 
 ```bash
 # Install dependencies
-poetry install
+uv sync --dev
 
 # Setup pre-commit hooks
-poetry run pre-commit install
+uv run pre-commit install
 
 # Run complete setup
-poetry run invoke setup
+uv run invoke setup
 
 # Verify everything is working
-poetry run invoke status
+uv run invoke status
 ```
 
 ### 3. Create Development Branch
@@ -90,19 +90,19 @@ Our project uses several tools to maintain code quality:
 #### Ruff (Linting and Formatting)
 ```bash
 # Check for issues
-poetry run ruff check .
+uv run ruff check .
 
 # Fix auto-fixable issues
-poetry run ruff check . --fix
+uv run ruff check . --fix
 
 # Format code
-poetry run ruff format .
+uv run ruff format .
 ```
 
 #### MyPy (Type Checking)
 ```bash
 # Run type checking
-poetry run mypy superprompts/
+uv run mypy superprompts/
 ```
 
 #### Pre-commit Hooks
@@ -119,17 +119,17 @@ All changes must include appropriate tests:
 
 ```bash
 # Run all tests
-poetry run invoke test
+uv run invoke test
 
 # Run specific test types
-poetry run invoke test startup
-poetry run invoke test integration
+uv run invoke test startup
+uv run invoke test integration
 
 # Run with coverage
-poetry run invoke test coverage
+uv run invoke test coverage
 
 # Multi-environment testing
-poetry run nox
+uv run nox
 ```
 
 #### Test Coverage
@@ -363,21 +363,21 @@ Brief description of the changes
 
 ```bash
 # Development workflow
-poetry run invoke setup          # Complete setup
-poetry run invoke test           # Run tests
-poetry run invoke format         # Format code
-poetry run invoke lint           # Run linting
-poetry run invoke check-all      # Run all quality checks
-poetry run invoke clean          # Clean build artifacts
+uv run invoke setup          # Complete setup
+uv run invoke test           # Run tests
+uv run invoke format         # Format code
+uv run invoke lint           # Run linting
+uv run invoke check-all      # Run all quality checks
+uv run invoke clean          # Clean build artifacts
 
 # Testing
-poetry run invoke test startup   # Run startup tests
-poetry run invoke test coverage  # Run with coverage
-poetry run nox                   # Multi-environment testing
+uv run invoke test startup   # Run startup tests
+uv run invoke test coverage  # Run with coverage
+uv run nox                   # Multi-environment testing
 
 # Server
-poetry run invoke run-server     # Start MCP server
-poetry run invoke dev-server     # Start in debug mode
+uv run invoke run-server     # Start MCP server
+uv run invoke dev-server     # Start in debug mode
 ```
 
 ### Pre-commit Hooks

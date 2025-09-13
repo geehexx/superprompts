@@ -16,22 +16,22 @@ This guide covers the complete development workflow for the SuperPrompts project
 ## Prerequisites
 
 - **Python 3.10+**: Required for MCP compatibility
-- **Poetry**: For dependency management and packaging
+- **uv**: For dependency management and packaging
 - **Git**: For version control
 
 ## Initial Setup
 
-### 1. Install Poetry
+### 1. Install uv
 
 ```bash
-# Install Poetry
-curl -sSL https://install.python-poetry.org | python3 -
+# Install uv
+curl -LsSf https://astral.sh/uv/install.sh | sh
 
 # Add to PATH (add to your shell profile)
 export PATH="$HOME/.local/bin:$PATH"
 
 # Verify installation
-poetry --version
+uv --version
 ```
 
 ### 2. Clone and Setup Project
@@ -42,20 +42,20 @@ git clone https://github.com/your-org/superprompts.git
 cd superprompts
 
 # Install dependencies
-poetry install
+uv sync --dev
 
 # Setup pre-commit hooks
-poetry run pre-commit install
+uv run pre-commit install
 
 # Verify setup
-poetry run invoke status
+uv run invoke status
 ```
 
 ### 3. Development Environment
 
 ```bash
 # Complete development setup
-poetry run invoke setup
+uv run invoke setup
 
 # This will:
 # - Install all dependencies
@@ -70,31 +70,31 @@ poetry run invoke setup
 
 | Command | Description | Usage |
 |---------|-------------|-------|
-| `poetry run invoke test` | Run all tests | `poetry run invoke test` |
-| `poetry run invoke format` | Format code | `poetry run invoke format` |
-| `poetry run invoke lint` | Run linting | `poetry run invoke lint` |
-| `poetry run invoke check-all` | Run all quality checks | `poetry run invoke check-all` |
-| `poetry run invoke run-server` | Start MCP server | `poetry run invoke run-server` |
-| `poetry run invoke clean` | Clean build artifacts | `poetry run invoke clean` |
+| `uv run invoke test` | Run all tests | `uv run invoke test` |
+| `uv run invoke format` | Format code | `uv run invoke format` |
+| `uv run invoke lint` | Run linting | `uv run invoke lint` |
+| `uv run invoke check-all` | Run all quality checks | `uv run invoke check-all` |
+| `uv run invoke run-server` | Start MCP server | `uv run invoke run-server` |
+| `uv run invoke clean` | Clean build artifacts | `uv run invoke clean` |
 
 ### Testing Commands
 
 | Command | Description | Usage |
 |---------|-------------|-------|
-| `poetry run invoke test` | Run all tests | `poetry run invoke test` |
-| `poetry run invoke test startup` | Run startup tests | `poetry run invoke test startup` |
-| `poetry run invoke test integration` | Run integration tests | `poetry run invoke test integration` |
-| `poetry run invoke test coverage` | Run with coverage | `poetry run invoke test coverage` |
-| `poetry run nox` | Multi-environment testing | `poetry run nox` |
+| `uv run invoke test` | Run all tests | `uv run invoke test` |
+| `uv run invoke test startup` | Run startup tests | `uv run invoke test startup` |
+| `uv run invoke test integration` | Run integration tests | `uv run invoke test integration` |
+| `uv run invoke test coverage` | Run with coverage | `uv run invoke test coverage` |
+| `uv run nox` | Multi-environment testing | `uv run nox` |
 
 ### Code Quality Commands
 
 | Command | Description | Usage |
 |---------|-------------|-------|
-| `poetry run invoke format` | Format code with Ruff | `poetry run invoke format` |
-| `poetry run invoke lint` | Lint with Ruff | `poetry run invoke lint` |
-| `poetry run invoke type-check` | Type checking with MyPy | `poetry run invoke type-check` |
-| `poetry run invoke pre-commit` | Run pre-commit checks | `poetry run invoke pre-commit` |
+| `uv run invoke format` | Format code with Ruff | `uv run invoke format` |
+| `uv run invoke lint` | Lint with Ruff | `uv run invoke lint` |
+| `uv run invoke type-check` | Type checking with MyPy | `uv run invoke type-check` |
+| `uv run invoke pre-commit` | Run pre-commit checks | `uv run invoke pre-commit` |
 
 ## Code Quality Tools
 
@@ -104,28 +104,32 @@ Ruff is our primary tool for linting and formatting, replacing flake8, isort, an
 
 ```bash
 # Check for issues
-poetry run ruff check .
+uv run ruff check .
 
 # Fix auto-fixable issues
-poetry run ruff check . --fix
+uv run ruff check . --fix
 
 # Format code
-poetry run ruff format .
+uv run ruff format .
 
 # Check formatting
-poetry run ruff format --check .
+uv run ruff format --check .
 ```
 
-**Configuration**: See `[tool.ruff]` section in `pyproject.toml`
+**Configuration**: See `[tool.ruff.lint]` section in `pyproject.toml`
+- **Line Length**: 140 characters (increased from 88 for better readability)
+- **Modern Structure**: Uses the new `[tool.ruff.lint]` configuration format
+- **Comprehensive Rules**: Includes 50+ rule categories for thorough code quality
+- **Per-file Ignores**: Customized rules for different file types (tests, prompts)
 
 ### MyPy (Type Checking)
 
 ```bash
 # Run type checking
-poetry run mypy superprompts/
+uv run mypy superprompts/
 
 # Check specific file
-poetry run mypy superprompts/cli/main.py
+uv run mypy superprompts/cli/main.py
 ```
 
 **Configuration**: See `[tool.mypy]` section in `pyproject.toml`
@@ -136,16 +140,21 @@ Pre-commit hooks run automatically on every commit to ensure code quality.
 
 ```bash
 # Install hooks
-poetry run pre-commit install
+uv run pre-commit install
 
 # Run on all files
-poetry run pre-commit run --all-files
+uv run pre-commit run --all-files
 
 # Run on staged files only
-poetry run pre-commit run
+uv run pre-commit run
 ```
 
 **Configuration**: See `.pre-commit-config.yaml`
+- **Ruff**: Linting and formatting with 140 char line length
+- **MyPy**: Type checking for comprehensive type safety
+- **Black**: Additional code formatting (with 140 char line length)
+- **isort**: Import organization and sorting
+- **Standard Hooks**: Common pre-commit hooks for file validation
 
 ## Testing
 
@@ -153,15 +162,15 @@ poetry run pre-commit run
 
 ```bash
 # Run all tests
-poetry run invoke test
+uv run invoke test
 
 # Run specific test types
-poetry run invoke test startup
-poetry run invoke test integration
-poetry run invoke test unit
+uv run invoke test startup
+uv run invoke test integration
+uv run invoke test unit
 
 # Run with coverage
-poetry run invoke test coverage
+uv run invoke test coverage
 ```
 
 ### Multi-Environment Testing with Nox
@@ -170,15 +179,15 @@ Nox runs tests across multiple Python versions and environments.
 
 ```bash
 # Run all Nox sessions
-poetry run nox
+uv run nox
 
 # Run specific session
-poetry run nox -s test
-poetry run nox -s lint
-poetry run nox -s type_check
+uv run nox -s test
+uv run nox -s lint
+uv run nox -s type_check
 
 # Run with specific Python version
-poetry run nox -s test-3.12
+uv run nox -s test-3.12
 ```
 
 **Available Sessions**:
@@ -195,10 +204,16 @@ poetry run nox -s test-3.12
 
 ```
 tests/
-├── test_startup.py      # Startup regression tests
-├── test_server.py       # Server functionality tests
-└── run_tests.sh         # Legacy test runner (deprecated)
+├── test_startup.py           # Startup regression tests
+├── test_server.py            # Server functionality tests
+├── test_mcp_config.py        # MCP configuration tests
+└── test_cli_integration.py   # CLI integration tests (16 comprehensive tests)
 ```
+
+**Test Coverage**: 44 total tests
+- **28 existing tests**: Core functionality and configuration
+- **16 integration tests**: Comprehensive CLI command testing
+- **100% passing**: All tests pass consistently
 
 ## Building and Publishing
 
@@ -206,7 +221,7 @@ tests/
 
 ```bash
 # Build package
-poetry run invoke build
+uv run invoke build
 
 # This creates:
 # - dist/superprompts-1.0.0-py3-none-any.whl
@@ -217,7 +232,7 @@ poetry run invoke build
 
 ```bash
 # Publish to PyPI
-poetry run invoke publish
+uv run invoke publish
 
 # Note: Requires PyPI credentials configured
 ```
@@ -226,7 +241,7 @@ poetry run invoke publish
 
 ```bash
 # Install from source
-poetry install
+uv sync --dev
 
 # Install built package
 pip install dist/*.whl
@@ -249,41 +264,41 @@ curl -sSL https://install.python-poetry.org | python3 -
 ```bash
 # Recreate virtual environment
 poetry env remove python
-poetry install
+uv sync --dev
 ```
 
 #### Pre-commit Hook Failures
 ```bash
 # Update hooks
-poetry run pre-commit autoupdate
+uv run pre-commit autoupdate
 
 # Run manually
-poetry run pre-commit run --all-files
+uv run pre-commit run --all-files
 ```
 
 #### Test Failures
 ```bash
 # Run with verbose output
-poetry run pytest tests/ -v
+uv run pytest tests/ -v
 
 # Run specific test
-poetry run pytest tests/test_startup.py -v
+uv run pytest tests/test_startup.py -v
 
 # Debug mode
-poetry run pytest tests/ --pdb
+uv run pytest tests/ --pdb
 ```
 
 ### Getting Help
 
 ```bash
 # Show all available commands
-poetry run invoke --list
+uv run invoke --list
 
 # Show help for specific command
-poetry run invoke help test
+uv run invoke help test
 
 # Show project status
-poetry run invoke status
+uv run invoke status
 ```
 
 ## Advanced Usage
@@ -341,9 +356,11 @@ The CI/CD pipeline is configured in `.github/workflows/ci.yml` and includes:
 ### Code Style
 
 1. **Follow Ruff Rules**: Our Ruff configuration enforces consistent code style
-2. **Type Hints**: Use type hints for all function parameters and return values
+2. **Type Hints**: Use modern Python 3.10+ type hints (`str | None` instead of `Optional[str]`)
 3. **Docstrings**: Document all public functions and classes
-4. **Error Handling**: Use appropriate exception handling
+4. **Error Handling**: Use comprehensive exception handling with proper logging
+5. **Logging**: Use structured logging instead of print statements
+6. **Line Length**: 140 characters for better readability
 
 ### Git Workflow
 
@@ -371,10 +388,10 @@ The CI/CD pipeline is configured in `.github/workflows/ci.yml` and includes:
 Use Invoke for all development tasks:
 
 ```bash
-poetry run invoke help
-poetry run invoke test
-poetry run invoke clean
-poetry run invoke install
+uv run invoke help
+uv run invoke test
+uv run invoke clean
+uv run invoke install
 ```
 
 ## Next Steps

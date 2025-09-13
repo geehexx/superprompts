@@ -18,19 +18,19 @@ The SuperPrompts CLI provides comprehensive tools for creating, managing, and va
 
 ```bash
 # Create a basic MCP configuration for Cursor
-poetry run superprompts config create
+uv run superprompts config create
 
 # Create configuration with specific templates
-poetry run superprompts config create --template superprompts --template github
+uv run superprompts config create --template superprompts --template github
 
 # Create VS Code configuration
-poetry run superprompts config create --format vscode --template superprompts
+uv run superprompts config create --format vscode --template superprompts
 
 # Validate existing configuration
-poetry run superprompts config validate mcp.json
+uv run superprompts config validate mcp.json
 
 # List available templates
-poetry run superprompts config templates
+uv run superprompts config templates
 ```
 
 ## Configuration Formats
@@ -43,7 +43,7 @@ The Cursor IDE uses a specific format for MCP server configurations. **Important
 {
   "mcpServers": {
     "superprompts": {
-      "command": "poetry",
+      "command": "uv",
       "args": ["run", "python", "-m", "superprompts.mcp.server"],
       "env": {},
       "cwd": "/absolute/path/to/your/project"
@@ -68,7 +68,7 @@ VS Code uses a nested structure for MCP configurations:
   "mcp": {
     "servers": {
       "superprompts": {
-        "command": "poetry",
+        "command": "uv",
         "args": ["run", "python", "-m", "superprompts.mcp.server"],
         "description": "SuperPrompts MCP Server - Access to AI prompt collection"
       }
@@ -88,7 +88,7 @@ A comprehensive format that includes metadata:
     "servers": {
       "superprompts": {
         "name": "superprompts",
-        "command": "poetry",
+        "command": "uv",
         "args": ["run", "python", "-m", "superprompts.mcp.server"],
         "description": "SuperPrompts MCP Server - Access to AI prompt collection",
         "version": "1.0.0"
@@ -115,19 +115,19 @@ Create or update MCP server configurations.
 
 ```bash
 # Create basic Cursor configuration
-poetry run superprompts config create
+uv run superprompts config create
 
 # Create with multiple servers
-poetry run superprompts config create --template superprompts --template github --template filesystem
+uv run superprompts config create --template superprompts --template github --template filesystem
 
 # Create VS Code configuration
-poetry run superprompts config create --format vscode --template superprompts
+uv run superprompts config create --format vscode --template superprompts
 
 # Merge with existing configuration
-poetry run superprompts config create --merge --template github
+uv run superprompts config create --merge --template github
 
 # Preview without saving
-poetry run superprompts config create --dry-run --template superprompts
+uv run superprompts config create --dry-run --template superprompts
 ```
 
 ### `config validate`
@@ -141,13 +141,13 @@ Validate existing MCP configuration files.
 
 ```bash
 # Validate with auto-detection
-poetry run superprompts config validate mcp.json
+uv run superprompts config validate mcp.json
 
 # Validate specific format
-poetry run superprompts config validate .vscode/mcp.json --format vscode
+uv run superprompts config validate .vscode/mcp.json --format vscode
 
 # Validate generic configuration
-poetry run superprompts config validate mcp_config.json --format generic
+uv run superprompts config validate mcp_config.json --format generic
 ```
 
 ### `config templates`
@@ -158,7 +158,7 @@ List available server configuration templates.
 
 ```bash
 # List all available templates
-poetry run superprompts config templates
+uv run superprompts config templates
 ```
 
 ### `config convert`
@@ -172,10 +172,10 @@ Convert MCP configurations between different formats.
 
 ```bash
 # Convert Cursor config to VS Code format
-poetry run superprompts config convert mcp.json --format vscode
+uv run superprompts config convert mcp.json --format vscode
 
 # Convert with auto-detection
-poetry run superprompts config convert .vscode/mcp.json --format cursor
+uv run superprompts config convert .vscode/mcp.json --format cursor
 ```
 
 ## Available Templates
@@ -185,11 +185,11 @@ poetry run superprompts config convert .vscode/mcp.json --format cursor
 The built-in SuperPrompts MCP server:
 
 ```bash
-poetry run superprompts config create --template superprompts
+uv run superprompts config create --template superprompts
 ```
 
 **Configuration:**
-- **Command**: `poetry run python -m superprompts.mcp.server`
+- **Command**: `uv run python -m superprompts.mcp.server`
 - **Description**: SuperPrompts MCP Server - Access to AI prompt collection
 - **Version**: 1.0.0
 
@@ -198,7 +198,7 @@ poetry run superprompts config create --template superprompts
 GitHub MCP server for repository operations:
 
 ```bash
-poetry run superprompts config create --template github
+uv run superprompts config create --template github
 ```
 
 **Configuration:**
@@ -211,7 +211,7 @@ poetry run superprompts config create --template github
 Filesystem MCP server for file operations:
 
 ```bash
-poetry run superprompts config create --template filesystem
+uv run superprompts config create --template filesystem
 ```
 
 **Configuration:**
@@ -297,7 +297,7 @@ Specify a working directory for MCP servers:
    {
      "mcpServers": {
        "superprompts": {
-         "command": "poetry",
+         "command": "uv",
          "args": ["run", "python", "-m", "superprompts.mcp.server"],
          "env": {},
          "cwd": "/absolute/path/to/your/project"
@@ -322,7 +322,7 @@ Specify a working directory for MCP servers:
 
 1. Create MCP configuration:
    ```bash
-   poetry run superprompts config create --format vscode
+   uv run superprompts config create --format vscode
    ```
 
 2. The configuration will be saved to `.vscode/mcp.json`
@@ -335,7 +335,7 @@ Specify a working directory for MCP servers:
 
 1. Create generic configuration:
    ```bash
-   poetry run superprompts config create --format generic
+   uv run superprompts config create --format generic
    ```
 
 2. Use the generated `mcp_config.json` with your MCP client
@@ -351,7 +351,7 @@ Specify a working directory for MCP servers:
 **Solutions**:
 1. Validate your configuration:
    ```bash
-   poetry run superprompts config validate mcp.json
+   uv run superprompts config validate mcp.json
    ```
 
 2. Check file location:
@@ -386,7 +386,7 @@ Set environment variables for detailed logging:
 
 ```bash
 export SUPERPROMPTS_LOG_LEVEL=DEBUG
-poetry run superprompts config create --template superprompts
+uv run superprompts config create --template superprompts
 ```
 
 #### Validate Configuration
@@ -394,7 +394,7 @@ poetry run superprompts config create --template superprompts
 Always validate your configuration before using:
 
 ```bash
-poetry run superprompts config validate mcp.json
+uv run superprompts config validate mcp.json
 ```
 
 #### Test Server Connection
@@ -403,10 +403,10 @@ Test if your MCP server is working:
 
 ```bash
 # Test SuperPrompts server
-poetry run superprompts tools
+uv run superprompts tools
 
 # Test specific tool
-poetry run superprompts call-tool list_prompts '{"category": "all"}'
+uv run superprompts call-tool list_prompts '{"category": "all"}'
 ```
 
 ## Best Practices
@@ -445,7 +445,7 @@ You can validate configurations against the schema:
 
 ```bash
 # Using the CLI
-poetry run superprompts config validate mcp.json
+uv run superprompts config validate mcp.json
 
 # Using a JSON schema validator
 npx ajv validate -s schemas/mcp_server_definition.schema.json -d mcp.json
@@ -457,29 +457,29 @@ npx ajv validate -s schemas/mcp_server_definition.schema.json -d mcp.json
 
 ```bash
 # 1. List available templates
-poetry run superprompts config templates
+uv run superprompts config templates
 
 # 2. Create configuration with multiple servers
-poetry run superprompts config create \
+uv run superprompts config create \
   --template superprompts \
   --template github \
   --template filesystem
 
 # 3. Validate the configuration
-poetry run superprompts config validate mcp.json
+uv run superprompts config validate mcp.json
 
 # 4. Convert to VS Code format
-poetry run superprompts config convert mcp.json --format vscode
+uv run superprompts config convert mcp.json --format vscode
 
 # 5. Validate VS Code configuration
-poetry run superprompts config validate .vscode/mcp.json --format vscode
+uv run superprompts config validate .vscode/mcp.json --format vscode
 ```
 
 ### Custom Server Setup
 
 ```bash
 # 1. Create base configuration
-poetry run superprompts config create --template superprompts
+uv run superprompts config create --template superprompts
 
 # 2. Edit mcp.json to add custom server
 # {
@@ -495,7 +495,7 @@ poetry run superprompts config create --template superprompts
 # }
 
 # 3. Validate updated configuration
-poetry run superprompts config validate mcp.json
+uv run superprompts config validate mcp.json
 ```
 
 ## Cross-References

@@ -12,14 +12,14 @@ The SuperPrompts MCP (Model Context Protocol) Server provides programmatic acces
 git clone <repository-url>
 cd superprompts
 
-# Install Poetry (if not already installed)
-curl -sSL https://install.python-poetry.org | python3 -
+# Install uv (if not already installed)
+curl -LsSf https://astral.sh/uv/install.sh | sh
 
 # Install dependencies
-poetry install
+uv sync --dev
 
 # Verify installation
-poetry run superprompts --help
+uv run superprompts --help
 ```
 
 ### From PyPI (when published)
@@ -36,6 +36,18 @@ pip install -e .
 ```
 
 ## Usage
+
+### FastMCP Implementation
+
+The SuperPrompts MCP server is built using **FastMCP**, a modern, high-performance framework for MCP servers. FastMCP provides:
+
+- **Simplified Development**: Clean decorator-based API for defining tools
+- **Better Performance**: Optimized for speed and efficiency
+- **Type Safety**: Full type hints and validation with modern Python 3.10+ syntax
+- **Modern Python**: Built for Python 3.10+ with async support
+- **Rich Features**: Built-in logging, error handling, and debugging
+- **Comprehensive Testing**: 44 tests including 16 integration tests for CLI commands
+- **Code Quality**: Pre-commit hooks, automated linting, and comprehensive error handling
 
 ### Cursor IDE Integration
 
@@ -54,7 +66,7 @@ cat > .cursor/mcp.json << 'EOF'
 {
   "mcpServers": {
     "superprompts": {
-      "command": "poetry",
+      "command": "uv",
       "args": ["run", "python", "-m", "superprompts.mcp.server"],
       "env": {},
       "cwd": "/absolute/path/to/your/project"
@@ -91,25 +103,25 @@ Once Cursor restarts, you should see the SuperPrompts MCP server available with 
 
 ### Starting the MCP Server Manually
 
-#### Using Poetry (Recommended)
+#### Using uv (Recommended)
 ```bash
 # Start the server
-poetry run superprompts-server
+uv run superprompts-server
 
 # Or using Python module
-poetry run python -m superprompts.mcp.server
+uv run python -m superprompts.mcp.server
 
 # Start in development mode with debug logging
-poetry run invoke dev-server
+uv run invoke dev-server
 ```
 
 #### Using Invoke Tasks
 ```bash
 # Start server
-poetry run invoke run-server
+uv run invoke run-server
 
 # Start in development mode
-poetry run invoke dev-server
+uv run invoke dev-server
 ```
 
 #### Legacy Methods (Not Recommended)
@@ -128,41 +140,41 @@ The `superprompts` CLI provides direct access to all server functionality:
 #### With Poetry (Recommended)
 ```bash
 # List all available prompts
-poetry run superprompts list-prompts
+uv run superprompts list-prompts
 
 # List prompts by category
-poetry run superprompts list-prompts --category docs
+uv run superprompts list-prompts --category docs
 
 # Get a specific prompt
-poetry run superprompts get-prompt repo_docs
+uv run superprompts get-prompt repo_docs
 
 # Get a prompt with parameters
-poetry run superprompts get-prompt cursor_rules --parameters '{"target_categories": ["testing"]}'
+uv run superprompts get-prompt cursor_rules --parameters '{"target_categories": ["testing"]}'
 
 # Get prompt metadata
-poetry run superprompts metadata repo_docs
+uv run superprompts metadata repo_docs
 
 # Compose a custom prompt
-poetry run superprompts compose repo_docs --additions '[{"source_prompt_id": "cursor_rules", "element_type": "principle", "element_name": "high_signal"}]'
+uv run superprompts compose repo_docs --additions '[{"source_prompt_id": "cursor_rules", "element_type": "principle", "element_name": "high_signal"}]'
 
 # List available MCP tools
-poetry run superprompts tools
+uv run superprompts tools
 
 # Call a specific tool
-poetry run superprompts call-tool list_prompts '{"category": "all"}'
+uv run superprompts call-tool list_prompts '{"category": "all"}'
 ```
 
 #### With Invoke Tasks
 ```bash
 # Run server tests
-poetry run invoke test startup
-poetry run invoke test integration
+uv run invoke test startup
+uv run invoke test integration
 
 # Run validation
-poetry run invoke validate
+uv run invoke validate
 
 # Show project status
-poetry run invoke status
+uv run invoke status
 ```
 
 #### Legacy Direct Usage (Not Recommended)
@@ -246,28 +258,28 @@ The server can be configured through environment variables:
 #### Using Invoke (Recommended)
 ```bash
 # Run all tests
-poetry run invoke test
+uv run invoke test
 
 # Run specific test types
-poetry run invoke test startup
-poetry run invoke test integration
-poetry run invoke test coverage
+uv run invoke test startup
+uv run invoke test integration
+uv run invoke test coverage
 
 # Run multi-environment testing
-poetry run nox
+uv run nox
 ```
 
 #### Using Poetry Directly
 ```bash
 # Run all tests
-poetry run pytest tests/ -v
+uv run pytest tests/ -v
 
 # Run specific test files
-poetry run python tests/test_startup.py
-poetry run python tests/test_server.py
+uv run python tests/test_startup.py
+uv run python tests/test_server.py
 
 # Run with coverage
-poetry run pytest tests/ --cov=superprompts --cov-report=html
+uv run pytest tests/ --cov=superprompts --cov-report=html
 ```
 
 #### Legacy Methods (Not Recommended)
@@ -292,10 +304,10 @@ python tests/test_server.py
 #### Using Poetry (Recommended)
 ```bash
 # Enable debug logging
-SUPERPROMPTS_LOG_LEVEL=DEBUG poetry run superprompts-server
+SUPERPROMPTS_LOG_LEVEL=DEBUG uv run superprompts-server
 
 # Or using invoke
-poetry run invoke dev-server
+uv run invoke dev-server
 ```
 
 #### Legacy Method (Not Recommended)
@@ -308,7 +320,7 @@ SUPERPROMPTS_LOG_LEVEL=DEBUG superprompts-server
 
 ### Common Issues
 
-1. **Poetry Not Found**: Install Poetry and add to PATH
+1. **Poetry Not Found**: Install uv and add to PATH
    ```bash
    curl -sSL https://install.python-poetry.org | python3 -
    export PATH="$HOME/.local/bin:$PATH"
@@ -316,13 +328,13 @@ SUPERPROMPTS_LOG_LEVEL=DEBUG superprompts-server
 
 2. **Dependency Issues**: Reinstall dependencies
    ```bash
-   poetry install
+   uv sync --dev
    ```
 
 3. **Virtual Environment Issues**: Recreate virtual environment
    ```bash
    poetry env remove python
-   poetry install
+   uv sync --dev
    ```
 
 4. **Permission Issues**: Ensure scripts are executable (`chmod +x *.sh`)
@@ -342,16 +354,16 @@ The SuperPrompts CLI includes comprehensive tools for managing MCP server config
 
 ```bash
 # Create MCP configurations
-poetry run superprompts config create --template superprompts --template github
+uv run superprompts config create --template superprompts --template github
 
 # Validate configurations
-poetry run superprompts config validate mcp.json
+uv run superprompts config validate mcp.json
 
 # Convert between formats
-poetry run superprompts config convert mcp.json --format vscode
+uv run superprompts config convert mcp.json --format vscode
 
 # List available templates
-poetry run superprompts config templates
+uv run superprompts config templates
 ```
 
 ### Tooling Adapters
@@ -360,18 +372,18 @@ Integrate with existing MCP tooling:
 
 ```bash
 # List available MCP tools
-poetry run superprompts adapt tools
+uv run superprompts adapt tools
 
 # Generate config with FastMCP
-poetry run superprompts adapt fastmcp my-server server.py --packages pandas
+uv run superprompts adapt fastmcp my-server server.py --packages pandas
 
 # Install MCP servers
-poetry run superprompts adapt install github-mcp-server
+uv run superprompts adapt install github-mcp-server
 
 # Convert from other formats
-poetry run superprompts adapt from-openapi openapi.json my-api
-poetry run superprompts adapt from-docker docker-compose.yml my-service
-poetry run superprompts adapt from-npm package.json start-server
+uv run superprompts adapt from-openapi openapi.json my-api
+uv run superprompts adapt from-docker docker-compose.yml my-service
+uv run superprompts adapt from-npm package.json start-server
 ```
 
 For detailed information, see the [MCP Configuration Guide](mcp_configuration_guide.md).
