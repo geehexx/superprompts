@@ -43,23 +43,32 @@ SuperPrompts is built around a modular architecture that separates concerns betw
 
 ### 2. MCP Server (`superprompts/mcp/`)
 
-**FastMCP Integration**
-- Uses FastMCP framework for tool registration
-- Provides 4 core tools: list_prompts, get_prompt, get_prompt_metadata, compose_prompt
-- Async/await pattern for all operations
+**MCP-Compliant Implementation**
+- Uses FastMCP framework with proper MCP capabilities
+- Declares `prompts` and `completions` capabilities
+- Provides MCP-standard prompt handlers and completion support
 
 **Server Architecture**
 ```python
-@mcp.tool
-def list_prompts(category: str = "all") -> list[dict[str, Any]]:
-    """List all available prompts with their metadata."""
+# MCP server with proper capabilities
+mcp = FastMCP("superprompts", capabilities=["prompts", "completions"])
+
+@mcp.prompt
+def repo_docs_prompt_handler(parameters: dict[str, Any] | None = None) -> str:
+    """Repository Documentation Rebuilder prompt."""
     # Implementation details...
 
-@mcp.tool
-def get_prompt(prompt_id: str, parameters: dict[str, Any] | None = None) -> str:
-    """Get a specific prompt by ID with optional parameters."""
+@mcp.prompt
+def cursor_rules_prompt_handler(parameters: dict[str, Any] | None = None) -> str:
+    """Cursor Rules Generator prompt."""
     # Implementation details...
 ```
+
+**MCP Compliance Features**
+- Proper argument definitions with types and descriptions
+- Completion suggestions for prompt arguments
+- MCP-standard metadata structure
+- Support for `prompts/list` and `prompts/get` messages
 
 ### 3. Configuration Management (`superprompts/mcp/config.py`)
 

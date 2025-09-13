@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """CLI tool for SuperPrompts MCP Server."""
 
-import asyncio
 import json
 import sys
 from pathlib import Path
@@ -14,9 +13,12 @@ from rich.text import Text
 
 from superprompts.mcp.adapters import create_adapter_cli_commands
 from superprompts.mcp.config import MCPConfigGenerator, MCPServerConfig, get_available_server_templates, validate_config
-from superprompts.mcp.server import compose_prompt, get_prompt, get_prompt_metadata, list_prompts
+from superprompts.mcp.server import cursor_rules_prompt_handler, get_prompt_by_id, get_prompts_list, repo_docs_prompt_handler
 
 console = Console()
+
+# Constants
+MAX_DESCRIPTION_LENGTH = 100
 
 
 @click.group()
@@ -33,149 +35,102 @@ def main() -> None:
     default="all",
     help="Filter prompts by category",
 )
-def list_prompts_cmd(category: str):
+def list_prompts_cmd(category: str) -> None:
     """List all available prompts."""
+    try:
+        prompts_data = get_prompts_list()
 
-    async def _list_prompts():
-        try:
-            result = await list_prompts(category)
-            prompts_data = json.loads(result[0].text)
+        # Filter by category if not "all"
+        if category != "all":
+            prompts_data = [p for p in prompts_data if p["category"] == category]
 
-            if not prompts_data:
-                console.print("No prompts found for the specified category.")
-                return
+        if not prompts_data:
+            console.print("No prompts found for the specified category.")
+            return
 
-            table = Table(title=f"Available Prompts ({category})")
-            table.add_column("ID", style="cyan")
-            table.add_column("Name", style="green")
-            table.add_column("Category", style="yellow")
-            table.add_column("Description", style="white")
+        table = Table(title=f"Available Prompts ({category})")
+        table.add_column("ID", style="cyan")
+        table.add_column("Name", style="green")
+        table.add_column("Category", style="yellow")
+        table.add_column("Description", style="white")
 
-            for prompt in prompts_data:
-                table.add_row(
-                    prompt["id"],
-                    prompt["name"],
-                    prompt["category"],
-                    prompt["description"][:100] + "..." if len(prompt["description"]) > 100 else prompt["description"],
-                )
+        for prompt in prompts_data:
+            table.add_row(
+                prompt["id"],
+                prompt["name"],
+                prompt["category"],
+                prompt["description"][:MAX_DESCRIPTION_LENGTH] + "..." if len(prompt["description"]) > MAX_DESCRIPTION_LENGTH else prompt["description"],
+            )
 
-            console.print(table)
+        console.print(table)
 
-        except Exception as e:
-            console.print(f"[red]Error listing prompts: {e}[/red]")
-            sys.exit(1)
-
-    asyncio.run(_list_prompts())
+    except Exception as e:
+        console.print(f"[red]Error listing prompts: {e}[/red]")
+        sys.exit(1)
 
 
 @main.command()
 @click.argument("prompt_id")
 @click.option("--parameters", "-p", help="JSON string of parameters to pass to the prompt")
 @click.option("--output", "-o", type=click.Path(), help="Output file path (default: stdout)")
-def get_prompt_cmd(prompt_id: str, parameters: str | None, output: str | None):
+def get_prompt_cmd(prompt_id: str, parameters: str | None, output: str | None) -> None:
     """Get a specific prompt by ID."""
+    try:
+        # Parse parameters if provided
+        params = {}
+        if parameters:
+            try:
+                params = json.loads(parameters)
+            except json.JSONDecodeError:
+                console.print(f"[red]Invalid JSON in parameters: {parameters}[/red]")
+                sys.exit(1)
 
-    async def _get_prompt():
-        try:
-            # Parse parameters if provided
-            params = {}
-            if parameters:
-                try:
-                    params = json.loads(parameters)
-                except json.JSONDecodeError:
-                    console.print(f"[red]Invalid JSON in parameters: {parameters}[/red]")
-                    sys.exit(1)
-
-            result = await get_prompt(prompt_id, params)
-            prompt_text = result[0].text
-
-            if output:
-                Path(output).write_text(prompt_text)
-                console.print(f"[green]Prompt saved to {output}[/green]")
-            else:
-                console.print(Panel(prompt_text, title=f"Prompt: {prompt_id}"))
-
-        except Exception as e:
-            console.print(f"[red]Error getting prompt: {e}[/red]")
+        # Get the appropriate prompt handler
+        if prompt_id == "repo_docs":
+            prompt_text = repo_docs_prompt_handler.fn(params)
+        elif prompt_id == "cursor_rules":
+            prompt_text = cursor_rules_prompt_handler.fn(params)
+        else:
+            console.print(f"[red]Unknown prompt ID: {prompt_id}[/red]")
             sys.exit(1)
 
-    asyncio.run(_get_prompt())
+        if output:
+            Path(output).write_text(prompt_text)
+            console.print(f"[green]Prompt saved to {output}[/green]")
+        else:
+            console.print(Panel(prompt_text, title=f"Prompt: {prompt_id}"))
+
+    except Exception as e:
+        console.print(f"[red]Error getting prompt: {e}[/red]")
+        sys.exit(1)
 
 
 @main.command()
 @click.argument("prompt_id")
-def metadata(prompt_id: str):
+def metadata(prompt_id: str) -> None:
     """Get detailed metadata about a specific prompt."""
-
-    async def _get_metadata():
-        try:
-            result = await get_prompt_metadata(prompt_id)
-            metadata = json.loads(result[0].text)
-
-            # Create a formatted display
-            text = Text()
-            text.append(f"Name: {metadata['name']}\n", style="bold green")
-            text.append(f"Description: {metadata['description']}\n", style="white")
-            text.append(f"Category: {metadata['category']}\n", style="yellow")
-            text.append(f"Phases: {', '.join(metadata['phases'])}\n", style="cyan")
-            text.append(f"Parameters: {', '.join(metadata['parameters'])}\n", style="magenta")
-
-            console.print(Panel(text, title=f"Metadata: {prompt_id}"))
-
-        except Exception as e:
-            console.print(f"[red]Error getting metadata: {e}[/red]")
+    try:
+        metadata = get_prompt_by_id(prompt_id)
+        if not metadata:
+            console.print(f"[red]Prompt not found: {prompt_id}[/red]")
             sys.exit(1)
 
-    asyncio.run(_get_metadata())
+        # Create a formatted display
+        text = Text()
+        text.append(f"Name: {metadata['name']}\n", style="bold green")
+        text.append(f"Description: {metadata['description']}\n", style="white")
+        text.append(f"Category: {metadata['category']}\n", style="yellow")
+        text.append(f"Phases: {', '.join(metadata['phases'])}\n", style="cyan")
+        text.append(f"Arguments: {', '.join([arg['name'] for arg in metadata['arguments']])}\n", style="magenta")
+
+        console.print(Panel(text, title=f"Metadata: {prompt_id}"))
+
+    except Exception as e:
+        console.print(f"[red]Error getting metadata: {e}[/red]")
+        sys.exit(1)
 
 
-@main.command()
-@click.argument("base_prompt_id")
-@click.option("--additions", "-a", help="JSON string of additions to make to the prompt")
-@click.option("--customizations", "-c", help="JSON string of customizations to apply")
-@click.option("--output", "-o", type=click.Path(), help="Output file path (default: stdout)")
-def compose(
-    base_prompt_id: str,
-    additions: str | None,
-    customizations: str | None,
-    output: str | None,
-):
-    """Compose a custom prompt by combining elements."""
-
-    async def _compose():
-        try:
-            # Parse additions and customizations
-            additions_list = []
-            customizations_dict = {}
-
-            if additions:
-                try:
-                    additions_list = json.loads(additions)
-                except json.JSONDecodeError:
-                    console.print(f"[red]Invalid JSON in additions: {additions}[/red]")
-                    sys.exit(1)
-
-            if customizations:
-                try:
-                    customizations_dict = json.loads(customizations)
-                except json.JSONDecodeError:
-                    console.print(f"[red]Invalid JSON in customizations: {customizations}[/red]")
-                    sys.exit(1)
-
-            result = await compose_prompt(base_prompt_id, additions_list, customizations_dict)
-            composed_text = result[0].text
-
-            if output:
-                Path(output).write_text(composed_text)
-                console.print(f"[green]Composed prompt saved to {output}[/green]")
-            else:
-                console.print(Panel(composed_text, title=f"Composed Prompt: {base_prompt_id}"))
-
-        except Exception as e:
-            console.print(f"[red]Error composing prompt: {e}[/red]")
-            sys.exit(1)
-
-    asyncio.run(_compose())
+# Compose command removed - not part of core MCP implementation
 
 
 # Legacy tool commands removed - use the MCP server directly for tool functionality
@@ -216,7 +171,7 @@ def config():
     is_flag=True,
     help="Show what would be generated without writing files",
 )
-def create(format: str, output: str | None, template: tuple, merge: bool, dry_run: bool):
+def create(format_type: str, output: str | None, template: tuple, merge: bool, dry_run: bool) -> None:
     """Create or update MCP server configuration."""
     try:
         generator = MCPConfigGenerator()
@@ -240,9 +195,9 @@ def create(format: str, output: str | None, template: tuple, merge: bool, dry_ru
             return
 
         # Generate configuration
-        if format == "cursor":
+        if format_type == "cursor":
             config = generator.generate_cursor_config(selected_servers)
-        elif format == "vscode":
+        elif format_type == "vscode":
             config = generator.generate_vscode_config(selected_servers)
         else:  # generic
             config = generator.generate_generic_config(selected_servers)
@@ -251,19 +206,19 @@ def create(format: str, output: str | None, template: tuple, merge: bool, dry_ru
         if merge:
             output_path = Path(output) if output else None
             if output_path is None:
-                if format == "cursor":
+                if format_type == "cursor":
                     output_path = Path("mcp.json")
-                elif format == "vscode":
+                elif format_type == "vscode":
                     output_path = Path(".vscode/mcp.json")
                 else:
                     output_path = Path("mcp_config.json")
 
             existing_config = generator.load_existing_config(output_path)
             if existing_config:
-                config = generator.merge_configs(existing_config, selected_servers, format)
+                config = generator.merge_configs(existing_config, selected_servers, format_type)
 
         # Validate configuration
-        errors = validate_config(config, format)
+        errors = validate_config(config, format_type)
         if errors:
             console.print("[red]Configuration validation errors:[/red]")
             for error in errors:
@@ -274,12 +229,12 @@ def create(format: str, output: str | None, template: tuple, merge: bool, dry_ru
             console.print(
                 Panel(
                     json.dumps(config, indent=2),
-                    title=f"MCP Configuration ({format}) - Dry Run",
+                    title=f"MCP Configuration ({format_type}) - Dry Run",
                 )
             )
         else:
             # Save configuration
-            output_path = generator.save_config(config, format, Path(output) if output else None)
+            output_path = generator.save_config(config, format_type, Path(output) if output else None)
             console.print(f"[green]Configuration saved to: {output_path}[/green]")
 
             # Show summary
@@ -311,7 +266,7 @@ def create(format: str, output: str | None, template: tuple, merge: bool, dry_ru
     default="auto",
     help="Configuration format (auto-detect if not specified)",
 )
-def validate(config_file: str, format: str):
+def validate(config_file: str, format_type: str) -> None:
     """Validate an existing MCP configuration file."""
     try:
         config_path = Path(config_file)
@@ -321,30 +276,30 @@ def validate(config_file: str, format: str):
             config = json.load(f)
 
         # Auto-detect format if needed
-        if format == "auto":
+        if format_type == "auto":
             if "mcpServers" in config:
-                format = "cursor"
+                format_type = "cursor"
             elif "mcp" in config and "servers" in config.get("mcp", {}):
-                format = "vscode"
+                format_type = "vscode"
             else:
-                format = "generic"
+                format_type = "generic"
 
         # Validate configuration
-        errors = validate_config(config, format)
+        errors = validate_config(config, format_type)
 
         if not errors:
-            console.print(f"[green]✓ Configuration is valid ({format} format)[/green]")
+            console.print(f"[green]✓ Configuration is valid ({format_type} format)[/green]")
 
             # Show configuration summary
-            if format == "cursor" and "mcpServers" in config:
+            if format_type == "cursor" and "mcpServers" in config:
                 servers = config["mcpServers"]
-            elif (format == "vscode" and "mcp" in config) or (format == "generic" and "mcp" in config):
+            elif (format_type == "vscode" and "mcp" in config) or (format_type == "generic" and "mcp" in config):
                 servers = config["mcp"].get("servers", {})
             else:
                 servers = {}
 
             if servers:
-                table = Table(title=f"Configured Servers ({format})")
+                table = Table(title=f"Configured Servers ({format_type})")
                 table.add_column("Name", style="cyan")
                 table.add_column("Command", style="green")
 
@@ -403,7 +358,7 @@ def templates():
     default="auto",
     help="Configuration format (auto-detect if not specified)",
 )
-def convert(config_file: str, format: str):
+def convert(config_file: str, format_type: str) -> None:
     """Convert MCP configuration between different formats."""
     try:
         config_path = Path(config_file)
@@ -443,9 +398,9 @@ def convert(config_file: str, format: str):
 
         # Generate new format
         generator = MCPConfigGenerator()
-        if format == "cursor":
+        if format_type == "cursor":
             new_config = generator.generate_cursor_config(servers)
-        elif format == "vscode":
+        elif format_type == "vscode":
             new_config = generator.generate_vscode_config(servers)
         else:  # generic
             new_config = generator.generate_generic_config(servers)
@@ -454,13 +409,13 @@ def convert(config_file: str, format: str):
         console.print(
             Panel(
                 json.dumps(new_config, indent=2),
-                title=f"Converted Configuration ({source_format} → {format})",
+                title=f"Converted Configuration ({source_format} → {format_type})",
             )
         )
 
         # Offer to save
-        if click.confirm(f"Save converted configuration as {format} format?"):
-            output_path = generator.save_config(new_config, format)
+        if click.confirm(f"Save converted configuration as {format_type} format?"):
+            output_path = generator.save_config(new_config, format_type)
             console.print(f"[green]Converted configuration saved to: {output_path}[/green]")
 
     except Exception as e:

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
-"""FastMCP Server for SuperPrompts
-Provides tools for accessing and composing AI prompts from the superprompts collection.
+"""MCP-compliant server for SuperPrompts.
+
+Provides prompts and completion capabilities following MCP specification.
 """
 
 from typing import Any
@@ -10,74 +11,27 @@ from fastmcp import FastMCP
 from superprompts.prompts.cursor_rules import CursorRulesPrompt
 from superprompts.prompts.repo_docs import RepoDocsPrompt
 
-# Initialize the FastMCP server
+# Initialize the MCP server
 mcp = FastMCP("superprompts")
 
 # Initialize prompt handlers
 repo_docs_prompt = RepoDocsPrompt()
 cursor_rules_prompt = CursorRulesPrompt()
 
-
-@mcp.tool
-def list_prompts(category: str = "all") -> list[dict[str, Any]]:
-    """List all available prompts with their metadata.
-
-    Args:
-        category: Filter prompts by category (docs, rules, all)
-
-    Returns:
-        List of prompt metadata dictionaries
-
-    """
-    prompts = []
-
-    if category in ["all", "docs"]:
-        prompts.append(
-            {
-                "id": "repo_docs",
-                "name": "Repository Documentation Rebuilder",
-                "description": "Rebuilds and modernizes repository documentation safely with loss auditing",
-                "category": "docs",
-                "phases": ["discovery", "gaps_analysis", "mapping", "generation", "qa"],
-                "parameters": [
-                    "batch_size",
-                    "target_doc_types",
-                    "confidence_threshold",
-                ],
-            }
-        )
-
-    if category in ["all", "rules"]:
-        prompts.append(
-            {
-                "id": "cursor_rules",
-                "name": "Cursor Rules Generator",
-                "description": "Generates high-quality Cursor rules tailored to the detected stack",
-                "category": "rules",
-                "phases": [
-                    "signals",
-                    "planning",
-                    "generation",
-                    "optimization",
-                    "placement",
-                ],
-                "parameters": [
-                    "target_categories",
-                    "rule_types",
-                    "similarity_threshold",
-                ],
-            }
-        )
-
-    return prompts
+# Store prompts for easy access
+PROMPTS = {
+    "repo_docs": repo_docs_prompt,
+    "cursor_rules": cursor_rules_prompt,
+}
 
 
-@mcp.tool
-def get_prompt(prompt_id: str, parameters: dict[str, Any] | None = None) -> str:
-    """Get a specific prompt by ID with optional parameters.
+@mcp.prompt("repo_docs")  # type: ignore[misc]
+def repo_docs_prompt_handler(parameters: dict[str, Any] | None = None) -> str:
+    """Repository Documentation Rebuilder prompt.
+
+    Rebuilds and modernizes repository documentation safely with loss auditing and index rebuilding.
 
     Args:
-        prompt_id: The ID of the prompt to retrieve (repo_docs, cursor_rules)
         parameters: Optional parameters to customize the prompt
 
     Returns:
@@ -86,97 +40,125 @@ def get_prompt(prompt_id: str, parameters: dict[str, Any] | None = None) -> str:
     """
     if parameters is None:
         parameters = {}
-
-    if prompt_id == "repo_docs":
-        return repo_docs_prompt.get_prompt(parameters)
-    if prompt_id == "cursor_rules":
-        return cursor_rules_prompt.get_prompt(parameters)
-    raise ValueError(f"Unknown prompt ID: {prompt_id}")
+    return repo_docs_prompt.get_prompt(parameters)
 
 
-@mcp.tool
-def get_prompt_metadata(prompt_id: str) -> dict[str, Any]:
-    """Get detailed metadata about a specific prompt.
+@mcp.prompt("cursor_rules")  # type: ignore[misc]
+def cursor_rules_prompt_handler(parameters: dict[str, Any] | None = None) -> str:
+    """Cursor Rules Generator prompt.
+
+    Generates high-quality, non-duplicative Cursor rules tailored to the detected stack.
 
     Args:
-        prompt_id: The ID of the prompt (repo_docs, cursor_rules)
+        parameters: Optional parameters to customize the prompt
 
     Returns:
-        Dictionary containing prompt metadata
+        The generated prompt text
 
     """
-    if prompt_id == "repo_docs":
-        return repo_docs_prompt.get_metadata()
-    if prompt_id == "cursor_rules":
-        return cursor_rules_prompt.get_metadata()
-    raise ValueError(f"Unknown prompt ID: {prompt_id}")
+    if parameters is None:
+        parameters = {}
+    return cursor_rules_prompt.get_prompt(parameters)
 
 
-@mcp.tool
-def compose_prompt(
-    base_prompt_id: str,
-    additions: list[dict[str, str]] | None = None,
-    customizations: dict[str, Any] | None = None,
-) -> str:
-    """Compose a custom prompt by combining elements from different prompts.
+def get_prompts_list() -> list[dict[str, Any]]:
+    """Get list of all available prompts with MCP-compliant metadata."""
+    prompts = []
 
-    Args:
-        base_prompt_id: Base prompt to start with (repo_docs, cursor_rules)
-        additions: Elements to add from other prompts
-        customizations: Custom modifications to apply
+    for prompt_handler in PROMPTS.values():
+        metadata = prompt_handler.get_metadata()
+        prompts.append(
+            {
+                "id": metadata["id"],
+                "name": metadata["name"],
+                "title": metadata["title"],
+                "description": metadata["description"],
+                "arguments": metadata["arguments"],
+            }
+        )
 
-    Returns:
-        The composed prompt text
+    return prompts
 
-    """
-    if additions is None:
-        additions = []
-    if customizations is None:
-        customizations = {}
 
-    # Get base prompt
-    if base_prompt_id == "repo_docs":
-        base_prompt: RepoDocsPrompt | CursorRulesPrompt = repo_docs_prompt
-    elif base_prompt_id == "cursor_rules":
-        base_prompt = cursor_rules_prompt
+def get_prompt_by_id(prompt_id: str) -> dict[str, Any] | None:
+    """Get a specific prompt by ID."""
+    if prompt_id in PROMPTS:
+        return PROMPTS[prompt_id].get_metadata()
+    return None
+
+
+def get_completion_suggestions(prompt_id: str, argument_name: str | None = None) -> list[dict[str, Any]]:
+    """Get completion suggestions for prompt arguments."""
+    if prompt_id not in PROMPTS:
+        return []
+
+    prompt = PROMPTS[prompt_id]
+    metadata = prompt.get_metadata()
+
+    if argument_name:
+        # Return suggestions for specific argument
+        for arg in metadata["arguments"]:
+            if arg["name"] == argument_name:
+                return _get_argument_suggestions(arg)
     else:
-        raise ValueError(f"Unknown base prompt ID: {base_prompt_id}")
+        # Return all available arguments
+        return [
+            {
+                "name": arg["name"],
+                "description": arg["description"],
+                "type": arg["type"],
+                "required": arg["required"],
+            }
+            for arg in metadata["arguments"]
+        ]
 
-    # Start with base prompt
-    composed_text = base_prompt.get_prompt({})
+    return []
 
-    # Add elements from other prompts
-    for addition in additions:
-        source_prompt_id = addition.get("source_prompt_id")
-        element_type = addition.get("element_type")
-        element_name = addition.get("element_name")
 
-        if source_prompt_id == "repo_docs":
-            source_prompt: RepoDocsPrompt | CursorRulesPrompt = repo_docs_prompt
-        elif source_prompt_id == "cursor_rules":
-            source_prompt = cursor_rules_prompt
-        else:
-            continue
+def _get_argument_suggestions(argument: dict[str, Any]) -> list[dict[str, Any]]:
+    """Get specific suggestions for an argument based on its type and name."""
+    suggestions = []
 
-        if element_type and element_name:
-            element = source_prompt.get_element(element_type, element_name)
-        else:
-            element = None
-        if element:
-            composed_text += f"\n\n## {element_name}\n{element}"
+    if argument["name"] == "target_categories":
+        suggestions = [
+            {"name": "testing", "description": "Testing-related rules"},
+            {"name": "documentation", "description": "Documentation rules"},
+            {"name": "code_quality", "description": "Code quality rules"},
+            {"name": "architecture", "description": "Architecture rules"},
+            {"name": "security", "description": "Security rules"},
+            {"name": "performance", "description": "Performance rules"},
+            {"name": "general", "description": "General rules"},
+        ]
+    elif argument["name"] == "rule_types":
+        suggestions = [
+            {"name": "Always", "description": "Always applied rules"},
+            {"name": "Auto Attached", "description": "Automatically attached rules"},
+            {"name": "Agent Requested", "description": "Agent-requested rules"},
+            {"name": "Manual", "description": "Manually applied rules"},
+        ]
+    elif argument["name"] == "target_doc_types":
+        suggestions = [
+            {"name": "README", "description": "README documentation"},
+            {"name": "API", "description": "API documentation"},
+            {"name": "guides", "description": "User guides"},
+            {"name": "architecture", "description": "Architecture documentation"},
+            {"name": "testing", "description": "Testing documentation"},
+            {"name": "changelog", "description": "Changelog documentation"},
+            {"name": "templates", "description": "Template documentation"},
+            {"name": "all", "description": "All documentation types"},
+        ]
+    elif argument["name"] == "output_format":
+        suggestions = [
+            {"name": "markdown", "description": "Markdown format"},
+            {"name": "json", "description": "JSON format"},
+            {"name": "html", "description": "HTML format"},
+        ]
 
-    # Apply customizations
-    if customizations:
-        # This is a simplified approach - in practice, you'd want more sophisticated customization
-        for key, value in customizations.items():
-            if isinstance(value, str):
-                composed_text = composed_text.replace(f"{{{key}}}", value)
-
-    return composed_text
+    return suggestions
 
 
 def main() -> None:
-    """Main entry point for the MCP server."""
+    """Run the MCP server."""
     mcp.run()
 
 

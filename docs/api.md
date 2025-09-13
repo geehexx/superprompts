@@ -53,11 +53,25 @@ from superprompts.prompts.base import PromptMetadata
 
 @dataclass
 class PromptMetadata:
+    id: str
     name: str
+    title: str  # Required by MCP spec
     description: str
     category: PromptCategory
+    version: str
     phases: list[str]
-    parameters: list[str]
+    arguments: list[PromptArgument]  # MCP-compliant arguments
+    examples: list[dict[str, Any]]
+    usage_instructions: str
+    customization_options: list[str]
+
+@dataclass
+class PromptArgument:
+    """MCP-compliant prompt argument definition."""
+    name: str
+    description: str
+    required: bool = False
+    type: str = "string"  # string, number, boolean, array, object
 ```
 
 ### Prompt Implementations
@@ -114,89 +128,118 @@ metadata = prompt.get_metadata()
 
 ### MCP Server
 
-#### `list_prompts`
+## MCP Server (Model Context Protocol)
 
-List all available prompts with metadata.
+The SuperPrompts MCP server provides MCP-compliant prompts and completion capabilities.
+
+### Server Capabilities
+
+The server declares the following MCP capabilities:
+- `prompts` - Provides access to prompt definitions and generation
+- `completions` - Provides argument autocompletion for prompts
+
+### Prompt Handlers
+
+#### `repo_docs_prompt_handler`
+
+Repository Documentation Rebuilder prompt handler.
 
 ```python
-from superprompts.mcp.server import list_prompts
+from superprompts.mcp.server import repo_docs_prompt_handler
 
-# List all prompts
-prompts = await list_prompts()
+# Generate prompt without parameters
+prompt_text = repo_docs_prompt_handler()
 
-# List by category
-docs_prompts = await list_prompts(category="docs")
-rules_prompts = await list_prompts(category="rules")
+# Generate prompt with parameters
+prompt_text = repo_docs_prompt_handler({
+    "batch_size": 5,
+    "target_doc_types": ["README", "API"],
+    "confidence_threshold": 0.8,
+    "include_examples": True,
+    "output_format": "markdown"
+})
+```
+
+**Parameters:**
+- `parameters` (dict[str, Any] | None): Optional parameters to customize the prompt
+
+**Returns:** Generated prompt text
+
+#### `cursor_rules_prompt_handler`
+
+Cursor Rules Generator prompt handler.
+
+```python
+from superprompts.mcp.server import cursor_rules_prompt_handler
+
+# Generate prompt without parameters
+prompt_text = cursor_rules_prompt_handler()
+
+# Generate prompt with parameters
+prompt_text = cursor_rules_prompt_handler({
+    "target_categories": ["testing", "documentation"],
+    "rule_types": ["Auto Attached", "Manual"],
+    "similarity_threshold": 0.7,
+    "confidence_threshold": 0.8,
+    "max_rules_per_category": 5
+})
+```
+
+**Parameters:**
+- `parameters` (dict[str, Any] | None): Optional parameters to customize the prompt
+
+**Returns:** Generated prompt text
+
+### Utility Functions
+
+#### `get_prompts_list`
+
+Get list of all available prompts with MCP-compliant metadata.
+
+```python
+from superprompts.mcp.server import get_prompts_list
+
+prompts = get_prompts_list()
+# Returns list of prompts with id, name, title, description, and arguments
 ```
 
 **Returns:** List of prompt metadata dictionaries
 
-#### `get_prompt`
+#### `get_prompt_by_id`
 
-Generate a specific prompt with optional parameters.
+Get a specific prompt by ID.
 
 ```python
-from superprompts.mcp.server import get_prompt
+from superprompts.mcp.server import get_prompt_by_id
 
-# Basic usage
-prompt_text = await get_prompt("repo_docs")
-
-# With parameters
-prompt_text = await get_prompt("cursor_rules", {
-    "target_categories": ["python", "web"]
-})
+metadata = get_prompt_by_id("repo_docs")
+# Returns full metadata for the prompt
 ```
 
 **Parameters:**
-- `prompt_id` (str): ID of the prompt to generate
-- `parameters` (dict[str, Any] | None): Optional parameters
+- `prompt_id` (str): ID of the prompt to retrieve
 
-**Returns:** Generated prompt text
+**Returns:** Prompt metadata dictionary or None
 
-#### `get_prompt_metadata`
+#### `get_completion_suggestions`
 
-Get detailed metadata about a specific prompt.
-
-```python
-from superprompts.mcp.server import get_prompt_metadata
-
-metadata = await get_prompt_metadata("repo_docs")
-```
-
-**Returns:** Dictionary containing prompt metadata
-
-#### `compose_prompt`
-
-Compose a custom prompt by combining elements from different prompts.
+Get completion suggestions for prompt arguments.
 
 ```python
-from superprompts.mcp.server import compose_prompt
+from superprompts.mcp.server import get_completion_suggestions
 
-# Basic composition
-composed = await compose_prompt("repo_docs")
+# Get all available arguments for a prompt
+suggestions = get_completion_suggestions("repo_docs")
 
-# With additions from other prompts
-composed = await compose_prompt("repo_docs", additions=[
-    {
-        "source_prompt_id": "cursor_rules",
-        "element_type": "section",
-        "element_name": "Quality Standards"
-    }
-])
-
-# With customizations
-composed = await compose_prompt("repo_docs", customizations={
-    "project_name": "MyProject",
-    "focus_area": "API Documentation"
-})
+# Get suggestions for a specific argument
+suggestions = get_completion_suggestions("cursor_rules", "target_categories")
 ```
 
 **Parameters:**
-- `base_prompt_id` (str): Base prompt to start with
-- `additions` (list[dict[str, str]] | None): Elements to add from other prompts
-- `customizations` (dict[str, Any] | None): Custom modifications to apply
+- `prompt_id` (str): ID of the prompt
+- `argument_name` (str | None): Specific argument name (optional)
 
-**Returns:** Composed prompt text
+**Returns:** List of completion suggestions
 
 ### Configuration Management
 

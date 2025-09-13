@@ -2,7 +2,7 @@
 
 from typing import Any
 
-from .base import BasePrompt, PromptCategory, PromptMetadata
+from .base import BasePrompt, PromptArgument, PromptCategory, PromptMetadata
 
 
 class CursorRulesPrompt(BasePrompt):
@@ -12,16 +12,42 @@ class CursorRulesPrompt(BasePrompt):
         return PromptMetadata(
             id="cursor_rules",
             name="Cursor Rules Generator",
+            title="Cursor Rules Generator",
             description="Generates high-quality, non-duplicative Cursor rules tailored to the detected stack",
             category=PromptCategory.RULES,
             version="1.0.0",
             phases=["signals", "planning", "generation", "optimization", "placement"],
-            parameters=[
-                "target_categories",
-                "rule_types",
-                "similarity_threshold",
-                "confidence_threshold",
-                "max_rules_per_category",
+            arguments=[
+                PromptArgument(
+                    name="target_categories",
+                    description="Categories of rules to generate (testing, documentation, code_quality, architecture, security, performance, general)",
+                    required=False,
+                    type="array",
+                ),
+                PromptArgument(
+                    name="rule_types",
+                    description="Types of rules to generate (Always, Auto Attached, Agent Requested, Manual)",
+                    required=False,
+                    type="array",
+                ),
+                PromptArgument(
+                    name="similarity_threshold",
+                    description="Threshold for deduplication similarity (0.0-1.0)",
+                    required=False,
+                    type="number",
+                ),
+                PromptArgument(
+                    name="confidence_threshold",
+                    description="Minimum confidence threshold for rule generation (0.0-1.0)",
+                    required=False,
+                    type="number",
+                ),
+                PromptArgument(
+                    name="max_rules_per_category",
+                    description="Maximum number of rules to generate per category (1-20)",
+                    required=False,
+                    type="number",
+                ),
             ],
             examples=[
                 {
@@ -241,49 +267,64 @@ class CursorRulesPrompt(BasePrompt):
     def validate_parameters(self, parameters: dict[str, Any]) -> dict[str, Any]:
         """Validate and sanitize parameters."""
         validated = parameters.copy()
-
-        # Validate target_categories
-        if "target_categories" in validated:
-            valid_categories = [
-                "testing",
-                "documentation",
-                "code_quality",
-                "architecture",
-                "security",
-                "performance",
-                "general",
-            ]
-            categories = validated["target_categories"]
-            if isinstance(categories, list):
-                validated["target_categories"] = [c for c in categories if c in valid_categories]
-            else:
-                validated["target_categories"] = valid_categories
-
-        # Validate rule_types
-        if "rule_types" in validated:
-            valid_types = ["Always", "Auto Attached", "Agent Requested", "Manual"]
-            types = validated["rule_types"]
-            if isinstance(types, list):
-                validated["rule_types"] = [t for t in types if t in valid_types]
-            else:
-                validated["rule_types"] = valid_types
-
-        # Validate similarity_threshold
-        if "similarity_threshold" in validated:
-            threshold = validated["similarity_threshold"]
-            if not isinstance(threshold, (int, float)) or threshold < 0 or threshold > 1:
-                validated["similarity_threshold"] = 0.7
-
-        # Validate confidence_threshold
-        if "confidence_threshold" in validated:
-            threshold = validated["confidence_threshold"]
-            if not isinstance(threshold, (int, float)) or threshold < 0 or threshold > 1:
-                validated["confidence_threshold"] = 0.8
-
-        # Validate max_rules_per_category
-        if "max_rules_per_category" in validated:
-            max_rules = validated["max_rules_per_category"]
-            if not isinstance(max_rules, int) or max_rules < 1 or max_rules > 20:
-                validated["max_rules_per_category"] = 5
-
+        self._validate_target_categories(validated)
+        self._validate_rule_types(validated)
+        self._validate_similarity_threshold(validated)
+        self._validate_confidence_threshold(validated)
+        self._validate_max_rules_per_category(validated)
         return validated
+
+    def _validate_target_categories(self, validated: dict[str, Any]) -> None:
+        """Validate target_categories parameter."""
+        if "target_categories" not in validated:
+            return
+        valid_categories = [
+            "testing",
+            "documentation",
+            "code_quality",
+            "architecture",
+            "security",
+            "performance",
+            "general",
+        ]
+        categories = validated["target_categories"]
+        if isinstance(categories, list):
+            validated["target_categories"] = [c for c in categories if c in valid_categories]
+        else:
+            validated["target_categories"] = valid_categories
+
+    def _validate_rule_types(self, validated: dict[str, Any]) -> None:
+        """Validate rule_types parameter."""
+        if "rule_types" not in validated:
+            return
+        valid_types = ["Always", "Auto Attached", "Agent Requested", "Manual"]
+        types = validated["rule_types"]
+        if isinstance(types, list):
+            validated["rule_types"] = [t for t in types if t in valid_types]
+        else:
+            validated["rule_types"] = valid_types
+
+    def _validate_similarity_threshold(self, validated: dict[str, Any]) -> None:
+        """Validate similarity_threshold parameter."""
+        if "similarity_threshold" not in validated:
+            return
+        threshold = validated["similarity_threshold"]
+        if not isinstance(threshold, (int, float)) or threshold < 0 or threshold > 1:
+            validated["similarity_threshold"] = 0.7
+
+    def _validate_confidence_threshold(self, validated: dict[str, Any]) -> None:
+        """Validate confidence_threshold parameter."""
+        if "confidence_threshold" not in validated:
+            return
+        threshold = validated["confidence_threshold"]
+        if not isinstance(threshold, (int, float)) or threshold < 0 or threshold > 1:
+            validated["confidence_threshold"] = 0.8
+
+    def _validate_max_rules_per_category(self, validated: dict[str, Any]) -> None:
+        """Validate max_rules_per_category parameter."""
+        max_rules_per_category = 20
+        if "max_rules_per_category" not in validated:
+            return
+        max_rules = validated["max_rules_per_category"]
+        if not isinstance(max_rules, int) or max_rules < 1 or max_rules > max_rules_per_category:
+            validated["max_rules_per_category"] = 5

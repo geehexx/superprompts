@@ -2,7 +2,7 @@
 
 from typing import Any
 
-from .base import BasePrompt, PromptCategory, PromptMetadata
+from .base import BasePrompt, PromptArgument, PromptCategory, PromptMetadata
 
 
 class RepoDocsPrompt(BasePrompt):
@@ -12,6 +12,7 @@ class RepoDocsPrompt(BasePrompt):
         return PromptMetadata(
             id="repo_docs",
             name="Repository Documentation Rebuilder",
+            title="Repository Documentation Rebuilder",
             description="Rebuilds and modernizes repository documentation safely with loss auditing and index rebuilding",
             category=PromptCategory.DOCS,
             version="1.0.0",
@@ -23,12 +24,32 @@ class RepoDocsPrompt(BasePrompt):
                 "qa",
                 "index_rebuild",
             ],
-            parameters=[
-                "batch_size",
-                "target_doc_types",
-                "confidence_threshold",
-                "include_examples",
-                "output_format",
+            arguments=[
+                PromptArgument(name="batch_size", description="Number of files to process per batch (1-10)", required=False, type="number"),
+                PromptArgument(
+                    name="target_doc_types",
+                    description="Types of documentation to generate (README, API, guides, architecture, testing, changelog, templates, all)",
+                    required=False,
+                    type="array",
+                ),
+                PromptArgument(
+                    name="confidence_threshold",
+                    description="Minimum confidence threshold for documentation generation (0.0-1.0)",
+                    required=False,
+                    type="number",
+                ),
+                PromptArgument(
+                    name="include_examples",
+                    description="Whether to include examples in generated documentation",
+                    required=False,
+                    type="boolean",
+                ),
+                PromptArgument(
+                    name="output_format",
+                    description="Output format for generated documentation (markdown, json, etc.)",
+                    required=False,
+                    type="string",
+                ),
             ],
             examples=[
                 {
@@ -181,41 +202,51 @@ class RepoDocsPrompt(BasePrompt):
 
         element_dict = elements.get(element_type, {})
         if isinstance(element_dict, dict):
-            return element_dict.get(element_name, "")
+            result = element_dict.get(element_name, "")
+            return result if isinstance(result, str) else ""
         return ""
 
     def validate_parameters(self, parameters: dict[str, Any]) -> dict[str, Any]:
         """Validate and sanitize parameters."""
         validated = parameters.copy()
-
-        # Validate batch_size
-        if "batch_size" in validated:
-            batch_size = validated["batch_size"]
-            if not isinstance(batch_size, int) or batch_size < 1 or batch_size > 10:
-                validated["batch_size"] = 5
-
-        # Validate target_doc_types
-        if "target_doc_types" in validated:
-            valid_types = [
-                "README",
-                "API",
-                "guides",
-                "architecture",
-                "testing",
-                "changelog",
-                "templates",
-                "all",
-            ]
-            doc_types = validated["target_doc_types"]
-            if isinstance(doc_types, list):
-                validated["target_doc_types"] = [t for t in doc_types if t in valid_types]
-            else:
-                validated["target_doc_types"] = ["all"]
-
-        # Validate confidence_threshold
-        if "confidence_threshold" in validated:
-            threshold = validated["confidence_threshold"]
-            if not isinstance(threshold, (int, float)) or threshold < 0 or threshold > 1:
-                validated["confidence_threshold"] = 0.8
-
+        self._validate_batch_size(validated)
+        self._validate_target_doc_types(validated)
+        self._validate_confidence_threshold(validated)
         return validated
+
+    def _validate_batch_size(self, validated: dict[str, Any]) -> None:
+        """Validate batch_size parameter."""
+        max_batch_size = 10
+        if "batch_size" not in validated:
+            return
+        batch_size = validated["batch_size"]
+        if not isinstance(batch_size, int) or batch_size < 1 or batch_size > max_batch_size:
+            validated["batch_size"] = 5
+
+    def _validate_target_doc_types(self, validated: dict[str, Any]) -> None:
+        """Validate target_doc_types parameter."""
+        if "target_doc_types" not in validated:
+            return
+        valid_types = [
+            "README",
+            "API",
+            "guides",
+            "architecture",
+            "testing",
+            "changelog",
+            "templates",
+            "all",
+        ]
+        doc_types = validated["target_doc_types"]
+        if isinstance(doc_types, list):
+            validated["target_doc_types"] = [t for t in doc_types if t in valid_types]
+        else:
+            validated["target_doc_types"] = ["all"]
+
+    def _validate_confidence_threshold(self, validated: dict[str, Any]) -> None:
+        """Validate confidence_threshold parameter."""
+        if "confidence_threshold" not in validated:
+            return
+        threshold = validated["confidence_threshold"]
+        if not isinstance(threshold, (int, float)) or threshold < 0 or threshold > 1:
+            validated["confidence_threshold"] = 0.8
