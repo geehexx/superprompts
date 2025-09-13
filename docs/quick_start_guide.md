@@ -168,12 +168,12 @@ uv run invoke check-all
 
 1. **Browse Prompts**: Check [Available Prompts](available_prompts.md) for ready-to-use prompts
 2. **Learn Techniques**: Read [AI Prompting Best Practices](ai_prompting_best_practices.md)
-3. **Use MCP Server**: Follow the [MCP Server Guide](mcp_server_guide.md)
+3. **Use MCP Server**: Follow the [MCP Guide](mcp_guide.md)
 4. **Customize Prompts**: Learn about parameters and customization options
 
 ### For Developers
 
-1. **Development Setup**: Follow the [Development Guide](development_guide.md)
+1. **Development Setup**: Follow the [Development](development.md)
 2. **Contributing**: Read the [Contributing Guide](contributing_guide.md)
 3. **Troubleshooting**: Check the [Troubleshooting Guide](troubleshooting_guide.md)
 4. **API Reference**: Explore the codebase and documentation
@@ -198,7 +198,7 @@ superprompts/
 └── schemas/       # JSON schemas
 
 docs/
-├── development_guide.md
+├── development.md
 ├── contributing_guide.md
 ├── troubleshooting_guide.md
 └── ...
@@ -224,10 +224,10 @@ tests/
 
 ### Documentation
 
-- [Development Guide](development_guide.md) - Complete development setup
+- [Development](development.md) - Complete development setup
 - [Contributing Guide](contributing_guide.md) - How to contribute
-- [MCP Server Guide](mcp_server_guide.md) - Using the MCP server
-- [Troubleshooting Guide](troubleshooting_guide.md) - Common issues and solutions
+- [MCP Guide](mcp_guide.md) - Using the MCP server
+- [Troubleshooting](troubleshooting.md) - Common issues and solutions
 
 ### Commands
 

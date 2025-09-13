@@ -201,7 +201,7 @@ tests/
 └── test_server.py     # Server tests
 
 docs/
-├── development_guide.md
+├── development.md
 ├── contributing_guide.md
 └── ...
 ```
@@ -210,7 +210,7 @@ docs/
 
 ### 1. Commit Your Changes
 
-We follow the [Conventional Commits](https://www.conventionalcommits.org/) standard for commit messages. See our [Commit Message Standards](commit_message_standards.md) for detailed guidelines.
+We follow the [Conventional Commits](https://www.conventionalcommits.org/) standard for commit messages. See our [Commit Standards](commit_standards.md) for detailed guidelines.
 
 ```bash
 # Stage your changes
@@ -402,10 +402,10 @@ Our CI/CD pipeline automatically:
 
 ### Resources
 
-- [Development Guide](development_guide.md) - Complete development setup
-- [MCP Server Guide](mcp_server_guide.md) - Using the MCP server
-- [Troubleshooting Guide](troubleshooting_guide.md) - Common issues and solutions
-- [API Reference](api_reference.md) - Complete API documentation
+- [Development](development.md) - Complete development setup
+- [MCP Guide](mcp_guide.md) - Using the MCP server
+- [Troubleshooting](troubleshooting.md) - Common issues and solutions
+- [API](api.md) - Complete API documentation
 
 ### Community
 
@@ -417,7 +417,7 @@ Our CI/CD pipeline automatically:
 
 If you have questions about contributing:
 
-1. Check the [Development Guide](development_guide.md)
+1. Check the [Development](development.md)
 2. Look at existing issues and PRs
 3. Open a new issue with your question
 4. Join our community discussions

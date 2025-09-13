@@ -6,9 +6,9 @@ This directory contains general documentation about AI prompting techniques, bes
 
 ### Core Guides
 
-- **[Architecture Guide](architecture_guide.md)** - System architecture and design principles for understanding the SuperPrompts codebase.
+- **[Architecture](architecture.md)** - System architecture and design principles for understanding the SuperPrompts codebase.
 
-- **[API Reference](api_reference.md)** - Complete API documentation with examples, type hints, and usage patterns.
+- **[API](api.md)** - Complete API documentation with examples, type hints, and usage patterns.
 
 - **[AI Prompting Best Practices](ai_prompting_best_practices.md)** - A comprehensive guide to designing robust prompts that generate accurate, auditable, and maintainable outputs across diverse repositories and tasks.
 
@@ -18,17 +18,51 @@ This directory contains general documentation about AI prompting techniques, bes
 
 - **[Available Prompts](available_prompts.md)** - Complete index of all available prompts with quick reference and usage patterns.
 
-- **[Cursor Rules Usage Guide](rules_usage.md)** - Rule types, frontmatter fields, and validation for `.cursor/rules/`.
+- **[Cursor Rules Guide](cursor_rules_guide.md)** - Rule types, frontmatter fields, and validation for `.cursor/rules/`.
 
-- **[MCP Server Guide](mcp_server_guide.md)** - Complete guide to using the MCP server and CLI tools for programmatic access to prompts.
+- **[MCP Guide](mcp_guide.md)** - Complete guide to using the MCP server and CLI tools for programmatic access to prompts.
 
 ### Development Guides
 
-- **[Development Guide](development_guide.md)** - Complete development setup and workflow using uv, Ruff, Nox, and Invoke.
+- **[Development](development.md)** - Complete development setup and workflow using uv, Ruff, Nox, and Invoke.
 
 - **[Contributing Guide](contributing_guide.md)** - How to contribute to the project with modern development tools and practices.
 
-- **[Troubleshooting Guide](troubleshooting_guide.md)** - Common issues and solutions for development environment and tools.
+- **[Troubleshooting](troubleshooting.md)** - Common issues and solutions for development environment and tools.
+
+### Development Tools
+
+- **[CI/CD Workflows Guide](ci_cd_workflows.md)** - GitHub Actions workflows and continuous integration pipeline.
+
+- **[Invoke Tasks](tasks.py)** - Task automation (see `tasks.py` for complete reference)
+
+- **[Nox Sessions](noxfile.py)** - Multi-environment testing (see `noxfile.py` for complete reference)
+
+- **[JSON Schemas](../schemas/README.md)** - Validation schemas for Cursor rules and MCP configurations
+
+### Advanced Topics
+
+- **[MCP Guide](mcp_guide.md)** - MCP server, configuration, and integration
+
+- **[Cursor Rules Guide](cursor_rules_guide.md)** - Creating and managing Cursor IDE rules
+
+- **[Pre-commit](pre_commit.md)** - Code quality enforcement and pre-commit hooks
+
+- **[Commit Standards](commit_standards.md)** - Git commit message conventions and validation
+
+- **[Testing](testing.md)** - Comprehensive testing approach and best practices
+
+- **[Development Environment](development_environment.md)** - Complete development environment setup and management
+
+### Reference Documentation
+
+- **[Environment Variables](environment_variables.md)** - Environment variables reference
+
+- **[Error Handling](error_handling.md)** - Error handling strategies and debugging approaches
+
+- **[Performance](performance.md)** - Performance optimization and monitoring strategies
+
+- **[Security](security.md)** - Security considerations and best practices
 
 ### Project Management
 

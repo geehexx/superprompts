@@ -21,13 +21,12 @@ Python package with dynamic prompt generators and CLI tools.
 General documentation on prompting techniques, best practices, and standards.
 
 - **[Available Prompts](docs/available_prompts.md)** - Complete index of all available prompts with usage patterns
-- **[Architecture Guide](docs/architecture_guide.md)** - System architecture and design principles
-- **[API Reference](docs/api_reference.md)** - Complete API documentation with examples
+- **[Architecture](docs/architecture.md)** - System architecture and design principles
+- **[API](docs/api.md)** - Complete API documentation with examples
 - **[AI Prompting Best Practices](docs/ai_prompting_best_practices.md)** - Core principles and reusable patterns for designing robust prompts
 - **[AI-Ready Documentation Standards](docs/ai_ready_documentation_standards.md)** - Standards for creating maintainable, discoverable documentation
-- **[Commit Message Standards](docs/commit_message_standards.md)** - Git commit message conventions and best practices
-- **[MCP Server Guide](docs/mcp_server_guide.md)** - Complete guide to using the MCP server and CLI tools
-- **[MCP Configuration Guide](docs/mcp_configuration_guide.md)** - Managing MCP server definitions and configurations
+- **[Commit Standards](docs/commit_standards.md)** - Git commit message conventions and best practices
+- **[MCP Guide](docs/mcp_guide.md)** - Complete guide to using the MCP server and CLI tools
 
 ## Quick Start
 
@@ -136,4 +135,4 @@ See the [Development Guide](docs/development_guide.md) for complete setup instru
 
 ## License
 
-This project is licensed under the terms specified in [LICENSE](LICENSE).
+This project is licensed under the GNU General Public License v3.0. See [LICENSE](LICENSE) for the full license text.
