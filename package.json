@@ -1,0 +1,28 @@
+{
+  "name": "superprompts",
+  "version": "1.0.0",
+  "description": "A collection of reusable AI prompts for everyday tasks, along with comprehensive documentation on prompting techniques and best practices.",
+  "main": "commitlint.config.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/geehexx/superprompts.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/geehexx/superprompts/issues"
+  },
+  "homepage": "https://github.com/geehexx/superprompts#readme",
+  "devDependencies": {
+    "@commitlint/cli": "^19.8.1",
+    "@commitlint/config-conventional": "^19.8.1"
+  }
+}
