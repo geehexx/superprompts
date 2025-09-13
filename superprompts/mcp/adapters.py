@@ -7,6 +7,7 @@ and making it easier to adapt configurations to different specifications.
 
 import json
 import logging
+import os
 import shutil
 import subprocess
 import tempfile
@@ -19,6 +20,25 @@ from rich.panel import Panel
 from rich.table import Table
 
 from .config import MCPConfigGenerator, MCPServerConfig
+
+
+class FastMCPNotFoundError(FileNotFoundError):
+    """FastMCP not found in PATH."""
+
+
+class MCPExecutableNotFoundError(FileNotFoundError):
+    """MCP executable not found or not executable."""
+
+
+def _safe_subprocess_run(cmd: list[str], **kwargs: Any) -> subprocess.CompletedProcess[str]:
+    """Run subprocess with validated command to prevent injection."""
+    # Validate that the first argument is a valid executable path
+    if not cmd or not Path(cmd[0]).exists() or not os.access(cmd[0], os.X_OK):
+        raise MCPExecutableNotFoundError()
+    # Ensure check=False is set for security
+    kwargs.setdefault("check", False)
+    return subprocess.run(cmd, **kwargs)
+
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -71,8 +91,12 @@ class MCPToolingAdapter:
         fastmcp_path = shutil.which("fastmcp")
         if fastmcp_path:
             try:
-                result = subprocess.run([fastmcp_path, "--version"], check=False, capture_output=True, text=True, timeout=5)
-                tools["fastmcp"] = result.returncode == 0
+                # Validate path to prevent command injection
+                if not Path(fastmcp_path).exists() or not os.access(fastmcp_path, os.X_OK):
+                    tools["fastmcp"] = False
+                else:
+                    result = _safe_subprocess_run([fastmcp_path, "--version"], check=False, capture_output=True, text=True, timeout=5)
+                    tools["fastmcp"] = result.returncode == 0
             except (subprocess.TimeoutExpired, FileNotFoundError):
                 tools["fastmcp"] = False
         else:
@@ -82,8 +106,12 @@ class MCPToolingAdapter:
         mcp_path = shutil.which("mcp")
         if mcp_path:
             try:
-                result = subprocess.run([mcp_path, "--version"], check=False, capture_output=True, text=True, timeout=5)
-                tools["mcp-cli"] = result.returncode == 0
+                # Validate path to prevent command injection
+                if not Path(mcp_path).exists() or not os.access(mcp_path, os.X_OK):
+                    tools["mcp-cli"] = False
+                else:
+                    result = _safe_subprocess_run([mcp_path, "--version"], check=False, capture_output=True, text=True, timeout=5)
+                    tools["mcp-cli"] = result.returncode == 0
             except (subprocess.TimeoutExpired, FileNotFoundError):
                 tools["mcp-cli"] = False
         else:
@@ -93,8 +121,12 @@ class MCPToolingAdapter:
         mcp_tools_path = shutil.which("mcp-tools-cli")
         if mcp_tools_path:
             try:
-                result = subprocess.run([mcp_tools_path, "--version"], check=False, capture_output=True, text=True, timeout=5)
-                tools["mcp-tools-cli"] = result.returncode == 0
+                # Validate path to prevent command injection
+                if not Path(mcp_tools_path).exists() or not os.access(mcp_tools_path, os.X_OK):
+                    tools["mcp-tools-cli"] = False
+                else:
+                    result = _safe_subprocess_run([mcp_tools_path, "--version"], check=False, capture_output=True, text=True, timeout=5)
+                    tools["mcp-tools-cli"] = result.returncode == 0
             except (subprocess.TimeoutExpired, FileNotFoundError):
                 tools["mcp-tools-cli"] = False
         else:
@@ -104,8 +136,12 @@ class MCPToolingAdapter:
         npm_path = shutil.which("npm")
         if npm_path:
             try:
-                result = subprocess.run([npm_path, "--version"], check=False, capture_output=True, text=True, timeout=5)
-                tools["npm"] = result.returncode == 0
+                # Validate path to prevent command injection
+                if not Path(npm_path).exists() or not os.access(npm_path, os.X_OK):
+                    tools["npm"] = False
+                else:
+                    result = _safe_subprocess_run([npm_path, "--version"], check=False, capture_output=True, text=True, timeout=5)
+                    tools["npm"] = result.returncode == 0
             except (subprocess.TimeoutExpired, FileNotFoundError):
                 tools["npm"] = False
         else:
@@ -145,9 +181,12 @@ class MCPToolingAdapter:
         """Run FastMCP command and return result."""
         fastmcp_path = shutil.which("fastmcp")
         if not fastmcp_path:
-            raise FileNotFoundError("FastMCP not found in PATH")
+            raise FastMCPNotFoundError()
+        # Validate path to prevent command injection
+        if not Path(fastmcp_path).exists() or not os.access(fastmcp_path, os.X_OK):
+            raise MCPExecutableNotFoundError()
         cmd[0] = fastmcp_path
-        return subprocess.run(cmd, check=False, cwd=temp_path, capture_output=True, text=True, timeout=30)
+        return _safe_subprocess_run(cmd, check=False, cwd=temp_path, capture_output=True, text=True, timeout=30)
 
     def _load_fastmcp_config(self, temp_path: Path) -> dict[str, Any] | None:
         """Load configuration file generated by FastMCP."""
@@ -204,7 +243,11 @@ class MCPToolingAdapter:
             if not mcp_path:
                 console.print("[red]MCP CLI not found in PATH[/red]")
                 return False
-            result = subprocess.run([mcp_path, "install", server_package], check=False, capture_output=True, text=True, timeout=60)
+            # Validate path to prevent command injection
+            if not Path(mcp_path).exists() or not os.access(mcp_path, os.X_OK):
+                console.print("[red]MCP CLI not found or not executable[/red]")
+                return False
+            result = _safe_subprocess_run([mcp_path, "install", server_package], check=False, capture_output=True, text=True, timeout=60)
 
             if result.returncode != 0:
                 console.print(f"[red]mcp-cli install error: {result.stderr}[/red]")
@@ -230,7 +273,11 @@ class MCPToolingAdapter:
             if not mcp_path:
                 console.print("[red]MCP CLI not found in PATH[/red]")
                 return []
-            result = subprocess.run([mcp_path, "list"], check=False, capture_output=True, text=True, timeout=30)
+            # Validate path to prevent command injection
+            if not Path(mcp_path).exists() or not os.access(mcp_path, os.X_OK):
+                console.print("[red]MCP CLI not found or not executable[/red]")
+                return []
+            result = _safe_subprocess_run([mcp_path, "list"], check=False, capture_output=True, text=True, timeout=30)
 
             if result.returncode != 0:
                 console.print(f"[red]mcp-cli list error: {result.stderr}[/red]")
@@ -258,7 +305,11 @@ class MCPToolingAdapter:
             if not mcp_tools_path:
                 console.print("[red]mcp-tools-cli not found in PATH[/red]")
                 return False
-            result = subprocess.run(
+            # Validate path to prevent command injection
+            if not Path(mcp_tools_path).exists() or not os.access(mcp_tools_path, os.X_OK):
+                console.print("[red]mcp-tools-cli not found or not executable[/red]")
+                return False
+            result = _safe_subprocess_run(
                 [mcp_tools_path, "list-tools", "--mcp-name", server_name], check=False, capture_output=True, text=True, timeout=30
             )
 
@@ -271,7 +322,7 @@ class MCPToolingAdapter:
 
             # Test specific tool if provided
             if tool_name:
-                test_result = subprocess.run(
+                test_result = _safe_subprocess_run(
                     [mcp_tools_path, "call-tool", "--mcp-name", server_name, "--tool-name", tool_name, "--tool-args", "{}"],
                     check=False,
                     capture_output=True,
@@ -284,7 +335,6 @@ class MCPToolingAdapter:
                     return False
                 console.print(f"[green]Tool {tool_name} test successful:[/green]")
                 console.print(test_result.stdout)
-
             return True
 
         except subprocess.TimeoutExpired:

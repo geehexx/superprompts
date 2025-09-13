@@ -4,11 +4,28 @@
 These tests ensure that the server can start properly and handle initialization correctly.
 """
 
+import os
 import shutil
 import subprocess
 import sys
 import time
 from pathlib import Path
+from typing import Any
+
+
+class ExecutableNotFoundError(FileNotFoundError):
+    """Executable not found or not accessible."""
+
+
+def _safe_subprocess_run(cmd: list[str], **kwargs: Any) -> subprocess.CompletedProcess[str]:
+    """Run subprocess with validated command to prevent injection."""
+    # Validate that the first argument is a valid executable path
+    if not cmd or not Path(cmd[0]).exists() or not os.access(cmd[0], os.X_OK):
+        raise ExecutableNotFoundError()
+    # Ensure check=False is set for security
+    kwargs.setdefault("check", False)
+    return subprocess.run(cmd, **kwargs)
+
 
 # Add the project root to the Python path
 project_root = Path(__file__).parent.parent
@@ -66,7 +83,10 @@ class ServerStartupTester:
             python_path = shutil.which("python3")
             if not python_path:
                 return False
-            result = subprocess.run(
+            # Validate path to prevent command injection
+            if not Path(python_path).exists() or not os.access(python_path, os.X_OK):
+                return False
+            result = _safe_subprocess_run(
                 [
                     python_path,
                     "-c",
@@ -89,6 +109,10 @@ class ServerStartupTester:
             python_path = shutil.which("python3")
             if not python_path:
                 return False
+            # Validate path to prevent command injection
+            if not Path(python_path).exists() or not os.access(python_path, os.X_OK):
+                return False
+            # Use subprocess.Popen directly since we've already validated the path
             self.server_process = subprocess.Popen(
                 [python_path, "-m", "superprompts.mcp.server"],
                 cwd=self.server_dir,
@@ -123,7 +147,10 @@ class ServerStartupTester:
             python_path = shutil.which("python3")
             if not python_path:
                 return False
-            result = subprocess.run(
+            # Validate path to prevent command injection
+            if not Path(python_path).exists() or not os.access(python_path, os.X_OK):
+                return False
+            result = _safe_subprocess_run(
                 [python_path, "-c", "import fastmcp, pydantic, click, rich"],
                 check=False,
                 cwd=self.server_dir,
@@ -163,8 +190,9 @@ class ServerStartupTester:
             try:
                 if test():
                     passed += 1
-            except Exception:
-                pass
+            except Exception as e:
+                # Log the exception for debugging but continue with other tests
+                print(f"Test {test.__name__} failed: {e}")
 
         return passed == total
 
