@@ -5,63 +5,32 @@
   "type": "object",
   "additionalProperties": false,
   "properties": {
-    "ruleType": {
-      "type": "string",
-      "description": "Cursor attach mode",
-      "enum": ["Always", "Auto Attached", "Agent Requested", "Manual"]
-    },
     "description": { "type": "string", "minLength": 1 },
-    "type": {
-      "type": "string",
-      "enum": [
-        "testing",
-        "documentation",
-        "code_quality",
-        "architecture",
-        "security",
-        "performance",
-        "general"
-      ]
-    },
     "globs": {
       "type": "array",
       "items": { "type": "string", "minLength": 1 }
     },
-    "alwaysApply": { "type": "boolean" },
-    "appliesTo": {
-      "type": "array",
-      "items": { "type": "string" }
-    },
-    "when": {
-      "type": "object",
-      "additionalProperties": false,
-      "properties": {
-        "filesChanged": { "type": "array", "items": { "type": "string" } },
-        "pathsPresent": { "type": "array", "items": { "type": "string" } },
-        "languages": { "type": "array", "items": { "type": "string" } }
-      }
-    },
-    "tags": { "type": "array", "items": { "type": "string", "minLength": 1 } },
-    "severity": { "type": "string", "enum": ["critical", "high", "medium", "low", "info", ""] },
-    "scope": { "type": "array", "items": { "type": "string", "minLength": 1 } }
+    "alwaysApply": { "type": "boolean" }
   },
-  "required": ["description", "type", "globs"],
+  "required": ["alwaysApply"],
   "allOf": [
     {
       "if": { "properties": { "alwaysApply": { "const": true } } },
       "then": {
         "properties": {
-          "when": { "maxProperties": 0 }
+          "globs": { "maxItems": 0 },
+          "description": { "maxLength": 0 }
         }
       }
     },
     {
-      "if": { "properties": { "ruleType": { "const": "Always" } } },
-      "then": { "properties": { "alwaysApply": { "const": true } } }
-    },
-    {
-      "if": { "properties": { "ruleType": { "enum": ["Auto Attached"] } } },
-      "then": { "required": ["when"] }
+      "if": { "properties": { "alwaysApply": { "const": false } } },
+      "then": {
+        "anyOf": [
+          { "required": ["globs"], "not": { "required": ["description"] } },
+          { "required": ["description"], "not": { "required": ["globs"] } }
+        ]
+      }
     }
   ]
 }
