@@ -1,0 +1,62 @@
+---
+globs: superprompts/**/*.py
+alwaysApply: false
+---
+# Pydantic Model Design
+
+## Rule
+- Use `BaseModel` for all data models
+- Define field types with proper validation
+- Use `Field()` for additional validation and metadata
+- Use `validator` decorators for custom validation logic
+- Use `root_validator` for cross-field validation
+- Use `Config` class for model configuration
+- Use `Enum` for constrained string values
+- Use `Optional` for nullable fields
+- Use `List` and `Dict` for collection types
+- Use `datetime` for timestamp fields
+- Use `UUID` for unique identifiers
+
+## Examples
+```python
+from pydantic import BaseModel, Field, validator, root_validator
+from typing import Optional, List, Dict, Any
+from enum import Enum
+from datetime import datetime
+from uuid import UUID
+
+class ToolStatus(str, Enum):
+    ACTIVE = "active"
+    INACTIVE = "inactive"
+    DEPRECATED = "deprecated"
+
+class MCPRequest(BaseModel):
+    id: str = Field(..., min_length=1, max_length=100)
+    method: str = Field(..., regex=r"^[a-z_]+(/[a-z_]+)*$")
+    params: Optional[Dict[str, Any]] = None
+    timestamp: datetime = Field(default_factory=datetime.utcnow)
+
+    @validator('id')
+    def validate_id(cls, v):
+        if not v.strip():
+            raise ValueError('ID cannot be empty')
+        return v.strip()
+
+    @root_validator
+    def validate_request(cls, values):
+        method = values.get('method')
+        params = values.get('params')
+
+        if method == 'tools/call' and not params:
+            raise ValueError('tools/call method requires params')
+
+        return values
+
+    class Config:
+        use_enum_values = True
+        validate_assignment = True
+        extra = "forbid"
+```
+
+## Rationale
+Proper Pydantic model design ensures data validation, serialization, and API consistency for MCP server communication.

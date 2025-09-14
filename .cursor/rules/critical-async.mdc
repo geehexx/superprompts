@@ -1,0 +1,39 @@
+---
+alwaysApply: true
+---
+# Critical Async Patterns
+
+## Async Function Usage (CRITICAL)
+- Use `async def` for all functions that perform I/O operations
+- Use `await` for all async function calls
+- Never use blocking operations in async functions
+- Use `asyncio.to_thread()` for CPU-bound operations
+- Implement proper async context managers
+
+## Error Handling in Async Code (CRITICAL)
+- Use `try/except` blocks around all async operations
+- Handle `asyncio.CancelledError` appropriately
+- Use `asyncio.gather(return_exceptions=True)` for concurrent operations
+- Implement proper cleanup in async context managers
+- Log async errors with proper context
+
+## Resource Management (CRITICAL)
+- Use `async with` for all async context managers
+- Implement proper resource cleanup
+- Use connection pooling for external services
+- Monitor resource usage in long-running processes
+- Implement proper shutdown procedures
+
+## Concurrency Safety (CRITICAL)
+- Use `asyncio.Lock` for shared resource protection
+- Use `asyncio.Semaphore` for rate limiting
+- Use `asyncio.Queue` for producer-consumer patterns
+- Avoid race conditions in async code
+- Use proper synchronization primitives
+
+## Performance in Async Code (CRITICAL)
+- Use `asyncio.gather()` for concurrent operations
+- Use `asyncio.create_task()` for fire-and-forget operations
+- Use `asyncio.wait_for()` for timeout handling
+- Implement proper backpressure handling
+- Monitor async performance metrics

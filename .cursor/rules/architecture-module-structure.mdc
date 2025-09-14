@@ -1,0 +1,76 @@
+---
+globs: superprompts/**/*.py
+alwaysApply: false
+---
+# Module Structure Patterns
+
+## Rule
+- Use clear module hierarchy with logical grouping
+- Place `__init__.py` files in all packages
+- Use `__all__` to control public API exports
+- Group related functionality in submodules
+- Use consistent naming conventions (snake_case)
+- Separate concerns into different modules
+- Use `__main__.py` for package execution
+- Place configuration in dedicated modules
+- Use factory functions for complex object creation
+- Implement proper module-level error handling
+
+## Examples
+```python
+# superprompts/__init__.py
+"""SuperPrompts MCP Server - A collection of reusable AI prompts."""
+
+from .mcp.server import MCPServer
+from .cli.main import main as cli_main
+from .prompts.manager import PromptManager
+
+__version__ = "1.0.0"
+__all__ = [
+    "MCPServer",
+    "cli_main",
+    "PromptManager",
+]
+
+# superprompts/mcp/__init__.py
+"""MCP server implementation."""
+
+from .server import MCPServer
+from .registry import MCPToolRegistry
+from .tools import MCPTool
+
+__all__ = ["MCPServer", "MCPToolRegistry", "MCPTool"]
+
+# superprompts/mcp/server.py
+"""Main MCP server implementation."""
+
+import asyncio
+import logging
+from typing import Dict, Any, Optional
+from .registry import MCPToolRegistry
+from .config import MCPServerConfig
+
+logger = logging.getLogger(__name__)
+
+class MCPServer:
+    """Main MCP server class."""
+
+    def __init__(self, config: Optional[MCPServerConfig] = None):
+        self.config = config or MCPServerConfig()
+        self.registry = MCPToolRegistry()
+        self._running = False
+
+    async def start(self) -> None:
+        """Start the MCP server."""
+        logger.info("Starting MCP server...")
+        # Implementation here
+        self._running = True
+
+    async def stop(self) -> None:
+        """Stop the MCP server."""
+        logger.info("Stopping MCP server...")
+        self._running = False
+```
+
+## Rationale
+Proper module structure improves code organization, maintainability, and makes the codebase easier to navigate and understand.

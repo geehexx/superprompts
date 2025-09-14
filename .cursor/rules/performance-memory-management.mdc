@@ -1,0 +1,116 @@
+---
+globs: superprompts/**/*.py
+alwaysApply: false
+---
+# Memory Management Patterns
+
+## Rule
+- Use weak references for circular dependencies
+- Implement proper cleanup in context managers
+- Use generators for large data processing
+- Implement memory-efficient caching strategies
+- Use asyncio.Queue for bounded memory usage
+- Monitor memory usage and implement alerts
+- Use object pooling for frequently created objects
+- Implement proper garbage collection triggers
+- Use memory profiling tools
+- Avoid memory leaks in long-running processes
+
+## Examples
+```python
+import asyncio
+import weakref
+import gc
+import psutil
+from typing import Dict, Any, Optional, Generator, List
+from contextlib import asynccontextmanager
+from dataclasses import dataclass
+
+@dataclass
+class MemoryStats:
+    """Memory usage statistics."""
+    current_mb: float
+    peak_mb: float
+    available_mb: float
+    usage_percent: float
+
+class MemoryMonitor:
+    """Monitor memory usage and trigger cleanup."""
+
+    def __init__(self, threshold_mb: float = 1000.0):
+        self.threshold_mb = threshold_mb
+        self.peak_usage = 0.0
+        self.cleanup_callbacks: List[callable] = []
+
+    def get_memory_stats(self) -> MemoryStats:
+        """Get current memory statistics."""
+        process = psutil.Process()
+        memory_info = process.memory_info()
+        system_memory = psutil.virtual_memory()
+
+        current_mb = memory_info.rss / 1024 / 1024
+        self.peak_usage = max(self.peak_usage, current_mb)
+
+        return MemoryStats(
+            current_mb=current_mb,
+            peak_mb=self.peak_usage,
+            available_mb=system_memory.available / 1024 / 1024,
+            usage_percent=system_memory.percent
+        )
+
+    def add_cleanup_callback(self, callback: callable) -> None:
+        """Add cleanup callback for memory pressure."""
+        self.cleanup_callbacks.append(callback)
+
+    async def check_memory_pressure(self) -> bool:
+        """Check if memory pressure is high."""
+        stats = self.get_memory_stats()
+
+        if stats.current_mb > self.threshold_mb:
+            await self._trigger_cleanup()
+            return True
+
+        return False
+
+    async def _trigger_cleanup(self) -> None:
+        """Trigger cleanup callbacks."""
+        for callback in self.cleanup_callbacks:
+            try:
+                await callback()
+            except Exception as e:
+                print(f"Cleanup callback failed: {e}")
+
+class ObjectPool:
+    """Object pool for memory-efficient object reuse."""
+
+    def __init__(self, factory_func: callable, max_size: int = 100):
+        self.factory_func = factory_func
+        self.max_size = max_size
+        self.pool: List[Any] = []
+        self.in_use: set = set()
+
+    async def acquire(self) -> Any:
+        """Acquire object from pool."""
+        if self.pool:
+            obj = self.pool.pop()
+        else:
+            obj = await self.factory_func()
+
+        self.in_use.add(id(obj))
+        return obj
+
+    async def release(self, obj: Any) -> None:
+        """Release object back to pool."""
+        obj_id = id(obj)
+        if obj_id in self.in_use:
+            self.in_use.remove(obj_id)
+
+            if len(self.pool) < self.max_size:
+                # Reset object state
+                if hasattr(obj, 'reset'):
+                    obj.reset()
+                self.pool.append(obj)
+```
+
+## Rationale
+Proper memory management is essential for long-running MCP servers to prevent memory leaks and ensure stable performance.

@@ -1,0 +1,81 @@
+---
+globs: superprompts/**/*.py
+alwaysApply: false
+---
+# API Documentation Standards
+
+## Rule
+- Use Google-style docstrings for all public functions and classes
+- Include type information in docstrings
+- Document all parameters, return values, and exceptions
+- Include usage examples in docstrings
+- Use `Args:`, `Returns:`, `Raises:`, `Example:` sections
+- Document async functions with async examples
+- Include version information for API changes
+- Use `.. versionadded::` and `.. versionchanged::` directives
+- Document class attributes and properties
+- Include cross-references to related functions
+
+## Examples
+```python
+from typing import List, Dict, Any, Optional, AsyncGenerator
+import asyncio
+
+class MCPToolManager:
+    """Manages MCP tools and their execution.
+
+    This class provides functionality to register, discover, and execute
+    MCP tools in a thread-safe manner.
+
+    Attributes:
+        tools: Dictionary mapping tool names to tool instances
+        max_concurrent: Maximum number of concurrent tool executions
+
+    Example:
+        >>> manager = MCPToolManager(max_concurrent=5)
+        >>> await manager.register_tool("test_tool", test_handler)
+        >>> result = await manager.execute_tool("test_tool", {"arg": "value"})
+    """
+
+    def __init__(self, max_concurrent: int = 10):
+        """Initialize the MCP tool manager.
+
+        Args:
+            max_concurrent: Maximum number of concurrent tool executions.
+                Must be a positive integer.
+
+        Raises:
+            ValueError: If max_concurrent is not positive.
+        """
+        if max_concurrent <= 0:
+            raise ValueError("max_concurrent must be positive")
+        self.max_concurrent = max_concurrent
+        self.tools: Dict[str, Any] = {}
+
+    async def register_tool(
+        self,
+        name: str,
+        handler: callable,
+        description: Optional[str] = None
+    ) -> None:
+        """Register a new MCP tool.
+
+        Args:
+            name: Unique name for the tool. Must be a valid identifier.
+            handler: Async function that handles tool execution.
+                Must accept a single dict parameter and return a dict.
+            description: Optional description of the tool's functionality.
+
+        Raises:
+            ValueError: If name is invalid or already registered.
+            TypeError: If handler is not callable or not async.
+
+        Example:
+            >>> async def my_tool_handler(args: dict) -> dict:
+            ...     return {"result": "success"}
+            >>> await manager.register_tool("my_tool", my_tool_handler)
+        """
+```
+
+## Rationale
+Comprehensive API documentation is essential for MCP server usability, maintainability, and developer experience.

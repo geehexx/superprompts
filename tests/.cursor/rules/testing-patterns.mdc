@@ -1,0 +1,55 @@
+---
+globs: **/*.py
+alwaysApply: false
+---
+# Testing Rules
+
+## Test Organization
+- Use descriptive test function names that explain behavior
+- Group related tests in classes with `Test` prefix
+- Use pytest fixtures for test setup and teardown
+- Organize tests to mirror source code structure
+- Use parametrized tests for testing multiple scenarios
+
+## Async Testing
+- Use `pytest.mark.asyncio` for async test functions
+- Use `asyncio.create_task()` for concurrent operations in tests
+- Test async context managers with `async with`
+- Use `pytest-asyncio` for async fixture support
+- Test timeout scenarios with `asyncio.wait_for()`
+
+## MCP Server Testing
+- Test MCP tool registration and discovery
+- Test request/response serialization with Pydantic models
+- Test error handling and validation
+- Test server startup and shutdown lifecycle
+- Test concurrent tool execution
+- Validate MCP protocol compliance
+
+## Test Data Management
+- Use factories for creating test data
+- Implement proper test data cleanup
+- Use fixtures for shared test data
+- Mock external dependencies appropriately
+- Use realistic test data that reflects production scenarios
+
+## Test Coverage
+- Aim for high test coverage (>90%)
+- Test both success and failure scenarios
+- Test edge cases and boundary conditions
+- Test error handling and exception cases
+- Use coverage reporting to identify gaps
+
+## Test Performance
+- Keep individual tests fast (<1 second)
+- Use parallel test execution where possible
+- Mock slow external dependencies
+- Use test databases for integration tests
+- Implement proper test cleanup to prevent interference
+
+## Test Documentation
+- Write clear test descriptions and docstrings
+- Document test setup and teardown procedures
+- Include comments explaining complex test logic
+- Document test data requirements and assumptions
+- Use meaningful assertion messages

@@ -1,0 +1,89 @@
+---
+globs: superprompts/**/*.py
+alwaysApply: false
+---
+# Input Validation and Security
+
+## Rule
+- Validate all input parameters and data
+- Use Pydantic models for request validation
+- Sanitize user input to prevent injection attacks
+- Implement rate limiting for API endpoints
+- Use secure random number generation
+- Validate file paths and prevent directory traversal
+- Implement proper authentication and authorization
+- Use HTTPS for all communications
+- Log security events and suspicious activities
+- Implement proper error handling without information leakage
+
+## Examples
+```python
+import re
+import secrets
+from typing import Any, Dict, List
+from pydantic import BaseModel, validator, Field
+from pathlib import Path
+
+class SecureRequest(BaseModel):
+    """Secure request model with validation."""
+
+    tool_name: str = Field(..., min_length=1, max_length=100)
+    arguments: Dict[str, Any] = Field(default_factory=dict)
+    user_id: str = Field(..., regex=r"^[a-zA-Z0-9_-]+$")
+    session_token: str = Field(..., min_length=32, max_length=64)
+
+    @validator('tool_name')
+    def validate_tool_name(cls, v):
+        """Validate tool name to prevent injection."""
+        if not re.match(r'^[a-zA-Z][a-zA-Z0-9_-]*$', v):
+            raise ValueError('Invalid tool name format')
+        return v
+
+    @validator('arguments')
+    def validate_arguments(cls, v):
+        """Validate and sanitize arguments."""
+        if not isinstance(v, dict):
+            raise ValueError('Arguments must be a dictionary')
+
+        # Check for potentially dangerous keys
+        dangerous_keys = ['__', 'eval', 'exec', 'import', 'open', 'file']
+        for key in v.keys():
+            if any(danger in key.lower() for danger in dangerous_keys):
+                raise ValueError(f'Potentially dangerous key: {key}')
+
+        return v
+
+class SecurityValidator:
+    """Security validation utilities."""
+
+    @staticmethod
+    def validate_file_path(path: str, base_dir: Path) -> Path:
+        """Validate file path to prevent directory traversal."""
+        try:
+            # Resolve the path
+            full_path = (base_dir / path).resolve()
+
+            # Ensure it's within the base directory
+            if not str(full_path).startswith(str(base_dir.resolve())):
+                raise ValueError("Path traversal detected")
+
+            return full_path
+        except Exception as e:
+            raise ValueError(f"Invalid file path: {e}")
+
+    @staticmethod
+    def sanitize_string(value: str) -> str:
+        """Sanitize string input."""
+        # Remove potentially dangerous characters
+        sanitized = re.sub(r'[<>"\']', '', value)
+        # Limit length
+        return sanitized[:1000]
+
+    @staticmethod
+    def generate_secure_token(length: int = 32) -> str:
+        """Generate secure random token."""
+        return secrets.token_urlsafe(length)
+```
+
+## Rationale
+Proper input validation and security measures are essential for protecting MCP servers from attacks and ensuring data integrity.

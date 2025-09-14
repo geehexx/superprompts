@@ -1,0 +1,48 @@
+---
+description: Enforce Git workflow and version control best practices when working with version control
+alwaysApply: false
+---
+# Git Workflow Best Practices
+
+## Rule
+- Use conventional commit messages (feat, fix, docs, style, refactor, test, chore)
+- Create feature branches for new development
+- Use descriptive branch names (feature/add-mcp-tools, fix/security-validation)
+- Write meaningful commit messages with body when needed
+- Use atomic commits (one logical change per commit)
+- Rebase feature branches before merging
+- Use pull requests for code review
+- Tag releases with semantic versioning
+- Keep commit history clean and linear
+- Use .gitignore to exclude build artifacts and sensitive files
+
+## Examples
+```bash
+# Good commit messages
+git commit -m "feat(mcp): add tool registration system"
+git commit -m "fix(security): validate input parameters in MCP requests"
+git commit -m "docs(api): add comprehensive docstring examples"
+git commit -m "test(pytest): add async test patterns for MCP tools"
+git commit -m "chore(deps): update fastmcp to v2.12.0"
+
+# Good branch names
+git checkout -b feature/add-cursor-rules-generator
+git checkout -b fix/security-input-validation
+git checkout -b docs/improve-api-documentation
+git checkout -b test/add-performance-benchmarks
+
+# Good pull request workflow
+git checkout main
+git pull origin main
+git checkout feature/add-mcp-tools
+git rebase main
+git push origin feature/add-mcp-tools
+# Create PR on GitHub
+
+# Good release workflow
+git tag -a v1.0.0 -m "Release version 1.0.0"
+git push origin v1.0.0
+```
+
+## Rationale
+Proper Git workflow ensures code quality, enables effective collaboration, and maintains a clean project history.

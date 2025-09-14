@@ -1,0 +1,64 @@
+---
+globs: superprompts/**/*.py
+alwaysApply: false
+---
+# Error Handling Patterns
+
+## Rule
+- Use specific exception types instead of generic `Exception`
+- Create custom exception classes for domain-specific errors
+- Use `try/except/finally` blocks appropriately
+- Log errors with appropriate levels and context
+- Use `raise from` for exception chaining
+- Handle async exceptions with `asyncio.gather(return_exceptions=True)`
+- Use `contextlib.asynccontextmanager` for resource cleanup
+- Validate inputs early and fail fast
+- Use `typing.NoReturn` for functions that never return
+- Implement proper error recovery strategies
+- Use structured logging with context
+
+## Examples
+```python
+import logging
+from typing import NoReturn, Optional
+from contextlib import asynccontextmanager
+
+logger = logging.getLogger(__name__)
+
+class MCPError(Exception):
+    """Base exception for MCP-related errors."""
+    pass
+
+class ToolNotFoundError(MCPError):
+    """Raised when a requested tool is not found."""
+    def __init__(self, tool_name: str):
+        self.tool_name = tool_name
+        super().__init__(f"Tool '{tool_name}' not found")
+
+class ValidationError(MCPError):
+    """Raised when request validation fails."""
+    def __init__(self, field: str, message: str):
+        self.field = field
+        self.message = message
+        super().__init__(f"Validation error in {field}: {message}")
+
+class MCPToolManager:
+    async def execute_tool(self, name: str, args: dict) -> dict:
+        try:
+            tool = await self.get_tool(name)
+            result = await tool.execute(args)
+            logger.info(f"Tool {name} executed successfully")
+            return result
+        except ToolNotFoundError as e:
+            logger.error(f"Tool not found: {e.tool_name}")
+            raise
+        except ValidationError as e:
+            logger.error(f"Validation error: {e.field} - {e.message}")
+            raise
+        except Exception as e:
+            logger.exception(f"Unexpected error executing tool {name}")
+            raise MCPError(f"Tool execution failed: {e}") from e
+```
+
+## Rationale
+Proper error handling ensures MCP server reliability, provides meaningful error messages, and enables proper debugging and monitoring.

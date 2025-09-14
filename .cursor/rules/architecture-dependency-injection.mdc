@@ -1,0 +1,93 @@
+---
+globs: superprompts/**/*.py
+alwaysApply: false
+---
+# Dependency Injection Patterns
+
+## Rule
+- Use constructor injection for required dependencies
+- Use property injection for optional dependencies
+- Create factory classes for complex object creation
+- Use service locator pattern sparingly
+- Implement proper dependency lifecycle management
+- Use interfaces/protocols for dependency abstraction
+- Avoid circular dependencies
+- Use dependency containers for complex scenarios
+- Implement proper dependency resolution
+- Use context managers for scoped dependencies
+
+## Examples
+```python
+from abc import ABC, abstractmethod
+from typing import Protocol, Optional, Dict, Any
+from dataclasses import dataclass
+
+# Define protocols for dependencies
+class Logger(Protocol):
+    def info(self, message: str) -> None: ...
+    def error(self, message: str) -> None: ...
+    def debug(self, message: str) -> None: ...
+
+class ConfigProvider(Protocol):
+    def get(self, key: str, default: Any = None) -> Any: ...
+
+class ToolRegistry(Protocol):
+    def register_tool(self, tool: Any) -> None: ...
+    def get_tool(self, name: str) -> Optional[Any]: ...
+
+# Dependency container
+@dataclass
+class Dependencies:
+    """Container for application dependencies."""
+    logger: Logger
+    config: ConfigProvider
+    tool_registry: ToolRegistry
+
+    @classmethod
+    def create_default(cls) -> "Dependencies":
+        """Create default dependencies."""
+        from .logging import create_logger
+        from .config import create_config
+        from .registry import create_tool_registry
+
+        return cls(
+            logger=create_logger(),
+            config=create_config(),
+            tool_registry=create_tool_registry(),
+        )
+
+# Service classes with dependency injection
+class MCPToolManager:
+    """Tool manager with injected dependencies."""
+
+    def __init__(
+        self,
+        logger: Logger,
+        config: ConfigProvider,
+        tool_registry: ToolRegistry
+    ):
+        self.logger = logger
+        self.config = config
+        self.tool_registry = tool_registry
+        self.max_concurrent = config.get("max_concurrent_tools", 10)
+
+    async def execute_tool(self, name: str, args: Dict[str, Any]) -> Dict[str, Any]:
+        """Execute a tool with proper logging."""
+        self.logger.info(f"Executing tool: {name}")
+
+        tool = self.tool_registry.get_tool(name)
+        if not tool:
+            self.logger.error(f"Tool not found: {name}")
+            raise ValueError(f"Tool '{name}' not found")
+
+        try:
+            result = await tool.execute(args)
+            self.logger.info(f"Tool {name} executed successfully")
+            return result
+        except Exception as e:
+            self.logger.error(f"Tool {name} execution failed: {e}")
+            raise
+```
+
+## Rationale
+Dependency injection improves testability, maintainability, and makes the codebase more flexible and modular.

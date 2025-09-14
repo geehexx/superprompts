@@ -1,0 +1,54 @@
+---
+globs: **/*.py
+alwaysApply: false
+---
+# CLI Development Rules
+
+## CLI Design Patterns
+- Use Click for command-line interface framework
+- Implement proper command grouping and subcommands
+- Use decorators for command registration
+- Implement consistent help text and documentation
+- Use type hints for all CLI functions
+
+## User Experience
+- Provide clear, descriptive command names
+- Include comprehensive help text and examples
+- Use consistent argument and option naming
+- Implement proper error messages and suggestions
+- Use progress indicators for long-running operations
+
+## Error Handling
+- Catch and handle all exceptions gracefully
+- Provide meaningful error messages to users
+- Use exit codes appropriately (0 for success, non-zero for errors)
+- Log errors with appropriate detail levels
+- Implement retry mechanisms where appropriate
+
+## Configuration Management
+- Support configuration files (YAML, JSON, TOML)
+- Implement environment variable overrides
+- Use sensible defaults for all options
+- Validate configuration on startup
+- Provide configuration validation commands
+
+## Output Formatting
+- Use Rich library for enhanced terminal output
+- Implement consistent formatting across commands
+- Support both human-readable and machine-readable output
+- Use colors and styling appropriately
+- Implement proper table formatting for data display
+
+## Testing CLI Commands
+- Test all command variations and options
+- Mock external dependencies and file operations
+- Test error conditions and edge cases
+- Use pytest-click for CLI testing
+- Test help text and documentation
+
+## Performance
+- Implement command caching where appropriate
+- Use async operations for I/O bound tasks
+- Implement proper resource cleanup
+- Monitor memory usage for long-running commands
+- Use connection pooling for external services

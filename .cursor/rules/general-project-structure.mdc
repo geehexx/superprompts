@@ -1,0 +1,67 @@
+---
+description: Enforce proper project structure and organization guidelines when organizing or restructuring the project
+alwaysApply: false
+---
+# Project Structure Guidelines
+
+## Rule
+- Organize code into logical modules and packages
+- Separate source code, tests, and documentation
+- Use consistent naming conventions (snake_case for Python)
+- Place configuration files at project root
+- Use proper package structure with __init__.py files
+- Separate CLI, MCP server, and core functionality
+- Organize tests to mirror source structure
+- Place documentation in dedicated docs/ directory
+- Use proper file naming conventions
+- Keep related functionality together
+
+## Examples
+```
+superprompts/
+├── superprompts/                 # Main package
+│   ├── __init__.py              # Package initialization
+│   ├── cli/                     # CLI functionality
+│   │   ├── __init__.py
+│   │   └── main.py              # CLI entry point
+│   ├── mcp/                     # MCP server
+│   │   ├── __init__.py
+│   │   ├── server.py            # Main server
+│   │   ├── registry.py          # Tool registry
+│   │   └── tools.py             # Tool definitions
+│   ├── prompts/                 # Prompt management
+│   │   ├── __init__.py
+│   │   ├── base.py              # Base prompt class
+│   │   ├── cursor_rules.py      # Cursor rules prompt
+│   │   └── manager.py           # Prompt manager
+│   └── utils/                   # Utility functions
+│       ├── __init__.py
+│       ├── validation.py        # Input validation
+│       └── logging.py           # Logging utilities
+├── tests/                       # Test suite
+│   ├── __init__.py
+│   ├── test_server.py           # Server tests
+│   ├── test_prompts.py          # Prompt tests
+│   └── test_utils.py            # Utility tests
+├── docs/                        # Documentation
+│   ├── README.md
+│   ├── api.md                   # API documentation
+│   ├── installation.md          # Installation guide
+│   └── contributing.md          # Contributing guide
+├── .cursor/                     # Cursor IDE configuration
+│   └── rules/                   # Cursor rules
+│       ├── testing-*.mdc
+│       ├── code-quality-*.mdc
+│       └── ...
+├── schemas/                     # JSON schemas
+│   └── cursor-rule.schema.json
+├── pyproject.toml               # Project configuration
+├── noxfile.py                   # Nox configuration
+├── tasks.py                     # Invoke tasks
+├── README.md                    # Project README
+├── LICENSE                      # License file
+└── .gitignore                   # Git ignore rules
+```
+
+## Rationale
+Proper project structure improves maintainability, makes the codebase easier to navigate, and follows Python packaging best practices.

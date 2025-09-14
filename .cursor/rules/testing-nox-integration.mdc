@@ -1,0 +1,35 @@
+---
+globs: noxfile.py, tests/**/*.py
+alwaysApply: false
+---
+# Nox Multi-Environment Testing
+
+## Rule
+- Use Nox for testing across multiple Python versions (3.10, 3.11, 3.12)
+- Create separate sessions for different test types (unit, integration, linting)
+- Use `uv` for dependency management in Nox sessions
+- Test both development and production dependencies
+- Include security scanning with Bandit
+- Run coverage reporting across all Python versions
+- Clean up artifacts between sessions
+
+## Examples
+```python
+# noxfile.py
+@nox.session(python=PYTHON_VERSIONS)
+async def test(session):
+    """Run tests with pytest."""
+    session.install("uv")
+    session.run("uv", "sync", "--dev", external=True)
+    session.run("uv", "run", "pytest", "tests/", "-v")
+
+@nox.session(python="3.12")
+def security(session):
+    """Run security checks with bandit."""
+    session.install("uv")
+    session.run("uv", "install", external=True)
+    session.run("uv", "run", "bandit", "-r", "superprompts/", "-f", "json")
+```
+
+## Rationale
+Multi-environment testing ensures compatibility across Python versions and catches version-specific issues early.

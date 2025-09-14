@@ -1,0 +1,106 @@
+---
+globs: superprompts/**/*.py
+alwaysApply: false
+---
+# Async Performance Optimization
+
+## Rule
+- Use connection pooling for database and HTTP connections
+- Implement proper caching strategies
+- Use asyncio.gather() for concurrent operations
+- Implement proper backpressure handling
+- Use asyncio.Queue for producer-consumer patterns
+- Implement circuit breakers for external services
+- Use asyncio.Semaphore for rate limiting
+- Implement proper resource cleanup
+- Use asyncio.create_task() for fire-and-forget operations
+- Monitor and log performance metrics
+
+## Examples
+```python
+import asyncio
+import time
+from typing import Dict, Any, Optional, List
+from dataclasses import dataclass
+from contextlib import asynccontextmanager
+
+@dataclass
+class PerformanceMetrics:
+    """Performance metrics tracking."""
+    request_count: int = 0
+    total_duration: float = 0.0
+    error_count: int = 0
+
+    @property
+    def average_duration(self) -> float:
+        return self.total_duration / max(self.request_count, 1)
+
+    @property
+    def error_rate(self) -> float:
+        return self.error_count / max(self.request_count, 1)
+
+class ConnectionPool:
+    """Connection pool for managing resources."""
+
+    def __init__(self, max_connections: int = 10):
+        self.max_connections = max_connections
+        self.semaphore = asyncio.Semaphore(max_connections)
+        self.connections: List[Any] = []
+        self.available = asyncio.Queue()
+
+    @asynccontextmanager
+    async def get_connection(self):
+        """Get connection from pool."""
+        await self.semaphore.acquire()
+        try:
+            if not self.available.empty():
+                connection = await self.available.get()
+            else:
+                connection = await self._create_connection()
+
+            yield connection
+        finally:
+            await self.available.put(connection)
+            self.semaphore.release()
+
+    async def _create_connection(self):
+        """Create new connection."""
+        # Implementation here
+        pass
+
+class CircuitBreaker:
+    """Circuit breaker for external service calls."""
+
+    def __init__(self, failure_threshold: int = 5, timeout: float = 60.0):
+        self.failure_threshold = failure_threshold
+        self.timeout = timeout
+        self.failure_count = 0
+        self.last_failure_time = 0
+        self.state = "CLOSED"  # CLOSED, OPEN, HALF_OPEN
+
+    async def call(self, func, *args, **kwargs):
+        """Call function with circuit breaker protection."""
+        if self.state == "OPEN":
+            if time.time() - self.last_failure_time > self.timeout:
+                self.state = "HALF_OPEN"
+            else:
+                raise Exception("Circuit breaker is OPEN")
+
+        try:
+            result = await func(*args, **kwargs)
+            if self.state == "HALF_OPEN":
+                self.state = "CLOSED"
+                self.failure_count = 0
+            return result
+        except Exception as e:
+            self.failure_count += 1
+            self.last_failure_time = time.time()
+
+            if self.failure_count >= self.failure_threshold:
+                self.state = "OPEN"
+
+            raise
+```
+
+## Rationale
+Performance optimization is crucial for MCP server scalability and user experience, especially under high load conditions.

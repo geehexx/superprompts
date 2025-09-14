@@ -1,0 +1,42 @@
+---
+globs: tests/**/*.py, **/test_*.py, **/*_test.py
+alwaysApply: false
+---
+# Async Testing Patterns
+
+## Rule
+- Use `pytest.mark.asyncio` for async test functions
+- Use `asyncio.create_task()` for concurrent operations in tests
+- Test async context managers with `async with`
+- Use `pytest-asyncio` for async fixture support
+- Test timeout scenarios with `asyncio.wait_for()`
+- Mock async functions with `AsyncMock`
+- Use `asyncio.gather()` for testing concurrent operations
+
+## Examples
+```python
+import pytest
+from unittest.mock import AsyncMock
+
+@pytest.mark.asyncio
+async def test_mcp_server_concurrent_requests():
+    server = MCPServer()
+
+    # Test concurrent requests
+    tasks = [
+        server.handle_request({"id": i, "method": "test"})
+        for i in range(10)
+    ]
+
+    results = await asyncio.gather(*tasks)
+    assert all(result.success for result in results)
+
+@pytest.mark.asyncio
+async def test_async_context_manager():
+    async with MCPServer() as server:
+        result = await server.handle_request({"method": "test"})
+        assert result.success
+```
+
+## Rationale
+MCP servers are inherently async, so proper async testing patterns are essential for reliability and performance validation.

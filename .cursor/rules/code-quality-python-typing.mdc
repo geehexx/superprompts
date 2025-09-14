@@ -1,0 +1,50 @@
+---
+globs: superprompts/**/*.py, tests/**/*.py
+alwaysApply: false
+---
+# Python Type Annotations
+
+## Rule
+- Use type hints for all function parameters and return values
+- Use `typing.Union` or `|` syntax for union types (Python 3.10+)
+- Use `typing.Optional` or `| None` for optional values
+- Use `typing.AsyncGenerator` for async generators
+- Use `typing.Protocol` for structural typing
+- Use `typing.Literal` for literal values
+- Use `typing.TypedDict` for dictionary schemas
+- Use `typing.Generic` for generic classes
+- Avoid `typing.Any` unless absolutely necessary
+- Use `typing.TYPE_CHECKING` for forward references
+
+## Examples
+```python
+from typing import AsyncGenerator, Protocol, TypedDict, Literal
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .models import MCPRequest
+
+class MCPTool(Protocol):
+    name: str
+    description: str
+
+    async def execute(self, args: dict[str, Any]) -> dict[str, Any]:
+        ...
+
+class ToolResult(TypedDict):
+    success: bool
+    data: dict[str, Any] | None
+    error: str | None
+
+async def process_requests(
+    requests: list[MCPRequest]
+) -> AsyncGenerator[ToolResult, None]:
+    for request in requests:
+        yield await handle_request(request)
+
+def create_tool(name: str, version: str = "1.0.0") -> MCPTool:
+    return ToolImpl(name=name, version=version)
+```
+
+## Rationale
+Type annotations improve code maintainability, catch errors early, and provide better IDE support for MCP server development.

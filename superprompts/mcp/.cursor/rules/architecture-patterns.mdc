@@ -1,0 +1,82 @@
+---
+globs: **/*.py
+alwaysApply: false
+---
+# MCP Server Architecture Patterns
+
+## Rule
+- Use dependency injection for tool registration
+- Implement proper request/response lifecycle management
+- Use async context managers for resource management
+- Implement proper error boundaries and recovery
+- Use factory patterns for tool creation
+- Implement proper logging and monitoring hooks
+- Use configuration objects for server settings
+- Implement proper shutdown and cleanup procedures
+- Use protocol-based design for extensibility
+- Implement proper authentication and authorization layers
+
+## Examples
+```python
+from abc import ABC, abstractmethod
+from typing import Dict, Any, Optional, AsyncGenerator
+from dataclasses import dataclass
+from contextlib import asynccontextmanager
+
+@dataclass
+class MCPServerConfig:
+    """Configuration for MCP server."""
+    host: str = "localhost"
+    port: int = 8000
+    max_connections: int = 100
+    timeout: float = 30.0
+    debug: bool = False
+
+class MCPTool(ABC):
+    """Abstract base class for MCP tools."""
+
+    @property
+    @abstractmethod
+    def name(self) -> str:
+        """Tool name."""
+        pass
+
+    @property
+    @abstractmethod
+    def description(self) -> str:
+        """Tool description."""
+        pass
+
+    @abstractmethod
+    async def execute(self, args: Dict[str, Any]) -> Dict[str, Any]:
+        """Execute the tool with given arguments."""
+        pass
+
+    async def validate_args(self, args: Dict[str, Any]) -> None:
+        """Validate tool arguments."""
+        pass
+
+class MCPToolRegistry:
+    """Registry for managing MCP tools."""
+
+    def __init__(self):
+        self._tools: Dict[str, MCPTool] = {}
+        self._middleware: list = []
+
+    def register_tool(self, tool: MCPTool) -> None:
+        """Register a tool in the registry."""
+        if tool.name in self._tools:
+            raise ValueError(f"Tool '{tool.name}' already registered")
+        self._tools[tool.name] = tool
+
+    def get_tool(self, name: str) -> Optional[MCPTool]:
+        """Get a tool by name."""
+        return self._tools.get(name)
+
+    def list_tools(self) -> Dict[str, str]:
+        """List all registered tools."""
+        return {name: tool.description for name, tool in self._tools.items()}
+```
+
+## Rationale
+Proper MCP server architecture ensures scalability, maintainability, and adherence to the MCP protocol standards.

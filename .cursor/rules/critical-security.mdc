@@ -1,0 +1,39 @@
+---
+alwaysApply: true
+---
+# Critical Security Rules
+
+## Input Validation (CRITICAL)
+- ALL user inputs MUST be validated before processing
+- Use Pydantic models for request validation
+- Sanitize all string inputs to prevent injection attacks
+- Validate file paths to prevent directory traversal
+- Never trust user input without validation
+
+## Authentication & Authorization (CRITICAL)
+- Implement proper authentication for all protected endpoints
+- Use secure session management
+- Implement proper authorization checks
+- Never expose sensitive information in error messages
+- Use secure random number generation for tokens
+
+## Data Protection (CRITICAL)
+- Never log sensitive information (passwords, tokens, personal data)
+- Use encryption for sensitive data at rest
+- Implement proper data sanitization
+- Use secure communication protocols (HTTPS)
+- Implement proper access controls
+
+## Error Handling (CRITICAL)
+- Never expose internal system information in error messages
+- Log security events for monitoring
+- Implement proper exception handling
+- Use generic error messages for users
+- Log errors with appropriate detail levels
+
+## Code Security (CRITICAL)
+- Never use `eval()` or `exec()` with user input
+- Avoid dangerous functions like `os.system()`
+- Use parameterized queries for database operations
+- Implement proper file upload validation
+- Use secure coding practices throughout

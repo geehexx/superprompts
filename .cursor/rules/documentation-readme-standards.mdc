@@ -1,0 +1,67 @@
+---
+globs: README.md
+alwaysApply: false
+---
+# README Documentation Standards
+
+## Rule
+- Include clear project title and description
+- Provide installation instructions for all supported methods
+- Include quick start examples with code snippets
+- Document all major features and capabilities
+- Include usage examples and common patterns
+- Provide links to detailed documentation
+- Include contribution guidelines
+- Document requirements and dependencies
+- Include license information
+- Provide contact and support information
+- Use badges for build status, version, etc.
+- Include table of contents for long READMEs
+
+## Examples
+```markdown
+# SuperPrompts MCP Server
+
+[![Python Version](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://python.org)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](https://github.com/geehexx/superprompts)
+
+A collection of reusable AI prompts with MCP server for easy access.
+
+## Table of Contents
+- [Features](#features)
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [Usage](#usage)
+- [API Reference](#api-reference)
+- [Contributing](#contributing)
+- [License](#license)
+
+## Features
+
+- 🚀 **MCP Server Integration**: Full Model Context Protocol support
+- 📝 **Rich Prompt Library**: Curated collection of AI prompts
+- 🔧 **CLI Tools**: Command-line interface for prompt management
+- 📚 **Comprehensive Documentation**: Detailed guides and examples
+- 🧪 **Testing Suite**: Complete test coverage with pytest and nox
+- 🔒 **Security**: Built-in security scanning with Bandit
+
+## Installation
+
+### Prerequisites
+- Python 3.10 or higher
+- pip or uv package manager
+
+### Install with uv (Recommended)
+```bash
+uv add superprompts
+```
+
+### Install with pip
+```bash
+pip install superprompts
+```
+```
+
+## Rationale
+A comprehensive README is the first point of contact for users and contributors, making it essential for project adoption and success.

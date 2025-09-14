@@ -1,0 +1,79 @@
+---
+globs: superprompts/**/*.py
+alwaysApply: false
+---
+# Logging Patterns
+
+## Rule
+- Use structured logging with consistent format
+- Include relevant context in log messages
+- Use appropriate log levels (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+- Log at function entry/exit for debugging
+- Use `logger.exception()` for exception logging
+- Include request IDs for traceability
+- Use `extra` parameter for structured data
+- Configure logging at module level
+- Use `logging.getLogger(__name__)` pattern
+- Avoid logging sensitive information
+- Use log rotation and retention policies
+
+## Examples
+```python
+import logging
+import json
+from typing import Any, Dict, Optional
+from contextvars import ContextVar
+
+# Context variable for request tracing
+request_id: ContextVar[Optional[str]] = ContextVar('request_id', default=None)
+
+class StructuredFormatter(logging.Formatter):
+    """Custom formatter for structured logging."""
+
+    def format(self, record):
+        log_data = {
+            'timestamp': self.formatTime(record),
+            'level': record.levelname,
+            'logger': record.name,
+            'message': record.getMessage(),
+            'module': record.module,
+            'function': record.funcName,
+            'line': record.lineno,
+        }
+
+        # Add request ID if available
+        if request_id.get():
+            log_data['request_id'] = request_id.get()
+
+        # Add extra fields
+        if hasattr(record, 'extra_data'):
+            log_data.update(record.extra_data)
+
+        return json.dumps(log_data)
+
+class MCPLogger:
+    def __init__(self, name: str):
+        self.logger = logging.getLogger(name)
+        self.logger.setLevel(logging.INFO)
+
+        # Configure handler with structured formatter
+        handler = logging.StreamHandler()
+        handler.setFormatter(StructuredFormatter())
+        self.logger.addHandler(handler)
+
+    def log_request(self, method: str, params: Dict[str, Any]) -> None:
+        """Log incoming MCP request."""
+        self.logger.info(
+            "MCP request received",
+            extra={
+                'extra_data': {
+                    'method': method,
+                    'params': params,
+                    'request_type': 'mcp_request'
+                }
+            }
+        )
+```
+
+## Rationale
+Proper logging is essential for debugging, monitoring, and maintaining MCP server operations in production environments.

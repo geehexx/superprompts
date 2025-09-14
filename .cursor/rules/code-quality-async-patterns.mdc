@@ -1,0 +1,50 @@
+---
+globs: superprompts/**/*.py
+alwaysApply: false
+---
+# Async/Await Patterns
+
+## Rule
+- Use `async def` for functions that perform I/O operations
+- Use `await` for all async function calls
+- Use `asyncio.gather()` for concurrent operations
+- Use `asyncio.create_task()` for fire-and-forget operations
+- Use `asyncio.wait_for()` for timeout handling
+- Use `asyncio.as_completed()` for processing results as they complete
+- Use `asyncio.Queue` for producer-consumer patterns
+- Use `asyncio.Lock` for shared resource protection
+- Use `asyncio.Semaphore` for rate limiting
+- Use `asyncio.Event` for coordination
+- Avoid blocking operations in async functions
+- Use `asyncio.to_thread()` for CPU-bound operations
+
+## Examples
+```python
+import asyncio
+from typing import List, Any
+
+class MCPToolManager:
+    def __init__(self, max_concurrent: int = 10):
+        self.semaphore = asyncio.Semaphore(max_concurrent)
+        self.tools: dict[str, Any] = {}
+        self.lock = asyncio.Lock()
+
+    async def execute_tool(self, name: str, args: dict) -> dict:
+        async with self.semaphore:  # Rate limiting
+            tool = await self.get_tool(name)
+            return await tool.execute(args)
+
+    async def execute_multiple_tools(
+        self,
+        tool_calls: List[tuple[str, dict]]
+    ) -> List[dict]:
+        # Concurrent execution
+        tasks = [
+            self.execute_tool(name, args)
+            for name, args in tool_calls
+        ]
+        return await asyncio.gather(*tasks, return_exceptions=True)
+```
+
+## Rationale
+Proper async patterns are essential for MCP server performance, scalability, and resource management.

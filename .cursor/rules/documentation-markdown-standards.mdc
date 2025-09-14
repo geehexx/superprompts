@@ -1,0 +1,59 @@
+---
+globs: docs/**/*.md, README.md, **/*.md
+alwaysApply: false
+---
+# Markdown Documentation Standards
+
+## Rule
+- Use proper heading hierarchy (H1 → H2 → H3)
+- Include table of contents for long documents
+- Use consistent code block formatting with language specification
+- Include proper alt text for images
+- Use consistent list formatting (numbered vs bulleted)
+- Include proper link formatting with descriptive text
+- Use blockquotes for important notes and warnings
+- Include frontmatter for metadata when appropriate
+- Use consistent line length (80-100 characters)
+- Include proper file naming conventions (kebab-case)
+
+## Examples
+```markdown
+# SuperPrompts MCP Server
+
+## Table of Contents
+- [Installation](#installation)
+- [Usage](#usage)
+- [API Reference](#api-reference)
+- [Contributing](#contributing)
+
+## Installation
+
+### Prerequisites
+- Python 3.10 or higher
+- pip or uv package manager
+
+### Quick Start
+```bash
+# Install with uv
+uv add superprompts
+
+# Or install with pip
+pip install superprompts
+```
+
+## Usage
+
+> **Note**: This is an important note about usage.
+
+### Basic Example
+```python
+from superprompts import MCPServer
+
+async def main():
+    server = MCPServer()
+    await server.start()
+```
+```
+
+## Rationale
+Consistent Markdown formatting improves readability, maintainability, and automated processing of documentation.

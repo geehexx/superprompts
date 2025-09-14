@@ -1,0 +1,54 @@
+---
+globs: **/*.py
+alwaysApply: false
+---
+# Prompt Management Rules
+
+## Prompt Design Patterns
+- Use base classes for common prompt functionality
+- Implement proper prompt validation and sanitization
+- Use structured data for prompt parameters
+- Implement versioning for prompt templates
+- Use metadata for prompt categorization and discovery
+
+## Prompt Structure
+- Use clear, descriptive prompt titles and descriptions
+- Include comprehensive parameter documentation
+- Implement proper prompt templating with variable substitution
+- Use consistent formatting and structure
+- Include usage examples and best practices
+
+## Prompt Validation
+- Validate all input parameters before processing
+- Implement proper error handling for invalid inputs
+- Use Pydantic models for parameter validation
+- Provide clear error messages for validation failures
+- Implement parameter type checking and constraints
+
+## Prompt Metadata
+- Include version information for all prompts
+- Use proper categorization and tagging
+- Implement search and discovery mechanisms
+- Include usage statistics and analytics
+- Track prompt performance and effectiveness
+
+## Prompt Templates
+- Use consistent template syntax and formatting
+- Implement proper variable substitution
+- Support conditional content based on parameters
+- Use markdown formatting for rich content
+- Implement template inheritance and composition
+
+## Testing Prompts
+- Test all prompt variations and parameters
+- Validate template rendering and output
+- Test error conditions and edge cases
+- Use mock data for prompt testing
+- Test prompt performance and response times
+
+## Prompt Security
+- Sanitize all user inputs in prompts
+- Validate prompt content for security issues
+- Implement proper access controls
+- Log prompt usage and modifications
+- Prevent injection attacks in prompt templates

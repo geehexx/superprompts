@@ -1,0 +1,48 @@
+---
+globs: **/*.py
+alwaysApply: false
+---
+# MCP Server Development Rules
+
+## Core MCP Patterns
+- Use dependency injection for tool registration and management
+- Implement proper request/response lifecycle with async context managers
+- Use Pydantic models for all MCP protocol messages
+- Implement proper error boundaries and recovery mechanisms
+- Use factory patterns for tool creation and configuration
+
+## Tool Development
+- All tools must implement the MCPTool protocol
+- Use async/await for all tool operations
+- Implement proper input validation with Pydantic
+- Include comprehensive error handling and logging
+- Use structured logging with request IDs for traceability
+
+## Server Architecture
+- Use configuration objects for server settings
+- Implement proper startup and shutdown procedures
+- Use connection pooling for external services
+- Implement circuit breakers for external API calls
+- Use middleware patterns for cross-cutting concerns
+
+## Security Requirements
+- Validate all incoming MCP requests
+- Sanitize user input to prevent injection attacks
+- Implement rate limiting for tool execution
+- Use secure random number generation for tokens
+- Log security events and suspicious activities
+
+## Performance Optimization
+- Use asyncio.gather() for concurrent tool execution
+- Implement proper caching strategies
+- Use asyncio.Queue for bounded memory usage
+- Monitor memory usage and implement cleanup
+- Use object pooling for frequently created objects
+
+## Testing Requirements
+- Test MCP tool registration and discovery
+- Test request/response serialization
+- Test error handling and validation
+- Test server lifecycle management
+- Test concurrent tool execution
+- Validate MCP protocol compliance

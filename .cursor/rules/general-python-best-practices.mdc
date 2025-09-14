@@ -1,0 +1,89 @@
+---
+globs: superprompts/**/*.py, tests/**/*.py
+alwaysApply: false
+---
+# General Python Best Practices
+
+## Rule
+- Follow PEP 8 style guidelines
+- Use meaningful variable and function names
+- Write self-documenting code with clear intent
+- Use list/dict comprehensions when appropriate
+- Prefer explicit over implicit
+- Use f-strings for string formatting
+- Handle exceptions specifically
+- Use context managers for resource management
+- Write pure functions when possible
+- Use dataclasses for simple data structures
+- Implement proper `__repr__` and `__str__` methods
+- Use type hints consistently
+
+## Examples
+```python
+from dataclasses import dataclass
+from typing import List, Dict, Optional, Union
+from pathlib import Path
+import logging
+
+logger = logging.getLogger(__name__)
+
+@dataclass
+class ToolConfig:
+    """Configuration for MCP tool."""
+    name: str
+    description: str
+    version: str = "1.0.0"
+    enabled: bool = True
+
+    def __repr__(self) -> str:
+        return f"ToolConfig(name='{self.name}', version='{self.version}')"
+
+    def __str__(self) -> str:
+        return f"{self.name} v{self.version}"
+
+class ToolManager:
+    """Manages MCP tools with proper error handling."""
+
+    def __init__(self, config_path: Optional[Path] = None):
+        self.config_path = config_path or Path("tools.json")
+        self.tools: Dict[str, ToolConfig] = {}
+        self._load_tools()
+
+    def _load_tools(self) -> None:
+        """Load tools from configuration file."""
+        try:
+            if self.config_path.exists():
+                import json
+                with open(self.config_path, 'r') as f:
+                    data = json.load(f)
+                    self.tools = {
+                        name: ToolConfig(**config)
+                        for name, config in data.items()
+                    }
+                logger.info(f"Loaded {len(self.tools)} tools from {self.config_path}")
+        except (FileNotFoundError, json.JSONDecodeError, KeyError) as e:
+            logger.warning(f"Failed to load tools: {e}")
+            self.tools = {}
+
+    def register_tool(self, config: ToolConfig) -> None:
+        """Register a new tool."""
+        if not config.name:
+            raise ValueError("Tool name cannot be empty")
+
+        if config.name in self.tools:
+            logger.warning(f"Overriding existing tool: {config.name}")
+
+        self.tools[config.name] = config
+        logger.info(f"Registered tool: {config}")
+
+    def get_tool(self, name: str) -> Optional[ToolConfig]:
+        """Get tool configuration by name."""
+        return self.tools.get(name)
+
+    def list_enabled_tools(self) -> List[ToolConfig]:
+        """List all enabled tools."""
+        return [tool for tool in self.tools.values() if tool.enabled]
+```
+
+## Rationale
+Following Python best practices improves code readability, maintainability, and reduces bugs in MCP server development.

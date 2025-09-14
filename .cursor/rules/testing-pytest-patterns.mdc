@@ -1,0 +1,42 @@
+---
+globs: tests/**/*.py, **/test_*.py, **/*_test.py
+alwaysApply: false
+---
+# Pytest Testing Patterns
+
+## Rule
+- Use descriptive test function names that explain the behavior being tested
+- Group related tests in classes with `Test` prefix
+- Use `pytest.fixture` for test setup and teardown
+- Test both success and failure scenarios
+- Use `pytest.mark.asyncio` for async tests
+- Mock external dependencies with `unittest.mock` or `pytest-mock`
+- Use parametrized tests for testing multiple scenarios
+- Follow AAA pattern: Arrange, Act, Assert
+
+## Examples
+```python
+# Good: Descriptive test name
+async def test_mcp_server_handles_invalid_request_gracefully():
+    # Arrange
+    server = MCPServer()
+    invalid_request = {"invalid": "data"}
+
+    # Act
+    result = await server.handle_request(invalid_request)
+
+    # Assert
+    assert result.error is not None
+    assert "validation" in result.error.lower()
+
+# Good: Parametrized test
+@pytest.mark.parametrize("input_data,expected", [
+    ({"valid": "data"}, True),
+    ({"invalid": "data"}, False),
+])
+def test_data_validation(input_data, expected):
+    assert validate_data(input_data) == expected
+```
+
+## Rationale
+Proper pytest patterns ensure reliable, maintainable tests that catch regressions and document expected behavior. This is critical for MCP server reliability.
