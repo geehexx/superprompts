@@ -27,6 +27,8 @@ General documentation on prompting techniques, best practices, and standards.
 - **[AI-Ready Documentation Standards](docs/ai_ready_documentation_standards.md)** - Standards for creating maintainable, discoverable documentation
 - **[Commit Standards](docs/commit_standards.md)** - Git commit message conventions and best practices
 - **[MCP Guide](docs/mcp_guide.md)** - Complete guide to using the MCP server and CLI tools
+- **[Cursor Rules Guide](docs/cursor_rules_guide.md)** - Complete guide to Cursor IDE rules and the nested rules architecture
+- **[Nested Cursor Rules](docs/nested_cursor_rules.md)** - Comprehensive documentation for the nested rules system
 
 ## Quick Start
 
@@ -63,6 +65,27 @@ General documentation on prompting techniques, best practices, and standards.
 2. **Use Prompts**: Access prompts through your MCP client or CLI
 
 See the [MCP Configuration Guide](docs/mcp_configuration.md) and [CLI Reference](docs/cli_reference.md) for detailed usage instructions.
+
+### Cursor IDE Rules
+
+This project includes a comprehensive **nested Cursor rules architecture** with rules organized across multiple directories:
+
+- **Always Rules** - Critical security and async patterns applied universally
+- **Project-wide Rules** - File-type specific rules for Python, testing, documentation, etc.
+- **Nested Rules** - Directory-specific rules for MCP, CLI, prompts, and testing
+- **Agent Requested Rules** - Context-aware rules for Git workflow and project structure
+
+**Key Features:**
+- **Automatic Application** - Rules apply based on your current working directory and file types
+- **Precise Targeting** - No over-application of irrelevant rules
+- **Better Performance** - Efficient auto-attachment vs. intelligent matching
+- **Easy Maintenance** - Rules are co-located with the code they govern
+
+**Quick Start:**
+1. **Rules are already active** - No setup required, they work automatically
+2. **Learn more** - Read the [Cursor Rules Guide](docs/cursor_rules_guide.md)
+3. **Deep dive** - Explore [Nested Cursor Rules](docs/nested_cursor_rules.md) documentation
+4. **Generate new rules** - Use `superprompts get-prompt cursor_rules` to create custom rules
 
 ### Development Setup
 
