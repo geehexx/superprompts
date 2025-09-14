@@ -26,7 +26,7 @@ class CursorRulesPrompt(BasePrompt):
                 ),
                 PromptArgument(
                     name="rule_types",
-                    description="Types of rules to generate (Always, Auto Attached, Agent Requested, Manual)",
+                    description="Types of rules to generate (Always, Auto Attached, Agent Requested)",
                     required=False,
                     type="array",
                 ),
@@ -58,7 +58,7 @@ class CursorRulesPrompt(BasePrompt):
                             "documentation",
                             "code_quality",
                         ],
-                        "rule_types": ["Auto Attached", "Manual"],
+                        "rule_types": ["Auto Attached", "Agent Requested"],
                         "similarity_threshold": 0.7,
                     },
                 },
@@ -98,7 +98,7 @@ class CursorRulesPrompt(BasePrompt):
                 "general",
             ],
         )
-        rule_types = params.get("rule_types", ["Always", "Auto Attached", "Agent Requested", "Manual"])
+        rule_types = params.get("rule_types", ["Always", "Auto Attached", "Agent Requested"])
         similarity_threshold = params.get("similarity_threshold", 0.7)
         confidence_threshold = params.get("confidence_threshold", 0.8)
         max_rules_per_category = params.get("max_rules_per_category", 5)
@@ -139,16 +139,8 @@ class CursorRulesPrompt(BasePrompt):
             '  "confidence": 0.0,',
             f'  "ruleType": "{"|".join(rule_types)}",',
             '  "frontmatter": {{',
-            '    "description": "...",',
-            '    "type": "<category>",',
             '    "globs": ["src/**/*.{{ts,tsx}}"],',
-            '    "ruleType": "Auto Attached",',
-            '    "alwaysApply": false,',
-            '    "appliesTo": [],',
-            '    "when": {{ "filesChanged": [], "pathsPresent": [], "languages": [] }},',
-            '    "tags": [],',
-            '    "severity": "",',
-            '    "scope": []',
+            '    "alwaysApply": false',
             "  }},",
             '  "content": "markdown rule body (concise but complete)",',
             '  "examples": ["short example 1","short example 2"],',
@@ -159,38 +151,23 @@ class CursorRulesPrompt(BasePrompt):
             "",
             "Cursor Rule Markdown Format (frontmatter + sections)",
             "---",
-            "description: Short purpose",
-            "type: <category>",
-            "globs:",
-            "  - src/**/*.{{ts,tsx}}",
-            "ruleType: Auto Attached",
+            "globs: src/**/*.{{ts,tsx}}",
             "alwaysApply: false",
-            "appliesTo: []",
-            "when:",
-            "  filesChanged: []",
-            "  pathsPresent: []",
-            "  languages: []",
-            "tags: []",
-            'severity: ""',
-            "scope: []",
             "---",
             "# <Title>",
-            "## Description",
             "## Rule",
             "## Examples",
             "## Rationale",
-            "## Priority",
-            "## Confidence",
             "",
             "Generation Pipeline",
             "1) Analyze signals → choose categories and counts.",
-            "2) Draft rules (JSON) with concrete globs and `type`.",
+            "2) Draft rules (JSON) with concrete globs and appropriate rule types.",
             f"3) Optimize: deduplicate (threshold: {similarity_threshold}), reduce scope creep, improve scan-ability, ensure Cursor frontmatter correctness.",
-            "4) Emit: Markdown bodies suitable for `.cursor/rules/*.md` with correct frontmatter.",
+            "4) Emit: Markdown bodies suitable for `.cursor/rules/*.mdc` with correct frontmatter.",
             "5) Evaluate with rubric; refine ≤3 iterations or stop at score ≥0.9.",
             "",
             "PlacementPlan",
-            "- Plan file paths under `.cursor/rules/` using kebab-case filenames: `.cursor/rules/<category>-<slug>.md`.",
+            "- Plan file paths under `.cursor/rules/` using kebab-case filenames: `.cursor/rules/<category>-<slug>.mdc`.",
             f"- For existing rules, complement not duplicate; propose merges when similarity >{similarity_threshold}.",
             "",
             "ProposedEdits (safe)",
@@ -198,11 +175,11 @@ class CursorRulesPrompt(BasePrompt):
             "- Never delete existing rules silently; put removals in ContentAtRisk with reinsertion targets.",
             "",
             "QA Checklist (Cursor Rules)",
-            "- Frontmatter fields valid and minimal.",
+            "- Frontmatter fields valid and minimal (only description, globs, and alwaysApply).",
             "- Globs correct and not overly broad.",
             "- Duplicates merged/split; examples realistic and runnable where feasible.",
-            "- Category and `ruleType` appropriate; confidence recorded.",
-            "- Tags present when helpful; severity set (critical|high|medium|low|info) when appropriate.",
+            "- Rule type appropriate (Always, Auto Attached, or Agent Requested).",
+            "- Content focused and actionable.",
             "",
             "Rubrics & Scoring",
             "- Rule Quality (0–1): +structure +examples +rationale +stack relevance −duplication.",
@@ -221,20 +198,20 @@ class CursorRulesPrompt(BasePrompt):
                 [
                     "",
                     "Auto Attached Rules",
-                    "- Use `when` predicates to control automatic attachment.",
+                    "- Use globs to control automatic attachment.",
                     "- Ensure globs are specific to avoid noise.",
                     "- Test attachment conditions with common file patterns.",
                 ]
             )
 
-        if "Manual" in rule_types:
+        if "Agent Requested" in rule_types:
             prompt_parts.extend(
                 [
                     "",
-                    "Manual Rules",
+                    "Agent Requested Rules",
+                    "- Use description field for context matching.",
                     "- Focus on comprehensive guidance and examples.",
-                    "- Include clear usage instructions.",
-                    "- Make them easily discoverable through good titles and descriptions.",
+                    "- Make them easily discoverable through good descriptions.",
                 ]
             )
 
@@ -252,8 +229,8 @@ class CursorRulesPrompt(BasePrompt):
                 "placement": "PlacementPlan\n- Plan file paths under `.cursor/rules/` using kebab-case filenames.",
             },
             "schema": {
-                "json": '{\n  "id": "cursor_<category>_<slug>",\n  "title": "...",\n  "description": "1–2 sentence purpose",\n  "category": "testing|documentation|code_quality|architecture|security|performance|general",\n  "priority": "critical|high|medium|low",\n  "confidence": 0.0,\n  "ruleType": "Always|Auto Attached|Agent Requested|Manual"\n}',
-                "frontmatter": "---\ndescription: Short purpose\ntype: <category>\nglobs:\n  - src/**/*.{ts,tsx}\nruleType: Auto Attached\nalwaysApply: false\n---",
+                "json": '{\n  "id": "cursor_<category>_<slug>",\n  "title": "...",\n  "description": "1–2 sentence purpose",\n  "category": "testing|documentation|code_quality|architecture|security|performance|general",\n  "priority": "critical|high|medium|low",\n  "confidence": 0.0,\n  "ruleType": "Always|Auto Attached|Agent Requested"\n}',
+                "frontmatter": "---\nglobs: src/**/*.{ts,tsx}\nalwaysApply: false\n---",
             },
             "principle": {
                 "high_signal": "Generate high-signal, non-duplicative rules tailored to the detected stack.",
@@ -297,7 +274,7 @@ class CursorRulesPrompt(BasePrompt):
         """Validate rule_types parameter."""
         if "rule_types" not in validated:
             return
-        valid_types = ["Always", "Auto Attached", "Agent Requested", "Manual"]
+        valid_types = ["Always", "Auto Attached", "Agent Requested"]
         types = validated["rule_types"]
         if isinstance(types, list):
             validated["rule_types"] = [t for t in types if t in valid_types]
