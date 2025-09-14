@@ -4,7 +4,94 @@ Complete guide to creating, using, and managing Cursor IDE rules for the SuperPr
 
 ## Overview
 
-Cursor rules help maintain code quality and consistency by providing context-aware guidance. This guide covers both using the Cursor Rules Generator prompt and writing effective rules manually.
+Cursor rules help maintain code quality and consistency by providing context-aware guidance. This project uses a **nested rules architecture** that automatically applies relevant rules based on your current working directory and file types. This guide covers both using the Cursor Rules Generator prompt and writing effective rules manually.
+
+## Rule Architecture
+
+### Nested Rules Structure
+
+Following [Cursor's nested rules documentation](https://docs.cursor.com/en/context/rules#nested-rules), rules are organized in subdirectories:
+
+```
+project/
+  .cursor/rules/                    # Project-wide rules (21 rules)
+  superprompts/
+    mcp/
+      .cursor/rules/                # MCP-specific rules (2 rules)
+    cli/
+      .cursor/rules/                # CLI-specific rules (1 rule)
+    prompts/
+      .cursor/rules/                # Prompt-specific rules (1 rule)
+  tests/
+    .cursor/rules/                  # Test-specific rules (1 rule)
+```
+
+### Rule Types
+
+1. **Always Rules** - Applied universally across the project
+2. **Project-wide Auto-Attachment Rules** - Applied based on file patterns
+3. **Nested Auto-Attachment Rules** - Applied when working in specific directories
+4. **Agent Requested Rules** - Applied based on context and AI decision
+
+## Rule Structure Overview
+
+This project uses a **nested rules architecture** with rules organized by type and location:
+
+### Always Rules
+- Applied universally across the project
+- Critical patterns that must always be followed
+- Examples: Security patterns, async patterns
+
+### Project-wide Auto-Attachment Rules
+- Applied based on file patterns
+- File-type specific guidance
+- Examples: Python files, Markdown files, test files
+
+### Nested Auto-Attachment Rules
+- Applied when working in specific directories
+- Directory-specific patterns and practices
+- Examples: MCP server patterns, CLI development, testing patterns
+
+### Agent Requested Rules
+- Applied based on context and AI decision
+- Context-dependent guidance
+- Examples: Git workflow, project structure decisions
+
+## How Nested Rules Work
+
+### Automatic Rule Application
+
+**When working in `superprompts/mcp/`:**
+- MCP server patterns automatically apply
+- Architecture patterns for MCP development apply
+- All project-wide rules for Python files still apply
+
+**When working in `superprompts/cli/`:**
+- CLI development patterns automatically apply
+- All project-wide rules for Python files still apply
+
+**When working in `superprompts/prompts/`:**
+- Prompt management patterns automatically apply
+- All project-wide rules for Python files still apply
+
+**When working in `tests/`:**
+- Testing patterns automatically apply
+- All project-wide testing rules still apply
+
+### Rule Hierarchy
+
+1. **Always Rules** - Applied everywhere (2 rules)
+2. **Nested Rules** - Applied when working in their directory (5 rules)
+3. **Project-wide Rules** - Applied based on file patterns (21 rules)
+4. **Agent Requested Rules** - Applied based on context (2 rules)
+
+### Benefits of Nested Rules
+
+- **Precise Targeting** - Rules apply exactly when and where they should
+- **Reduced Noise** - No over-application of irrelevant rules
+- **Better Performance** - Auto-attachment is more efficient than intelligent matching
+- **Clear Boundaries** - Easy to understand when each rule type applies
+- **Easier Maintenance** - Rules are co-located with the code they govern
 
 ## Using the Cursor Rules Generator
 
@@ -46,60 +133,111 @@ superprompts get-prompt cursor_rules --parameters '{
 
 ## Rule Types
 
-- **Always** - Applied in all contexts; avoid broad globs
-- **Auto Attached** - Attach automatically when `when` predicates match (preferred default)
-- **Agent Requested** - Shown when the agent asks for specific guidance
-- **Manual** - Shown on demand
+### Always Rules
+- **Format**: `alwaysApply: true`, no `globs`, no `description`
+- **Application**: Applied universally across the project
+- **Use Case**: Critical patterns that must always be followed
+- **Examples**: Security patterns, async patterns
+
+### Auto-Attachment Rules
+- **Format**: `alwaysApply: false`, has `globs`, no `description`
+- **Application**: Applied when files match the glob patterns
+- **Use Case**: File-type or directory-specific guidance
+- **Examples**: Python files, test files, specific directories
+
+### Agent Requested Rules
+- **Format**: `alwaysApply: false`, has `description`, no `globs`
+- **Application**: Applied when AI determines they're relevant
+- **Use Case**: Context-dependent guidance
+- **Examples**: Git workflow, project structure decisions
+
+### Nested Rules
+- **Location**: Subdirectories with `.cursor/rules/`
+- **Application**: Automatically attach when working in their directory
+- **Use Case**: Directory-specific patterns and practices
+- **Examples**: MCP server patterns, CLI development, testing patterns
 
 ## Writing Rules Manually
 
 ### Frontmatter Fields
 
-- `description` - Short purpose (1–2 sentences)
-- `type` - One of testing|documentation|code_quality|architecture|security|performance|general
-- `globs` - Specific file globs affected by this rule
-- `ruleType` - One of Always | Auto Attached | Agent Requested | Manual
-- `alwaysApply` - true/false (if true, omit `when`)
-- `appliesTo` - Optional list of targets/audiences
-- `when` - Predicate with `filesChanged`, `pathsPresent`, `languages` arrays
-- `tags` - Optional labels to aid discovery
-- `severity` - critical|high|medium|low|info (empty if unclear)
-- `scope` - Optional granular scope labels (e.g., unit-tests, e2e, api-design)
+**Simplified Format:**
+- `description` - Short purpose (1–2 sentences) - **Only for Agent Requested Rules**
+- `globs` - Specific file globs affected by this rule - **Only for Auto-Attachment Rules**
+- `alwaysApply` - true/false - **Always required**
+
+**Note**: The frontmatter contains exactly 3 fields: `description`, `globs`, and `alwaysApply`. Each rule type uses a specific subset of these fields.
 
 ### Markdown Structure
 
+**Always Rules:**
 ```yaml
 ---
-description: Short purpose
-type: <category>
-globs:
-  - src/**/*.{ts,tsx}
-ruleType: Auto Attached
-alwaysApply: false
-appliesTo: []
-when:
-  filesChanged: []
-  pathsPresent: []
-  languages: []
-tags: []
-severity: ""
-scope: []
+alwaysApply: true
 ---
 # <Title>
-## Description
 ## Rule
+- Rule content here
 ## Examples
 ## Rationale
-## Priority
-## Confidence
+```
+
+**Auto-Attachment Rules:**
+```yaml
+---
+globs: path/pattern/**/*.py
+alwaysApply: false
+---
+# <Title>
+## Rule
+- Rule content here
+## Examples
+## Rationale
+```
+
+**Agent Requested Rules:**
+```yaml
+---
+description: Clear description of when this rule applies
+alwaysApply: false
+---
+# <Title>
+## Rule
+- Rule content here
+## Examples
+## Rationale
+```
+
+**Nested Rules:**
+```yaml
+---
+globs: **/*.py
+alwaysApply: false
+---
+# <Title>
+## Rule
+- Rule content here
+## Examples
+## Rationale
 ```
 
 ### File Organization
 
+**Project-wide Rules:**
 - **Location**: `.cursor/rules/`
-- **Pattern**: `<type>-<slug>.md` where `type` matches frontmatter `type`
+- **Pattern**: `<category>-<slug>.mdc`
 - **Slug**: derived from the H1 title, lowercase kebab-case
-- **Example**: `testing-js-ts-testing-standards.md`
+- **Example**: `testing-pytest-patterns.mdc`
+
+**Nested Rules:**
+- **Location**: `<directory>/.cursor/rules/`
+- **Pattern**: `<purpose>.mdc`
+- **Slug**: descriptive name for the rule's purpose
+- **Example**: `mcp-server-patterns.mdc`
+
+**File Extensions:**
+- **Current**: `.mdc` (Markdown with frontmatter)
+- **Legacy**: `.md` (deprecated)
 
 ## Best Practices
 

@@ -24,7 +24,9 @@ This directory contains general documentation about AI prompting techniques, bes
 
 - **[Available Prompts](available_prompts.md)** - Complete index of all available prompts with quick reference and usage patterns.
 
-- **[Cursor Rules Guide](cursor_rules_guide.md)** - Rule types, frontmatter fields, and validation for `.cursor/rules/`.
+- **[Cursor Rules Guide](cursor_rules_guide.md)** - Complete guide to Cursor IDE rules and the nested rules architecture.
+
+- **[Nested Cursor Rules](nested_cursor_rules.md)** - Comprehensive documentation for the nested rules system.
 
 - **[MCP Configuration Guide](mcp_configuration.md)** - Complete guide to configuring MCP servers for AI tools.
 
@@ -51,6 +53,8 @@ This directory contains general documentation about AI prompting techniques, bes
 - **[MCP Configuration Guide](mcp_configuration.md)** - MCP server, configuration, and integration
 
 - **[Cursor Rules Guide](cursor_rules_guide.md)** - Creating and managing Cursor IDE rules
+
+- **[Nested Cursor Rules](nested_cursor_rules.md)** - Comprehensive documentation for the nested rules system
 
 - **[Pre-commit](pre_commit.md)** - Code quality enforcement and pre-commit hooks
 
